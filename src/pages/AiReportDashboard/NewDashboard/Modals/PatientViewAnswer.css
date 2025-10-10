@@ -1,0 +1,133 @@
+/* Main container */
+.patient-questions-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif;
+  background-color: #ffffff;
+}
+
+.headerView {
+  margin-bottom: 32px;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0 0 8px 0;
+}
+
+.subtitle {
+  font-size: 16px;
+  color: #6366f1;
+  margin: 0;
+  font-weight: 400;
+}
+
+/* Questions Layout */
+.questions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.question-item {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.question-number {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.question-box {
+  background-color: #e0e7ff;
+  padding: 16px 20px;
+  border-radius: 8px;
+  font-size: 16px;
+  color: #4338ca;
+  font-weight: 500;
+  border: none;
+}
+
+/* Answer Section */
+.answer-label {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 8px 0 0 0;
+}
+
+.answer-box {
+  background-color: #f3f4f6;
+  padding: 16px 20px;
+  border-radius: 8px;
+  font-size: 16px;
+  color: #374151;
+  line-height: 1.6;
+  border: none;
+  margin-bottom: 5px;
+}
+
+/* NEW Styles for parsed response */
+.answer-box .section-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1d4ed8; /* blue for main sections */
+  margin-top: 16px;
+  margin-bottom: 8px;
+}
+
+.answer-box .section-subtitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+  margin-top: 12px;
+  margin-bottom: 6px;
+}
+
+.answer-box ul {
+  list-style: disc;
+  padding-left: 22px;
+  margin: 6px 0;
+}
+
+.answer-box li {
+  margin-bottom: 4px;
+  color: #444;
+}
+
+.answer-box .answer-text {
+  margin: 6px 0;
+  color: #555;
+  font-size: 15px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .patient-questions-container {
+    padding: 16px;
+  }
+
+  .title {
+    font-size: 24px;
+  }
+
+  .question-box,
+  .answer-box {
+    padding: 14px 16px;
+  }
+
+  .answer-box .section-title {
+    font-size: 16px;
+  }
+
+  .answer-box .section-subtitle {
+    font-size: 15px;
+  }
+}

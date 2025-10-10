@@ -1,0 +1,90 @@
+/* Background Center */
+.credits-container {
+  font-family: Arial, sans-serif;
+  background: #f8f9fa;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* height: 100vh; */
+  margin: 0;
+}
+
+/* Card */
+.credits-card {
+  width: 100%;
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px 25px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Header */
+.credits-close-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+}
+
+/* Subtext */
+.credits-subtitle {
+  color: #6c757d;
+  font-size: 14px;
+  margin-top: 5px;
+}
+
+.credits-highlight {
+  color: #0d6efd;
+  font-weight: bold;
+  text-align: center;
+  margin: 15px 0;
+}
+
+/* Labels & Inputs */
+.credits-input-box {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ced4da;
+  border-radius: 4px;
+  margin-bottom: 5px;
+}
+
+.credits-small-text {
+  font-size: 12px;
+  color: #6c757d;
+  margin-bottom: 15px;
+}
+
+/* Radio */
+.credits-radio-group {
+  margin: 5px 0;
+  font-size: 14px;
+}
+.credits-radio-group label {
+  font-size: 14px !important;
+}
+
+/* Button */
+.credits-recharge-btn {
+  width: 100%;
+  padding: 10px;
+  background: #0d6efd;
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.credits-recharge-btn:hover {
+  background: #0b5ed7;
+}
+
+/* Footer Note */
+.credits-footer-text {
+  font-size: 12px;
+  color: red;
+  text-align: center;
+  margin-top: 10px;
+}
