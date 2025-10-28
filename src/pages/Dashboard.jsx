@@ -333,45 +333,49 @@ const Dashboard = () => {
     //   return;
     // }
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("ToEmployeeID", item1),
-      form.append("ToEmployeeName", item2),
-      form.append("ToEMailID", String(item3).toLowerCase()),
-      form.append("WishesType", item4),
-      form.append(
-        "Subject",
-        `Greeting from ${useCryptoLocalStorage("user_Data", "get", "realname")}`
-      ),
-      form.append("SearchType", "WishesInsert"),
-      form.append("dtBirthday", item5),
-      form.append(
-        "Message",
-        item4 == "Birthday" ? "Happy Birthday!" : "Happy Work Anniversary!"
-      ),
-      axios
-        .post(apiUrls?.Birthday_Anniversary_Interface_Search, form, {
-          headers,
-        })
-        .then((res) => {
-          if (res?.data?.status === true) {
-            toast.success(res?.data?.message);
-            setIsClicked(true);
-            handleHeightOfBirthDaycardApi();
-            setLoading(false);
-          } else {
-            toast.error(res?.data?.message);
-            setLoading(false);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append(
+    //     "LoginName",
+    //     useCryptoLocalStorage("user_Data", "get", "realname")
+    //   ),
+    //   form.append("ToEmployeeID", item1),
+    //   form.append("ToEmployeeName", item2),
+    //   form.append("ToEMailID", String(item3).toLowerCase()),
+    //   form.append("WishesType", item4),
+    //   form.append(
+    //     "Subject",
+    //     `Greeting from ${useCryptoLocalStorage("user_Data", "get", "realname")}`
+    //   ),
+    //   form.append("SearchType", "WishesInsert"),
+    //   form.append("dtBirthday", item5),
+    //   form.append(
+    //     "Message",
+    //     item4 == "Birthday" ? "Happy Birthday!" : "Happy Work Anniversary!"
+    //   ),
+    //   axios
+    //     .post(apiUrls?.Birthday_Anniversary_Interface_Search, form, {
+    //       headers,
+    //     })
+    axiosInstances
+      .post(apiUrls.Birthday_Anniversary_Interface_Search, {
+        searchType: String("Search"),
+      })
+      .then((res) => {
+        if (res?.data?.status === true) {
+          toast.success(res?.data?.message);
+          setIsClicked(true);
+          handleHeightOfBirthDaycardApi();
           setLoading(false);
-        });
+        } else {
+          toast.error(res?.data?.message);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
   };
   const handleCircularRead = (eleid) => {
     // console.log("gata",ele)

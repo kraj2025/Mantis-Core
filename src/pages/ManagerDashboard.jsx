@@ -206,32 +206,36 @@ const ManagerDashboard = () => {
       return;
     }
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("ToEmployeeID", birthDayData[0]?.Employee_ID),
-      form.append("ToEmployeeName", birthDayData[0]?.EmpName),
-      form.append("ToEMailID", birthDayData[0]?.CompanyEmail),
-      form.append("WishesType", birthDayData[0]?.Type),
-      form.append(
-        "Subject",
-        `Greeting from ${useCryptoLocalStorage("user_Data", "get", "realname")}`
-      ),
-      form.append("SearchType", "WishesInsert"),
-      form.append("dtBirthday", birthDayData[0]?.dtWish),
-      form.append(
-        "Message",
-        birthDayData[0]?.Type == "Birthday"
-          ? "Happy Birthday!"
-          : "Happy Work Anniversary!"
-      ),
-      axios
-        .post(apiUrls?.Birthday_Anniversary_Interface_Search, form, {
-          headers,
-        })
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append(
+    //     "LoginName",
+    //     useCryptoLocalStorage("user_Data", "get", "realname")
+    //   ),
+    //   form.append("ToEmployeeID", birthDayData[0]?.Employee_ID),
+    //   form.append("ToEmployeeName", birthDayData[0]?.EmpName),
+    //   form.append("ToEMailID", birthDayData[0]?.CompanyEmail),
+    //   form.append("WishesType", birthDayData[0]?.Type),
+    //   form.append(
+    //     "Subject",
+    //     `Greeting from ${useCryptoLocalStorage("user_Data", "get", "realname")}`
+    //   ),
+    //   form.append("SearchType", "WishesInsert"),
+    //   form.append("dtBirthday", birthDayData[0]?.dtWish),
+    //   form.append(
+    //     "Message",
+    //     birthDayData[0]?.Type == "Birthday"
+    //       ? "Happy Birthday!"
+    //       : "Happy Work Anniversary!"
+    //   ),
+    //   axios
+    //     .post(apiUrls?.Birthday_Anniversary_Interface_Search, form, {
+    //       headers,
+    //     })
+     axiosInstances
+         .post(apiUrls.Birthday_Anniversary_Interface_Search, {
+           searchType: String("Search"),
+         })
         .then((res) => {
           if (res?.data?.status === true) {
             toast.success(res?.data?.message);

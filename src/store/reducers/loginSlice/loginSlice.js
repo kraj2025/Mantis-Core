@@ -1,40 +1,39 @@
-  import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-  import makeApiRequest, {
-    axiosInstances,
-  } from "../../../networkServices/axiosInstance";
-  import { apiUrls } from "../../../networkServices/apiEndpoints";
-  import { notify } from "../../../utils/utils";
-  import { setLoading } from "../loadingSlice/loadingSlice";
-  import { useCryptoLocalStorage } from "../../../utils/hooks/useCryptoLocalStorage";
-  import { setWindowClass } from "../../../utils/helpers";
-  import { useNavigate } from "react-router-dom";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import makeApiRequest, {
+  axiosInstances,
+} from "../../../networkServices/axiosInstance";
+import { notify } from "../../../utils/utils";
+import { setLoading } from "../loadingSlice/loadingSlice";
+import { useCryptoLocalStorage } from "../../../utils/hooks/useCryptoLocalStorage";
+import { setWindowClass } from "../../../utils/helpers";
+import { useNavigate } from "react-router-dom";
+import { apiUrls } from "../../../networkServices/apiEndpoints";
 
-  const initialState = {
-    user: {},
-    loading: false,
-    error: "",
-    message: "",
-    success: false,
-  };
+const initialState = {
+  user: {},
+  loading: false,
+  error: "",
+  message: "",
+  success: false,
+};
 
-
-  export const signInAction = createAsyncThunk(
-    "signIn",
-    async (data, { dispatch }) => {
-      const options = {
-        method: "POST",
-        data,
-      };
-      try {
-        dispatch(setLoading(true));
-        const res = await axiosInstances(apiUrls?.login, options);
-        dispatch(setLoading(false));
-        return res?.data
-      } catch {
-        dispatch(setLoading(false));
-      }
+export const signInAction = createAsyncThunk(
+  "signIn",
+  async (data, { dispatch }) => {
+    const options = {
+      method: "POST",
+      data,
+    };
+    try {
+      dispatch(setLoading(true));
+      const res = await axiosInstances(apiUrls?.login, options);
+      dispatch(setLoading(false));
+      return res?.data;
+    } catch {
+      dispatch(setLoading(false));
     }
-  );
+  }
+);
 
 export const authSlice = createSlice({
   name: "auth",

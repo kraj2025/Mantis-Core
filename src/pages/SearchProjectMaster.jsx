@@ -53,6 +53,8 @@ const SearchProjectMaster = () => {
   const [projectStatus, setProjectStatus] = useState([]);
   const [username, setUserName] = useState([]);
   const [poc3, setPoc3] = useState([]);
+  const [productversion, setProductVersion] = useState([]);
+
   const [listVisible, setListVisible] = useState(false);
   const [dynamicFilter, setDynamicFilter] = useState([]);
   const [columnConfig, setColumnConfig] = useState([]);
@@ -82,7 +84,7 @@ const SearchProjectMaster = () => {
     PODate: "",
     PODateBefore: new Date(),
     PODateAfter: new Date(),
-
+    ProductVersion: [],
     StartDate: "",
     StartDateBefore: new Date(),
     StartDateAfter: new Date(),
@@ -103,55 +105,21 @@ const SearchProjectMaster = () => {
     });
   };
 
-
-  console.log("tableData",tableData)
   const SaveFilter = () => {
-    // let form = new FormData();
-
-    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-    // form.append(
-    //   "CrmEmpID",
-    //   useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-    // );
-    // form.append(
-    //   "LoginName",
-    //   useCryptoLocalStorage("user_Data", "get", "realname")
-    // );
-    // form.append("PageName", "SearchProjectMaster");
-
-    // Example FilterData array
-    // const filterData = [
-    //   { header: "S.No", visible: true },
-    //   { header: "ProjectName", visible: true },
-    //   { header: "Category", visible: true },
-    //   { header: "VerticalID", visible: true },
-    //   { header: "TeamID", visible: true },
-    //   { header: "WingID", visible: true },
-    //   { header: "POC1", visible: true },
-    //   { header: "POC2", visible: true },
-    //   { header: "POC3", visible: true },
-    //   { header: "DateType", visible: true },
-    //   { header: "ProjectStatus", visible: true },
-    //   { header: "OnlyMappingClient", visible: true },
-    // ];
-
-    // Append stringified FilterData
-    // form.append("FilterData", JSON.stringify(filterData));
-
-    // axios
-    //   .post(apiUrls?.SaveFilterTableReprintData, form, { headers })
     const filterData = [
       { header: "S.No", visible: true },
-      { header: "EmployeeName", visible: true },
-      { header: "MobileNo", visible: true },
-      { header: "Email", visible: true },
-      { header: "Role", visible: true },
+      { header: "ProjectName", visible: true },
+      { header: "ProductVersion", visible: true },
       { header: "Category", visible: true },
-      { header: "ProjectID", visible: true },
       { header: "VerticalID", visible: true },
       { header: "TeamID", visible: true },
       { header: "WingID", visible: true },
-      { header: "Status", visible: true },
+      { header: "POC1", visible: true },
+      { header: "POC2", visible: true },
+      { header: "POC3", visible: true },
+      { header: "DateType", visible: true },
+      { header: "ProjectStatus", visible: true },
+      { header: "OnlyMappingClient", visible: true },
     ];
 
     const jsonString = JSON.stringify(filterData);
@@ -173,57 +141,23 @@ const SearchProjectMaster = () => {
   };
 
   const SaveTableFilter = () => {
-    // let form = new FormData();
-
-    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-    // form.append(
-    //   "CrmEmpID",
-    //   useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-    // );
-    // form.append(
-    //   "LoginName",
-    //   useCryptoLocalStorage("user_Data", "get", "realname")
-    // );
-    // form.append("PageName", "SearchProjectMasterTable");
-
-    // // Example FilterData array
-
-    // const filterData = [
-    //   { header: "S.No", visible: true },
-    //   { header: "Team", visible: true },
-    //   { header: "ProjectID", visible: true },
-    //   { header: "Project Name", visible: true },
-    //   { header: "Display Name", visible: true },
-    //   { header: "Address", visible: true },
-    //   { header: "Dates", visible: true },
-    //   { header: "Details", visible: true },
-    //   { header: "Status", visible: true },
-    //   { header: "Amc Amount", visible: true },
-    //   { header: "PO Amount", visible: true },
-    //   { header: "Advanced Amount", visible: true },
-    //   { header: "Received Amount", visible: true },
-    //   { header: "Balance Amount", visible: true },
-    //   { header: "Edit", visible: true },
-    //   { header: "Action", visible: true },
-    // ];
-    // // Append stringified FilterData
-    // form.append("FilterData", JSON.stringify(filterData));
-
-    // axios
-    //   .post(apiUrls?.SaveFilterTableReprintData, form, { headers })
-
     const filterData = [
       { header: "S.No", visible: true },
-      { header: "EmployeeName", visible: true },
-      { header: "MobileNo", visible: true },
-      { header: "Email", visible: true },
-      { header: "Role", visible: true },
-      { header: "Category", visible: true },
+      { header: "Team", visible: true },
       { header: "ProjectID", visible: true },
-      { header: "VerticalID", visible: true },
-      { header: "TeamID", visible: true },
-      { header: "WingID", visible: true },
+      { header: "Project Name", visible: true },
+      { header: "Display Name", visible: true },
+      { header: "Address", visible: true },
+      { header: "Dates", visible: true },
+      { header: "Details", visible: true },
       { header: "Status", visible: true },
+      { header: "Amc Amount", visible: true },
+      { header: "PO Amount", visible: true },
+      { header: "Advanced Amount", visible: true },
+      { header: "Received Amount", visible: true },
+      { header: "Balance Amount", visible: true },
+      { header: "Edit", visible: true },
+      { header: "Action", visible: true },
     ];
 
     const jsonString = JSON.stringify(filterData);
@@ -233,7 +167,7 @@ const SearchProjectMaster = () => {
           useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
         ),
         FilterData: String(jsonString),
-        PageName: "SearchProjectMaster",
+        PageName: "SearchProjectMasterTable",
       })
       .then((res) => {
         console.log(res.data.message);
@@ -243,28 +177,34 @@ const SearchProjectMaster = () => {
         setLoading(true);
       });
   };
-
+  const getProduct = () => {
+    axiosInstances
+      .post(apiUrls?.GetProductVersion, {
+        ID: String(useCryptoLocalStorage("user_Data", "get", "ID")),
+        LoginName: String(
+          useCryptoLocalStorage("user_Data", "get", "realname")
+        ),
+      })
+      .then((res) => {
+        const states = res?.data.data.map((item) => {
+          return { name: item?.NAME, code: item?.id };
+        });
+        setProductVersion(states);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
   const SearchAmountSubmissionFilter = () => {
-    // let form = new FormData();
-    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-    //   form.append(
-    //     "CrmEmpID",
-    //     useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-    //   ),
-    //   form.append(
-    //     "LoginName",
-    //     useCryptoLocalStorage("user_Data", "get", "realname")
-    //   ),
-    //   form.append("PageName", "SearchProjectMaster"),
-    //   axios
-    //     .post(apiUrls?.GetFilterTableReprintData, form, { headers })
     axiosInstances
       .post(apiUrls?.GetFilterTableReprintData, {
         PageName: String("SearchProjectMaster"),
-        CrmEmpID:String(useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID"))
+        CrmEmpID: String(
+          useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+        ),
       })
       .then((res) => {
-        console.log("SearchProjectMaster",res)
+        console.log("SearchProjectMaster", res);
         const data = res.data.data;
         if (res?.data.success === true) {
           setDynamicFilter(data);
@@ -277,23 +217,12 @@ const SearchProjectMaster = () => {
       });
   };
   const SearchAmountSubmissionTableFilter = () => {
-    // let form = new FormData();
-    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-    //   form.append(
-    //     "CrmEmpID",
-    //     useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-    //   ),
-    //   form.append(
-    //     "LoginName",
-    //     useCryptoLocalStorage("user_Data", "get", "realname")
-    //   ),
-    //   form.append("PageName", "SearchProjectMasterTable"),
-    //   axios
-    //     .post(apiUrls?.GetFilterTableReprintData, form, { headers })
     axiosInstances
       .post(apiUrls?.GetFilterTableReprintData, {
         PageName: String("SearchProjectMasterTable"),
-        CrmEmpID:String(useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID"))
+        CrmEmpID: String(
+          useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+        ),
       })
       .then((res) => {
         const data = res.data.data;
@@ -342,25 +271,15 @@ const SearchProjectMaster = () => {
         : { name: header.name, width: header.width }
     );
 
-  /////////////////////////////////
   useEffect(() => {
     SearchAmountSubmissionFilter();
     SearchAmountSubmissionTableFilter();
+    getProduct();
     // SaveTableFilter();
     // SaveFilter();
   }, []);
 
-  //////////////////////////////////
   const getProjectStatus = () => {
-    // let form = new FormData();
-    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-    //   form.append(
-    //     "LoginName",
-    //     useCryptoLocalStorage("user_Data", "get", "realname")
-    //   ),
-    //   form.append("Title", "ProjectStatus"),
-    //   axios
-    //     .post(apiUrls?.Reason_Select, form, { headers })
     axiosInstances
       .post(apiUrls?.Reason_Select, { Title: "ProjectStatus" })
       .then((res) => {
@@ -402,243 +321,6 @@ const SearchProjectMaster = () => {
     setFormData({ ...formData, [name]: value });
   };
   const navigate = useNavigate();
-  const handleDeliveryChangeValue = (name, value, index, ele) => {
-    tableData.map((val, ind) => {
-      if (index !== ind) {
-        val["TableStatus"] = null;
-      }
-      return val;
-    });
-
-    const data = [...tableData];
-    data[index]["TableStatus"] = value;
-    if (value === "Category") {
-      data[index]["UpdateCategoryResolve"] = true;
-      setTableData(data);
-      setVisible({
-        showCategory: true,
-        showRateCard: false,
-        showLocality: false,
-        showBillingDetails: false,
-        showEscalation: false,
-        showSPOC: false,
-        showNotification: false,
-        showModule: false,
-        showCentre: false,
-        showFinance: false,
-        showMachine: false,
-        showData: data[index],
-      });
-    } else if (value === "RateCard") {
-      data[index]["RateCardResolve"] = true;
-      setTableData(data);
-      setVisible({
-        showRateCard: true,
-        showCategory: false,
-        showLocality: false,
-        showBillingDetails: false,
-        showEscalation: false,
-        showSPOC: false,
-        showNotification: false,
-        showModule: false,
-        showCentre: false,
-        showMachine: false,
-        showFinance: false,
-        showData: data[index],
-      });
-    } else if (value === "Locality") {
-      data[index]["LocalityResolve"] = true;
-      setTableData(data);
-      setVisible({
-        showRateCard: false,
-        showCategory: false,
-        showLocality: true,
-        showBillingDetails: false,
-        showEscalation: false,
-        showNotification: false,
-        showSPOC: false,
-        showMachine: false,
-        showFinance: false,
-        showModule: false,
-        showCentre: false,
-        showData: data[index],
-      });
-    } else if (value === "BillingDetails") {
-      data[index]["BillingDetailsResolve"] = true;
-      setTableData(data);
-      setVisible({
-        showRateCard: false,
-        showCategory: false,
-        showLocality: false,
-        showBillingDetails: true,
-        showEscalation: false,
-        showSPOC: false,
-        showNotification: false,
-        showModule: false,
-        showFinance: false,
-        showMachine: false,
-        showCentre: false,
-        showData: data[index],
-      });
-    } else if (value === "Escalation") {
-      data[index]["EscalationResolve"] = true;
-      setTableData(data);
-      setVisible({
-        showRateCard: false,
-        showCategory: false,
-        showLocality: false,
-        showBillingDetails: false,
-        showEscalation: true,
-        showNotification: false,
-        showSPOC: false,
-        showModule: false,
-        showFinance: false,
-        showMachine: false,
-        showCentre: false,
-        showData: data[index],
-      });
-    } else if (value === "SPOC") {
-      data[index]["SPOCResolve"] = true;
-      setTableData(data);
-      setVisible({
-        showRateCard: false,
-        showCategory: false,
-        showLocality: false,
-        showBillingDetails: false,
-        showEscalation: false,
-        showNotification: false,
-        showSPOC: true,
-        showModule: false,
-        showMachine: false,
-        showFinance: false,
-        showCentre: false,
-        showData: data[index],
-      });
-    } else if (value === "Notification") {
-      data[index]["NotificationResolve"] = true;
-      setTableData(data);
-      setVisible({
-        showRateCard: false,
-        showCategory: false,
-        showLocality: false,
-        showBillingDetails: false,
-        showEscalation: false,
-        showNotification: true,
-        showSPOC: false,
-        showMachine: false,
-        showModule: false,
-        showFinance: false,
-        showCentre: false,
-        showData: data[index],
-      });
-    } else if (value === "Module") {
-      data[index]["ModuleResolve"] = true;
-      setTableData(data);
-      setVisible({
-        showRateCard: false,
-        showCategory: false,
-        showLocality: false,
-        showBillingDetails: false,
-        showEscalation: false,
-        showNotification: false,
-        showSPOC: false,
-        showModule: true,
-        showMachine: false,
-        showFinance: false,
-        showCentre: false,
-        showData: data[index],
-      });
-    } else if (value === "Machine") {
-      data[index]["MachineResolve"] = true;
-      setTableData(data);
-      setVisible({
-        showRateCard: false,
-        showCategory: false,
-        showLocality: false,
-        showBillingDetails: false,
-        showEscalation: false,
-        showNotification: false,
-        showSPOC: false,
-        showModule: false,
-        showMachine: true,
-        showFinance: false,
-        showCentre: false,
-        showData: data[index],
-      });
-    } else if (value === "Finance") {
-      data[index]["FinanceResolve"] = true;
-      setTableData(data);
-      setVisible({
-        showRateCard: false,
-        showCategory: false,
-        showLocality: false,
-        showBillingDetails: false,
-        showEscalation: false,
-        showNotification: false,
-        showSPOC: false,
-        showModule: false,
-        showMachine: false,
-        showFinance: true,
-        showCentre: false,
-        showData: data[index],
-      });
-    } else if (value === "Centre") {
-      data[index]["CentreResolve"] = true;
-      setTableData(data);
-      setVisible({
-        showRateCard: false,
-        showCategory: false,
-        showLocality: false,
-        showBillingDetails: false,
-        showEscalation: false,
-        showNotification: false,
-        showSPOC: false,
-        showModule: false,
-        showMachine: false,
-        showFinance: false,
-        showCentre: true,
-        showData: data[index],
-      });
-    } else if (value === "Edit") {
-      data[index]["EditResolve"] = true;
-      setTableData(data);
-      setVisible({
-        showRateCard: false,
-        showCategory: false,
-        showLocality: false,
-        showBillingDetails: false,
-        showEscalation: false,
-        showNotification: false,
-        showSPOC: false,
-        showModule: false,
-        showMachine: false,
-        showFinance: false,
-        showCentre: false,
-        showEdit: true,
-        showData: data[index],
-      });
-      navigate("/ProjectMaster", {
-        state: { showData: data[index], ele: ele?.ID, edit: true },
-      });
-    } else {
-      setTableData(data);
-      setVisible({
-        showCategory: false,
-        showRateCard: false,
-        showLocality: false,
-        showBillingDetails: false,
-        showEscalation: false,
-        showNotification: false,
-        showSPOC: false,
-        showModule: false,
-        showMachine: false,
-        showFinance: false,
-        showCentre: false,
-        showEdit: false,
-        showData: {},
-      });
-    }
-  };
 
   function getlabel(id, dropdownData) {
     const ele = dropdownData.filter((item) => item.value === id);
@@ -647,124 +329,8 @@ const SearchProjectMaster = () => {
 
   const [centretabledata, setCentretabledata] = useState([]);
 
-  console.log("formData", formData);
-  function formatDate(dateString) {
-    let date = new Date(dateString);
-    let year = date.getFullYear();
-    let month = (date.getMonth() + 1).toString().padStart(2, "0");
-    let day = date.getDate().toString().padStart(2, "0");
-    return `${year}-${month}-${day}`;
-  }
   const handleViewProject = () => {
-    // if (
-    //   formData?.ProjectName == "" &&
-    //   formData?.Category.length === 0 &&
-    //   formData?.ProjectID.length === 0 &&
-    //   formData?.VerticalID.length === 0 &&
-    //   formData?.TeamID.length === 0 &&
-    //   formData?.WingID.length === 0 &&
-    //   formData?.POC1.length === 0 &&
-    //   formData?.POC2.length === 0 &&
-    //   formData?.POC3.length === 0
-    // ) {
-    //   toast.error("Please select atleast one searching criteria.");
-    // } else {
     setLoading(true);
-    // let form = new FormData();
-    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-    //   form.append(
-    //     "RoleID",
-    //     useCryptoLocalStorage("user_Data", "get", "RoleID")
-    //   ),
-    //   form.append(
-    //     "LoginName",
-    //     useCryptoLocalStorage("user_Data", "get", "realname")
-    //   ),
-    //   form.append("ProjectName", formData?.ProjectName);
-    // form.append("ProjectID", "");
-    // form.append("VerticalID", formData?.VerticalID);
-    // form.append("TeamID", formData?.TeamID);
-    // form.append("WingID", formData?.WingID);
-    // form.append("POC1", formData?.POC1);
-    // form.append("POC2", formData?.POC2);
-    // form.append("POC3", formData?.POC3);
-    // form.append(
-    //   "OnlyMappingClient",
-    //   formData?.OnlyMappingClient == 1 ? "1" : "0"
-    // ),
-    //   form.append("DateType", formData?.DateType);
-    // form.append(
-    //   "FromDate",
-    //   moment(formData?.FromDate).isValid()
-    //     ? moment(formData?.FromDate).format("YYYY-MM-DD")
-    //     : ""
-    // );
-    // form.append(
-    //   "ToDate",
-    //   moment(formData?.ToDate).isValid()
-    //     ? moment(formData?.ToDate).format("YYYY-MM-DD")
-    //     : ""
-    // ),
-    // form.append("POStatus", formData?.PODate),
-    //   form.append(
-    //     "POFromDate",
-    //     formatDate(formData?.PODateBefore)
-    //       ? formatDate(formData?.PODateBefore)
-    //       : ""
-    //   ),
-    //   form.append(
-    //     "POToDate",
-    //     formatDate(formData?.PODateAfter)
-    //       ? formatDate(formData?.PODateAfter)
-    //       : ""
-    //   ),
-    //   form.append("StartStatus", formData?.StartDate),
-    //   form.append(
-    //     "StartFromDate",
-    //     formatDate(formData?.StartDateBefore)
-    //       ? formatDate(formData?.StartDateBefore)
-    //       : ""
-    //   ),
-    //   form.append(
-    //     "StartToDate",
-    //     formatDate(formData?.StartDateAfter)
-    //       ? formatDate(formData?.StartDateAfter)
-    //       : ""
-    //   ),
-    //   form.append("LiveStatus", formData?.LiveDate),
-    //   form.append(
-    //     "LiveFromDate",
-    //     formatDate(formData?.LiveDateBefore)
-    //       ? formatDate(formData?.LiveDateBefore)
-    //       : ""
-    //   ),
-    //   form.append(
-    //     "LiveToDate",
-    //     formatDate(formData?.LiveDateAfter)
-    //       ? formatDate(formData?.LiveDateAfter)
-    //       : ""
-    //   ),
-
-    //   form.append("TransferStatus", formData?.TransferDate),
-    // form.append(
-    //   "TransferFromDate",
-    //   formatDate(formData?.TransferDateBefore)
-    //     ? formatDate(formData?.TransferDateBefore)
-    //     : ""
-    // ),
-    // form.append(
-    //   "TransferToDate",
-    //   formatDate(formData?.TransferDateAfter)
-    //     ? formatDate(formData?.TransferDateAfter)
-    //     : ""
-    // ),
-
-    // form.append(
-    //   "Status",
-    //   getlabel(formData?.ProjectStatus, projectStatus) || ""
-    // );
-    // axios
-    //   .post(apiUrls?.ViewProject, form, { headers })
     axiosInstances
       .post(apiUrls?.ViewProject, {
         RoleID:
@@ -777,8 +343,10 @@ const SearchProjectMaster = () => {
         POC1: String(formData?.POC1) || "0",
         POC2: String(formData?.POC2) || "0",
         POC3: String(formData?.POC3) || "0",
-        CategoryID: formData?.CategoryID || "",
+        CategoryID: formData?.Category || "",
+        ProductVersion: formData?.ProductVersion || "",
         DateType: formData?.DateType || "",
+        OnlyMappingClient: formData?.OnlyMappingClient == 1 ? "1" : "0",
         FromDate: moment(formData?.FromDate).isValid()
           ? moment(formData?.FromDate).format("YYYY-MM-DD")
           : "",
@@ -793,7 +361,6 @@ const SearchProjectMaster = () => {
         if (res?.data?.success === true) {
           const data = res?.data?.data;
 
-          
           // console.log("centre check",res?.data?.ClientCentreList)
           const updatedData = data?.map((ele, index) => {
             return {
@@ -850,59 +417,23 @@ const SearchProjectMaster = () => {
               EditValue: "",
             };
           });
-  
+
           setTableData(updatedData);
           setFilteredData(updatedData);
           setLoading(false);
         } else {
           toast.error(res?.data?.message);
+          setLoading(false);
         }
       })
       .catch((err) => {
         console.log(err);
+        setLoading(false);
       });
     // }
   };
 
   const handleViewProjectExcel = () => {
-    // let form = new FormData();
-    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-    //   form.append(
-    //     "RoleID",
-    //     useCryptoLocalStorage("user_Data", "get", "RoleID")
-    //   ),
-    //   form.append(
-    //     "LoginName",
-    //     useCryptoLocalStorage("user_Data", "get", "realname")
-    //   ),
-    //   form.append("ProjectName", formData?.ProjectName);
-    // form.append("ProjectID", "");
-    // form.append("IsExcel", "1");
-    // form.append("VerticalID", formData?.VerticalID);
-    // form.append("TeamID", formData?.TeamID);
-    // form.append("WingID", formData?.WingID);
-    // form.append("POC1", formData?.POC1);
-    // form.append("POC2", formData?.POC2);
-    // form.append("POC3", formData?.POC3);
-    // form.append("DateType", formData?.DateType);
-    // form.append(
-    //   "FromDate",
-    //   moment(formData?.FromDate).isValid()
-    //     ? moment(formData?.FromDate).format("YYYY-MM-DD")
-    //     : ""
-    // );
-    // form.append(
-    //   "ToDate",
-    //   moment(formData?.ToDate).isValid()
-    //     ? moment(formData?.ToDate).format("YYYY-MM-DD")
-    //     : ""
-    // ),
-    //   form.append(
-    //     "Status",
-    //     getlabel(formData?.ProjectStatus, projectStatus) || ""
-    //   );
-    // axios
-    //   .post(apiUrls?.ViewProject, form, { headers })
     axiosInstances
       .post(apiUrls?.ViewProject, {
         RoleID:
@@ -915,7 +446,8 @@ const SearchProjectMaster = () => {
         POC1: String(formData?.POC1) || "0",
         POC2: String(formData?.POC2) || "0",
         POC3: String(formData?.POC3) || "0",
-        CategoryID: formData?.CategoryID || "",
+        CategoryID: formData?.Category || "",
+        ProductVersion: formData?.ProductVersion || "",
         DateType: formData?.DateType || "",
         FromDate: moment(formData?.FromDate).isValid()
           ? moment(formData?.FromDate).format("YYYY-MM-DD")
@@ -1034,7 +566,8 @@ const SearchProjectMaster = () => {
         POC1: String(formData?.POC1) || "0",
         POC2: String(formData?.POC2) || "0",
         POC3: String(formData?.POC3) || "0",
-        CategoryID: formData?.CategoryID || "",
+        CategoryID: formData?.Category || "",
+        ProductVersion: formData?.ProductVersion || "",
         DateType: formData?.DateType || "",
         FromDate: moment(formData?.FromDate).isValid()
           ? moment(formData?.FromDate).format("YYYY-MM-DD")
@@ -1122,14 +655,6 @@ const SearchProjectMaster = () => {
     }
   };
   const getProject = () => {
-    // let form = new FormData();
-    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-    //   form.append(
-    //     "LoginName",
-    //     useCryptoLocalStorage("user_Data", "get", "realname")
-    //   ),
-    //   axios
-    //     .post(apiUrls?.ProjectSelect, form, { headers })
     axiosInstances
       .post(apiUrls?.ProjectSelect, {})
       .then((res) => {
@@ -1172,10 +697,6 @@ const SearchProjectMaster = () => {
         });
   };
   const getUserName = () => {
-    // let form = new FormData();
-    // form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
-    //   axios
-    //     .post(apiUrls?.GetUserName, form, { headers })
     axiosInstances
       .post(apiUrls?.GetUserName, { Username: "" })
       .then((res) => {
@@ -1268,15 +789,7 @@ const SearchProjectMaster = () => {
         });
   };
 
-  const getCategory = (proj) => {
-    // let form = new FormData();
-    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-    //   form.append(
-    //     "LoginName",
-    //     useCryptoLocalStorage("user_Data", "get", "realname")
-    //   ),
-    //   axios
-    //     .post(apiUrls?.Category_Select, form, { headers })
+  const getCategory = () => {
     axiosInstances
       .post(apiUrls?.Category_Select, {})
       .then((res) => {
@@ -1467,174 +980,7 @@ const SearchProjectMaster = () => {
           setTableData={setTableData}
         />
       </Modal>
-      {/* {visible?.showRateCard && (
-        <Modal
-          modalWidth={"700px"}
-          visible={visible?.showRateCard}
-          setVisible={setVisible}
-          tableData={visible?.showData}
-          Header="Update Project RateCard"
-        >
-          <ProjectRateCardModal
-            visible={visible?.showRateCard}
-            setVisible={setVisible}
-            tableData={visible?.showData}
-          />
-        </Modal>
-      )} */}
-      {/* {visible?.showLocality && (
-        <Modal
-          modalWidth={"700px"}
-          visible={visible?.showLocality}
-          setVisible={setVisible}
-          tableData={visible?.showData}
-          Header={"Update Locality"}
-        >
-          <LocalityUpdateTab
-            visible={visible?.showLocality}
-            setVisible={setVisible}
-            tableData={visible?.showData}
-          />
-        </Modal>
-      )} */}
-      {/* {visible?.showBillingDetails && (
-        <Modal
-          modalWidth={"700px"}
-          visible={visible?.showBillingDetails}
-          setVisible={setVisible}
-          tableData={visible?.showData}
-          Header={"Update Billing Details "}
-        >
-          <BillingDetailModal
-            visible={visible?.showBillingDetails}
-            setVisible={setVisible}
-            tableData={visible?.showData}
-          />
-        </Modal>
-      )} */}
 
-      {/* {visible?.showEscalation && (
-        <Modal
-          modalWidth={"700px"}
-          visible={visible?.showEscalation}
-          setVisible={setVisible}
-          tableData={visible?.showData}
-          Header={"Escalation Matrix Details "}
-        >
-          <EscalationModal
-            visible={visible?.showEscalation}
-            setVisible={setVisible}
-            tableData={visible?.showData}
-          />
-        </Modal>
-      )} */}
-      {/* {visible?.showSPOC && (
-        <Modal
-          modalWidth={"700px"}
-          visible={visible?.showSPOC}
-          setVisible={setVisible}
-          tableData={visible?.showData}
-          Header={"Update SPOC Details "}
-        >
-          <SpocUpdateModal
-            visible={visible?.showSPOC}
-            setVisible={setVisible}
-            tableData={visible?.showData}
-          />
-        </Modal>
-      )} */}
-      {/* {visible?.showNotification && (
-        <Modal
-          modalWidth={"700px"}
-          visible={visible?.showNotification}
-          setVisible={setVisible}
-          tableData={visible?.showData}
-          Header={"Notification Details "}
-        >
-          <NotificationTabModal
-            visible={visible?.showNotification}
-            setVisible={setVisible}
-            tableData={visible?.showData}
-          />
-        </Modal>
-      )} */}
-      {/* {visible?.showModule && (
-        <Modal
-          modalWidth={"700px"}
-          visible={visible?.showModule}
-          setVisible={setVisible}
-          tableData={visible?.showData}
-          Header={"Module Details "}
-        >
-          <ModuleTabModal
-            visible={visible?.showModule}
-            setVisible={setVisible}
-            tableData={visible?.showData}
-          />
-        </Modal>
-      )} */}
-      {/* {visible?.showMachine && (
-        <Modal
-          modalWidth={"700px"}
-          visible={visible?.showMachine}
-          setVisible={setVisible}
-          tableData={visible?.showData}
-          Header={"Machine Details "}
-        >
-          <MachineModuleModal
-            visible={visible?.showMachine}
-            setVisible={setVisible}
-            tableData={visible?.showData}
-          />
-        </Modal>
-      )} */}
-      {/* {visible?.showFinance && (
-        <Modal
-          modalWidth={"700px"}
-          visible={visible?.showFinance}
-          setVisible={setVisible}
-          tableData={visible?.showData}
-          Header={"Finance Details "}
-        >
-          <FinanceModalTab
-            visible={visible?.showFinance}
-            setVisible={setVisible}
-            tableData={visible?.showData}
-          />
-        </Modal>
-      )} */}
-      {/* {visible?.showCentre && (
-        <Modal
-          modalWidth={"700px"}
-          visible={visible?.showCentre}
-          setVisible={setVisible}
-          tableData={visible?.showData}
-          mydata={centretabledata}
-          Header={"Centre Details "}
-        >
-          <CentreModuleModal
-            visible={visible?.showCentre}
-            setVisible={setVisible}
-            tableData={visible?.showData}
-            mydata={centretabledata}
-          />
-        </Modal>
-      )} */}
-      {/* {visible?.showCategory && (
-        <Modal
-          modalWidth={"700px"}
-          visible={visible?.showCategory}
-          setVisible={setVisible}
-          tableData={visible?.showData}
-          Header="New Category"
-        >
-          <ProjectMasterProjectModal
-            visible={visible?.showCategory}
-            setVisible={setVisible}
-            tableData={visible?.showData}
-          />
-        </Modal>
-      )} */}
       <div className="card border">
         <Heading
           title={
@@ -1677,6 +1023,19 @@ const SearchProjectMaster = () => {
               onChange={handleSelectChange}
               value={formData?.ProjectName}
               respclass="col-xl-2 col-md-4 col-sm-4 col-12"
+            />
+          )}
+          {isVisible("ProductVersion") && (
+            <MultiSelectComp
+              respclass="col-xl-2 col-md-4 col-sm-6 col-12"
+              name="ProductVersion"
+              placeholderName="Product Version"
+              dynamicOptions={productversion}
+              handleChange={handleMultiSelectChange}
+              value={formData.ProductVersion?.map((code) => ({
+                code,
+                name: productversion.find((item) => item.code === code)?.name,
+              }))}
             />
           )}
           {isVisible("Category") && (
@@ -1772,234 +1131,6 @@ const SearchProjectMaster = () => {
               }))}
             />
           )}
-          {/* <div className="col-xl-2 col-md-4 col-sm-4 col-12">
-            <div>
-              <ReactSelect
-                placeholderName={t("PO Date")}
-                id={"PODate"}
-                dynamicOptions={[
-                  { label: "Any", value: "0" },
-                  { label: "Between", value: "2" },
-                  { label: "Before", value: "4" },
-                  { label: "After", value: "6" },
-                  { label: "OnOrBefore", value: "3" },
-                  { label: "On", value: "5" },
-                  { label: "OnOrAfter", value: "7" },
-                  { label: "WithoutDeliveryDate", value: "9" },
-                ]}
-                searchable={true}
-                lable="PO Date"
-                name="PODate"
-                value={formData?.PODate}
-                className={"PODate"}
-                handleChange={handleDeliveryChange}
-              />
-            </div>
-            {formData.PODate == "2" && (
-              <>
-                <DatePicker
-                  className="custom-calendar"
-                  id="PODateBefore"
-                  name="PODateBefore"
-                  placeholder={VITE_DATE_FORMAT}
-                  value={formData?.PODateBefore}
-                  handleChange={searchHandleChange}
-                />
-                <DatePicker
-                  className="custom-calendar"
-                  id="PODateAfter"
-                  name="PODateAfter"
-                  placeholder={VITE_DATE_FORMAT}
-                  value={formData?.PODateAfter}
-                  handleChange={searchHandleChange}
-                />
-              </>
-            )}
-            {["3", "4", "5", "6", "7"].includes(formData.PODate) ? (
-              <DatePicker
-                className="custom-calendar"
-                id="PODateBefore"
-                name="PODateBefore"
-                placeholder={VITE_DATE_FORMAT}
-                value={new Date(formData?.PODateBefore)}
-                handleChange={searchHandleChange}
-              />
-            ) : (
-              ""
-            )}
-          </div>
-
-          <div className="col-xl-2 col-md-4 col-sm-4 col-12">
-            <div>
-              <ReactSelect
-                placeholderName={t("Start Date")}
-                id={"StartDate"}
-                dynamicOptions={[
-                  { label: "Any", value: "0" },
-                  { label: "Between", value: "2" },
-                  { label: "Before", value: "4" },
-                  { label: "After", value: "6" },
-                  { label: "OnOrBefore", value: "3" },
-                  { label: "On", value: "5" },
-                  { label: "OnOrAfter", value: "7" },
-                  { label: "WithoutDeliveryDate", value: "9" },
-                ]}
-                searchable={true}
-                lable="Start Date"
-                name="StartDate"
-                value={formData?.StartDate}
-                className={"StartDate"}
-                handleChange={handleDeliveryChange}
-              />
-            </div>
-            {formData.StartDate == "2" && (
-              <>
-                <DatePicker
-                  className="custom-calendar"
-                  id="StartDateBefore"
-                  name="StartDateBefore"
-                  placeholder={VITE_DATE_FORMAT}
-                  value={formData?.StartDateBefore}
-                  handleChange={searchHandleChange}
-                />
-                <DatePicker
-                  className="custom-calendar"
-                  id="StartDateAfter"
-                  name="StartDateAfter"
-                  placeholder={VITE_DATE_FORMAT}
-                  value={formData?.StartDateAfter}
-                  handleChange={searchHandleChange}
-                />
-              </>
-            )}
-            {["3", "4", "5", "6", "7"].includes(formData.StartDate) ? (
-              <DatePicker
-                className="custom-calendar"
-                id="StartDateBefore"
-                name="StartDateBefore"
-                placeholder={VITE_DATE_FORMAT}
-                value={new Date(formData?.StartDateBefore)}
-                handleChange={searchHandleChange}
-              />
-            ) : (
-              ""
-            )}
-          </div>
-
-          <div className="col-xl-2 col-md-4 col-sm-4 col-12">
-            <div>
-              <ReactSelect
-                placeholderName={t("Live Date")}
-                id={"LiveDate"}
-                dynamicOptions={[
-                  { label: "Any", value: "0" },
-                  { label: "Between", value: "2" },
-                  { label: "Before", value: "4" },
-                  { label: "After", value: "6" },
-                  { label: "OnOrBefore", value: "3" },
-                  { label: "On", value: "5" },
-                  { label: "OnOrAfter", value: "7" },
-                  { label: "WithoutDeliveryDate", value: "9" },
-                ]}
-                searchable={true}
-                lable="Live Date"
-                name="LiveDate"
-                value={formData?.LiveDate}
-                className={"LiveDate"}
-                handleChange={handleDeliveryChange}
-              />
-            </div>
-            {formData.LiveDate == "2" && (
-              <>
-                <DatePicker
-                  className="custom-calendar"
-                  id="LiveDateBefore"
-                  name="LiveDateBefore"
-                  placeholder={VITE_DATE_FORMAT}
-                  value={formData?.LiveDateBefore}
-                  handleChange={searchHandleChange}
-                />
-                <DatePicker
-                  className="custom-calendar"
-                  id="LiveDateAfter"
-                  name="LiveDateAfter"
-                  placeholder={VITE_DATE_FORMAT}
-                  value={formData?.LiveDateAfter}
-                  handleChange={searchHandleChange}
-                />
-              </>
-            )}
-            {["3", "4", "5", "6", "7"].includes(formData.LiveDate) ? (
-              <DatePicker
-                className="custom-calendar"
-                id="LiveDateBefore"
-                name="LiveDateBefore"
-                placeholder={VITE_DATE_FORMAT}
-                value={new Date(formData?.LiveDateBefore)}
-                handleChange={searchHandleChange}
-              />
-            ) : (
-              ""
-            )}
-          </div>
-
-          <div className="col-xl-2 col-md-4 col-sm-4 col-12">
-            <div>
-              <ReactSelect
-                placeholderName={t("Transfer Date")}
-                id={"TransferDate"}
-                dynamicOptions={[
-                  { label: "Any", value: "0" },
-                  { label: "Between", value: "2" },
-                  { label: "Before", value: "4" },
-                  { label: "After", value: "6" },
-                  { label: "OnOrBefore", value: "3" },
-                  { label: "On", value: "5" },
-                  { label: "OnOrAfter", value: "7" },
-                  { label: "WithoutDeliveryDate", value: "9" },
-                ]}
-                searchable={true}
-                lable="Transfer Date"
-                name="TransferDate"
-                value={formData?.TransferDate}
-                className={"TransferDate"}
-                handleChange={handleDeliveryChange}
-              />
-            </div>
-            {formData.TransferDate == "2" && (
-              <>
-                <DatePicker
-                  className="custom-calendar"
-                  id="TransferDateBefore"
-                  name="TransferDateBefore"
-                  placeholder={VITE_DATE_FORMAT}
-                  value={formData?.TransferDateBefore}
-                  handleChange={searchHandleChange}
-                />
-                <DatePicker
-                  className="custom-calendar"
-                  id="TransferDateAfter"
-                  name="TransferDateAfter"
-                  placeholder={VITE_DATE_FORMAT}
-                  value={formData?.TransferDateAfter}
-                  handleChange={searchHandleChange}
-                />
-              </>
-            )}
-            {["3", "4", "5", "6", "7"].includes(formData.TransferDate) ? (
-              <DatePicker
-                className="custom-calendar"
-                id="TransferDateBefore"
-                name="TransferDateBefore"
-                placeholder={VITE_DATE_FORMAT}
-                value={new Date(formData?.TransferDateBefore)}
-                handleChange={searchHandleChange}
-              />
-            ) : (
-              ""
-            )}
-          </div> */}
-
           {isVisible("DateType") && (
             <ReactSelect
               name="DateType"
@@ -2054,18 +1185,6 @@ const SearchProjectMaster = () => {
               value={formData.ProjectStatus}
             />
           )}
-          {/* <ReactSelect
-            name="Status"
-            respclass="col-xl-2 col-md-4 col-sm-6 col-12"
-            placeholderName="Status"
-            dynamicOptions={[
-              { label: "Active", value: "1" },
-              { label: "In-Active", value: "0" },
-              { label: "Both", value: "2" },
-            ]}
-            value={formData?.Status}
-            handleChange={handleDeliveryChange}
-          /> */}
           <div className="search-col" style={{ marginLeft: "8px" }}>
             <div style={{ display: "flex", alignItems: "center" }}>
               <label className="switch" style={{ marginTop: "7px" }}>

@@ -90,54 +90,9 @@ const LoginComponent = () => {
           client: "b2b",
         })
       );
-      // debugger
       const responseData = loginRes?.payload?.data;
 
-      // const token =
-      //   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImRldmVuZHJhLnNpbmdoQGl0ZG9zZWluZm8uY29tIiwidW5pcXVlX25hbWUiOiJhZG1pbiIsIm5hbWVpZCI6IkVNUDAwMSIsIkdsb2JhbElkIjoiY2NhZDUyNjA4YjhhY2I4NzYxYzFiMDY4ZjlhNTMwMDciLCJJRCI6IkVNUDAwMSIsIlVzZXJWYWxpZGF0ZUlEIjoiWVMrNXBnTFU5WWlVQVEySTVXaGNmQT09IiwiTG9naW5OYW1lIjoiTXIuIEFkbWluaXN0cmF0b3IiLCJSb2xlSUQiOiIxMTgiLCJDZW50cmVJRCI6IjEiLCJCb29raW5nQ2VudHJlSUQiOiIxIiwiQ2VudHJlTmFtZSI6IklURE9TRSBJTkZPU1lTVEVNUyBQVlQuIExURC4iLCJFbXBsb3llZU5hbWUiOiJNci4gQWRtaW5pc3RyYXRvciIsIklzU3RvcmUiOiIxIiwiTG9naW5UeXBlIjoiQkxPT0RCQU5LIiwiVXNlck5hbWUiOiJhZG1pbiIsIk93bmVyc2hpcCI6IlByaXZhdGUiLCJFbXBMYW5ndWFnZSI6IkVuZ2xpc2giLCJFbXBMYW5ndWFnZUNvZGUiOiJlbiIsIk9yZ2FuaXphdGlvbklEIjoiMSIsIk9yZ2FuaXphdGlvbk5hbWUiOiJJVERPU0UgSU5GT1NZU1RFTVMgR1JPVVAiLCJPcmdhbml6YXRpb25DdXJyZW5jeSI6IklOUiIsIkNlbnRyZUN1cnJlbmN5IjoiSU5SIiwibmJmIjoxNzU2Mjc0OTk1LCJleHAiOjE3NTYzMTgxOTUsImlhdCI6MTc1NjI3NDk5NSwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo3MDAwIiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDo3MDAwIn0.yqKRJCMolcP7EwCI6RUqlpv2Sf40mGs8-BYnoXiWUI0"; // Replace with your JWT
-      // const decodedToken = decodeJWT(token);
-      // console.log("decodedTokendecodedToken",decodedToken);
-
       if (loginRes?.payload?.success) {
-        // const userDetails = {
-        //   token: responseData?.token,
-        //   ID: responseData.User?.id,
-        //   AllowQuotaionCreate: responseData.User?.allowQuotaionCreate,
-        //   AllowQuotationUpdate: responseData.User?.allowQuotationUpdate,
-        //   AllowQuotationApproved: responseData.User?.allowQuotationApproved,
-        //   AllowQuotationReject: responseData.User?.allowQuotationReject,
-        //   AllowSalesBooking: responseData.User?.allowSalesBooking,
-        //   AllowSalesUpdate: responseData.User?.allowSalesUpdate,
-        //   AllowSalesReject: responseData.User?.allowSalesReject,
-        //   AllowPICreate: responseData.User?.allowPICreate,
-        //   AllowDeleteTicket: responseData.User?.allowDeleteTicket,
-        //   AllowTicketAssignTo: responseData.User?.allowTicketAssignTo,
-        //   username: responseData.User?.username,
-        //   realname: responseData.User?.realname,
-        //   IsFeedbackShow: responseData.User?.isFeedbackShow,
-        //   MobileNo: responseData.User?.mobileno,
-        //   EmailId: responseData.User?.email,
-        //   AllowLockUnLock: responseData.User?.allowLockUnLock,
-        //   ProfileImage: responseData.User?.profileImage,
-        //   AllowAmountSubmissionCancel:
-        //     responseData.User?.allowAmountSubmissionCancel,
-        //   AllowManHourEdit: responseData.User?.allowManHourEdit,
-        //   AllowExpenseApprove: responseData.User?.allowExpenseApprove,
-        //   AllowAddModule: responseData.User?.allowAddModule,
-        //   AllowAddPages: responseData.User?.allowAddPages,
-        //   AllowDeliveryDateEdit: responseData.User?.allowDeliveryDateEdit,
-        //   RoleID: responseData.roles[0]?.roleID,
-        //   CrmEmployeeID: responseData.User?.crmEmployeeID,
-        //   ShowClientDeliveryDate: responseData.User?.showClientDeliveryDate,
-        //   ShowClientManHour: responseData.User?.showClientManHour,
-        //   IsReportingManager: responseData.User?.isReportingManager,
-        //   IsAccountant: responseData.User?.isAccountant,
-        //   IsCEO: responseData.User?.isCEO,
-        //   IsLogin: true,
-        //   Role: responseData.Roles,
-        //   themeColor: responseData.User?.themeColor || "default_theme",
-        // };
-
         const userDetails = {
           token: responseData?.token,
           ID: responseData.User?.ID,
@@ -180,11 +135,11 @@ const LoginComponent = () => {
         useCryptoLocalStorage("user_Data", "set", null, userDetails);
 
         setWindowClass(
-          // `hold-transition login-page ${responseData.User?.ThemeColor || "default_theme"}`
           `hold-transition login-page ${useCryptoLocalStorage("user_Data", "get", "theme")}`
         );
         // speakMessage(`Welcome ${responseData.User?.realname}`);
         // useCryptoLocalStorage("user_Data", "get", "RoleID") == 7
+
         "roleID" == 7 ? navigate("/ClientDashboard") : navigate("/dashboard");
       } else {
         toast.error(loginRes?.payload?.message);
