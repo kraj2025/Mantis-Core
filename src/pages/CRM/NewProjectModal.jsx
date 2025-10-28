@@ -216,6 +216,7 @@ const NewProjectModal = ({ setVisible }) => {
       )
     );
 
+    
     if (filtered.length === 0) {
       setSearchQuery("");
       setTableData(filteredData);
