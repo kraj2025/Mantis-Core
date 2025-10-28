@@ -222,7 +222,6 @@ const NewProjectModal = ({ setVisible }) => {
     } else {
       setTableData(filtered);
     }
-
     setCurrentPage(1);
   };
   useEffect(() => {
