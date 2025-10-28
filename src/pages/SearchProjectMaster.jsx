@@ -292,6 +292,7 @@ const SearchProjectMaster = () => {
         console.log(err);
       });
   };
+  
   function capitalizeFirstLetter(sentence) {
     if (!sentence) return "";
     return sentence
