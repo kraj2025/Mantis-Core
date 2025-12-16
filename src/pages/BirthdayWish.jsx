@@ -13,6 +13,7 @@ import { headers } from "../utils/apitools";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
 import "./MorningWish.css";
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { axiosInstances } from "../networkServices/axiosInstance";
 
 const BirthdayWish = () => {
   const fileInputRef = useRef(null);
@@ -167,47 +168,40 @@ const BirthdayWish = () => {
     // }
 
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("Day", formData?.SelectDate),
-      form.append(
-        "Content",
-        formData.Description ? removeHtmlTags(formData.Description) : ""
-      ),
-      form.append("Image_Base64", formData?.Document_Base64),
-      form.append("FileFormat_Base64", formData?.FileExtension),
-      axios
-        .post(apiUrls?.MorningWishSave, form, {
-          headers,
-        })
-        .then((res) => {
-          if (res?.data?.status === true) {
-            toast.success(res?.data?.message);
-            setLoading(false);
-            setFormData({
-              ...formData,
-              SelectDate: "",
-              Description: "",
-              DocumentType: "",
-              SelectFile: "",
-              Document_Base64: "",
-              FileExtension: "",
-              WishID: "",
-            });
-            setRowHandler({});
-            navigate("/MorningWishSearch");
-          } else {
-            toast.error(res?.data?.message);
-            setLoading(false);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+
+    axiosInstances
+      .post(apiUrls.MorningWishSave, {
+        Day: String(formData?.SelectDate),
+        Content: String(
+          formData.Description ? removeHtmlTags(formData.Description) : ""
+        ),
+        Image_Base64: String(formData?.Document_Base64),
+        FileFormat_Base64: String(formData?.FileExtension),
+      })
+      .then((res) => {
+        if (res?.data?.success === true) {
+          toast.success(res?.data?.message);
+          setLoading(false);
+          setFormData({
+            ...formData,
+            SelectDate: "",
+            Description: "",
+            DocumentType: "",
+            SelectFile: "",
+            Document_Base64: "",
+            FileExtension: "",
+            WishID: "",
+          });
+          setRowHandler({});
+          navigate("/MorningWishSearch");
+        } else {
+          toast.error(res?.data?.message);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const handleUpdate = () => {
     if (formData?.SelectDate == "") {
@@ -225,80 +219,66 @@ const BirthdayWish = () => {
     //   return;
     // }
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("Day", formData?.SelectDate),
-      form.append(
-        "Content",
-        formData.Description ? removeHtmlTags(formData.Description) : ""
-      ),
-      form.append("Image_Base64", formData?.Document_Base64),
-      form.append("FileFormat_Base64", formData?.FileExtension),
-      form.append("WishID", formData?.WishID),
-      axios
-        .post(apiUrls?.UpdateMorningWish, form, {
-          headers,
-        })
-        .then((res) => {
-          if (res?.data?.status === true) {
-            toast.success(res?.data?.message);
-            setLoading(false);
-            setFormData({
-              ...formData,
-              SelectDate: "",
-              Description: "",
-              DocumentType: "",
-              SelectFile: "",
-              Document_Base64: "",
-              FileExtension: "",
-              WishID: "",
-            });
-            setRowHandler({});
-            navigate("/MorningWishSearch");
-          } else {
-            toast.error(res?.data?.message);
-            setLoading(false);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-  };
 
-  const EditMorningWish = (id) => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("WishID", id),
-      axios
-        .post(apiUrls?.EditMorningWish, form, {
-          headers,
-        })
-        .then((res) => {
-          const datas = res?.data?.data[0];
-
+    axiosInstances
+      .post(apiUrls.UpdateMorningWish, {
+        Day: String(formData?.SelectDate),
+        Content: String(
+          formData.Description ? removeHtmlTags(formData.Description) : ""
+        ),
+        Image_Base64: String(formData?.Document_Base64),
+        FileFormat_Base64: String(formData?.FileExtension),
+        WishID: String(formData?.WishID),
+      })
+      .then((res) => {
+        if (res?.data?.success === true) {
+          toast.success(res?.data?.message);
+          setLoading(false);
           setFormData({
             ...formData,
-            SelectDate: datas?.Day,
-            Description: datas?.Content,
+            SelectDate: "",
+            Description: "",
             DocumentType: "",
             SelectFile: "",
             Document_Base64: "",
             FileExtension: "",
-            WishID: datas?.ID,
+            WishID: "",
           });
-          setEditMode(true);
-        })
-        .catch((err) => {
-          console.log(err);
+          setRowHandler({});
+          navigate("/MorningWishSearch");
+        } else {
+          toast.error(res?.data?.message);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
+  const EditMorningWish = (id) => {
+    axiosInstances
+      .post(apiUrls.EditMorningWish, {
+        WishID: String(id),
+      })
+      .then((res) => {
+        const datas = res?.data?.data[0];
+
+        setFormData({
+          ...formData,
+          SelectDate: datas?.Day,
+          Description: datas?.Content,
+          DocumentType: "",
+          SelectFile: "",
+          Document_Base64: "",
+          FileExtension: "",
+          WishID: datas?.ID,
         });
+        setEditMode(true);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   useEffect(() => {

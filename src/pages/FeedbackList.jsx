@@ -23,13 +23,11 @@ import FeedbackGmailModal from "./FeedbackGmailModal";
 import { Rating } from "react-simple-star-rating";
 import FeedbackGmailDetail from "./FeedbackGmailDetail";
 import Tooltip from "./Tooltip";
-import {
-  FaStar,
-  FaRegStar
-} from "react-icons/fa";
+import { FaStar, FaRegStar } from "react-icons/fa";
 import ReactSelect from "../components/formComponent/ReactSelect";
 
 import html2canvas from "html2canvas";
+import { axiosInstances } from "../networkServices/axiosInstance";
 
 const currentDate = new Date();
 const currentMonth = currentDate.getMonth() + 1; // Months are 0-indexed, so add 1
@@ -70,10 +68,10 @@ const FeedbackList = () => {
   });
 
   ////////////////////////////
-    const componentRef = useRef();
+  const componentRef = useRef();
 
   const handleFullPageScreenshot = () => {
-   // Capture the whole page including header, footer, and scrollable content
+    // Capture the whole page including header, footer, and scrollable content
     html2canvas(document.body, {
       useCORS: true,
       scale: 2, // for better quality
@@ -89,7 +87,7 @@ const FeedbackList = () => {
       link.click();
     });
   };
-  ////////////////////////////
+
   const handleDeliveryChange = (name, e) => {
     const { value } = e;
     setFormData({
@@ -98,116 +96,111 @@ const FeedbackList = () => {
     });
   };
   const getVertical = () => {
-    let form = new FormData();
-    form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Vertical_Select, form, { headers })
-        .then((res) => {
-          const verticals = res?.data.data.map((item) => {
-            return { name: item?.Vertical, code: item?.VerticalID };
-          });
-          setVertical(verticals);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.Vertical_Select, {})
+
+      .then((res) => {
+        const verticals = res?.data.data.map((item) => {
+          return { name: item?.Vertical, code: item?.VerticalID };
         });
+        setVertical(verticals);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getTeam = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Team_Select, form, { headers })
-        .then((res) => {
-          const teams = res?.data.data.map((item) => {
-            return { name: item?.Team, code: item?.TeamID };
-          });
-          setTeam(teams);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.Team_Select, {})
+
+      .then((res) => {
+        const teams = res?.data.data.map((item) => {
+          return { name: item?.Team, code: item?.TeamID };
         });
+        setTeam(teams);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getWing = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Wing_Select, form, { headers })
-        .then((res) => {
-          const wings = res?.data.data.map((item) => {
-            return { name: item?.Wing, code: item?.WingID };
-          });
-          setWing(wings);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.Wing_Select, {})
+
+      .then((res) => {
+        const wings = res?.data.data.map((item) => {
+          return { name: item?.Wing, code: item?.WingID };
         });
+        setWing(wings);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getPOC1 = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.POC_1_Select, form, { headers })
-        .then((res) => {
-          const poc1s = res?.data.data.map((item) => {
-            return { name: item?.POC_1_Name, code: item?.POC_1_ID };
-          });
-          setPoc1(poc1s);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.POC_1_Select, {})
+
+      .then((res) => {
+        const poc1s = res?.data.data.map((item) => {
+          return { name: item?.POC_1_Name, code: item?.POC_1_ID };
         });
+        setPoc1(poc1s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getPOC2 = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.POC_2_Select, form, { headers })
-        .then((res) => {
-          const poc2s = res?.data.data.map((item) => {
-            return { name: item?.POC_2_Name, code: item?.POC_2_ID };
-          });
-          setPoc2(poc2s);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.POC_2_Select, {})
+
+      .then((res) => {
+        const poc2s = res?.data.data.map((item) => {
+          return { name: item?.POC_2_Name, code: item?.POC_2_ID };
         });
+        setPoc2(poc2s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const shortenName = (name) => {
     return name?.length > 15 ? name?.substring(0, 25) + "..." : name;
   };
   const getPOC3 = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.POC_3_Select, form, { headers })
-        .then((res) => {
-          const poc3s = res?.data.data.map((item) => {
-            return { name: item?.POC_3_Name, code: item?.POC_3_ID };
-          });
-          setPoc3(poc3s);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.POC_3_Select, {})
+
+      .then((res) => {
+        const poc3s = res?.data.data.map((item) => {
+          return { name: item?.POC_3_Name, code: item?.POC_3_ID };
         });
+        setPoc3(poc3s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getProject = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      axios
-        .post(apiUrls?.ProjectSelect, form, { headers })
-        .then((res) => {
-          const poc3s = res?.data.data.map((item) => {
-            return { name: item?.Project, code: item?.ProjectId };
-          });
-          setProject(poc3s);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.ProjectSelect, {
+        ProjectID: 0,
+        IsMaster: "0",
+        VerticalID: 0,
+        TeamID: 0,
+        WingID: 0,
+      })
+
+      .then((res) => {
+        const poc3s = res?.data.data.map((item) => {
+          return { name: item?.Project, code: item?.ProjectId };
         });
+        setProject(poc3s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const handleMultiSelectChange = (name, selectedOptions) => {
     const selectedValues = selectedOptions.map((option) => option.code);
@@ -254,88 +247,69 @@ const FeedbackList = () => {
 
   const handleSearchFeedback = (code) => {
     setLoading(true);
-    const form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "RoleID",
-        useCryptoLocalStorage("user_Data", "get", "RoleID")
-      ),
-      form.append("EmployeeID", "0");
-    form.append(
-      "LoginName",
-      useCryptoLocalStorage("user_Data", "get", "realname")
-    ),
-      form.append("ProjectID", formData?.ProjectID),
-      form.append("VerticalID", formData?.VerticalID),
-      form.append("TeamID", formData?.TeamID),
-      form.append("WingID", formData?.WingID),
-      form.append("POC1", formData?.POC1),
-      form.append("POC2", formData?.POC2),
-      form.append("POC3", formData?.POC3),
-      form.append("Month", formData?.currentMonth),
-      form.append("Year", formData?.currentYear),
-      form.append("rowColor", code ? code : "0"),
-      form.append("RatingType", formData?.SearchType),
-      axios
-        .post(apiUrls?.ClientFeedbackSearch, form, { headers })
-        .then((res) => {
-          if (res?.data?.status === true) {
-            setTableData(res?.data?.data);
-            setLoading(false);
-          } else {
-            toast.error("No Record Found.");
-            setLoading(false);
-            setTableData([]);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.ClientFeedbackSearch, {
+        RoleID: useCryptoLocalStorage("user_Data", "get", "RoleID") || 0,
+        ProjectID: String(formData?.ProjectID),
+        VerticalID: String(formData?.VerticalID),
+        TeamID: String(formData?.TeamID),
+        WingID: String(formData?.WingID),
+        POC1: String(formData?.POC1),
+        POC2: String(formData?.POC2),
+        POC3: String(formData?.POC3),
+        Year: Number(formData?.currentYear),
+        Month: Number(formData?.currentMonth),
+        RowColor: code ? Number(code) : 0,
+        RatingType: Number(formData?.SearchType),
+      })
+
+      .then((res) => {
+        if (res?.data?.success === true) {
+          setTableData(res?.data?.data);
           setLoading(false);
-        });
+        } else {
+          toast.error(res?.data?.message);
+          setLoading(false);
+          setTableData([]);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
   };
   const handleSearchEmployee = (code) => {
     setLoading(true);
-    const form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "RoleID",
-        useCryptoLocalStorage("user_Data", "get", "RoleID")
-      ),
-      form.append(
-        "EmployeeID",
-        useCryptoLocalStorage("user_Data", "get", "ID")
-      );
-    form.append(
-      "LoginName",
-      useCryptoLocalStorage("user_Data", "get", "realname")
-    ),
-      form.append("ProjectID", formData?.ProjectID),
-      form.append("VerticalID", formData?.VerticalID),
-      form.append("TeamID", formData?.TeamID),
-      form.append("WingID", formData?.WingID),
-      form.append("POC1", formData?.POC1),
-      form.append("POC2", formData?.POC2),
-      form.append("POC3", formData?.POC3),
-      form.append("Month", formData?.currentMonth),
-      form.append("Year", formData?.currentYear),
-      form.append("RatingType", formData?.SearchType),
-      form.append("rowColor", code ? code : "0"),
-      axios
-        .post(apiUrls?.ClientFeedbackSearch, form, { headers })
-        .then((res) => {
-          if (res?.data?.status === true) {
-            setTableData(res?.data?.data);
-            setLoading(false);
-          } else {
-            toast.error("No Record Found.");
-            setLoading(false);
-            setTableData([]);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.ClientFeedbackSearch, {
+        RoleID: useCryptoLocalStorage("user_Data", "get", "RoleID"),
+        ProjectID: String(formData?.ProjectID),
+        VerticalID: String(formData?.VerticalID),
+        TeamID: String(formData?.TeamID),
+        WingID: String(formData?.WingID),
+        POC1: String(formData?.POC1),
+        POC2: String(formData?.POC2),
+        POC3: String(formData?.POC3),
+        Year: String(formData?.currentYear),
+        Month: String(formData?.currentMonth),
+        RowColor: code ? String(code) : "0",
+        RatingType: String(formData?.SearchType),
+      })
+
+      .then((res) => {
+        if (res?.data?.success === true) {
+          setTableData(res?.data?.data);
           setLoading(false);
-        });
+        } else {
+          toast.error("No Record Found.");
+          setLoading(false);
+          setTableData([]);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
   };
   const [visible, setVisible] = useState({
     ShowFeedback: false,
@@ -476,14 +450,8 @@ const FeedbackList = () => {
           />
         </Modal>
       )}
-      <div className="card"  ref={componentRef}>
-        <Heading isBreadcrumb={true}  secondTitle={<>
-           <button
-        onClick={handleFullPageScreenshot}
-        className="btn btn-sm btn-primary ml-5"
-      >
-        Capture Screenshot
-      </button></>}/>
+      <div className="card" ref={componentRef}>
+        <Heading isBreadcrumb={true} />
         <div className="row p-2">
           <MultiSelectComp
             respclass="col-xl-2 col-md-4 col-sm-6 col-12"
@@ -618,7 +586,7 @@ const FeedbackList = () => {
               )}
             </div>
           )}
-       
+
           <i
             className="fa fa-plus-circle fa-sm new_record_pluse mt-2 ml-3"
             onClick={() => {
@@ -627,8 +595,6 @@ const FeedbackList = () => {
             title="Click to Feedback"
             style={{ cursor: "pointer" }}
           ></i>
-
-              
         </div>
       </div>
 

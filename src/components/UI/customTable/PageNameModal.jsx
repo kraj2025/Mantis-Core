@@ -10,6 +10,7 @@ import Loading from "../../loader/Loading";
 import Heading from "../Heading";
 import { useTranslation } from "react-i18next";
 import { useCryptoLocalStorage } from "../../../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../../../networkServices/axiosInstance";
 
 const PageNameModal = ({ visible, setVisible, onCloseInnerModal }) => {
   const [t] = useTranslation();
@@ -53,58 +54,20 @@ const PageNameModal = ({ visible, setVisible, onCloseInnerModal }) => {
       toast.error("Please Enter Page Name.");
     } else {
       setLoading(true);
-      let form = new FormData();
-      form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-        form.append(
-          "LoginName",
-          useCryptoLocalStorage("user_Data", "get", "realname")
-        ),
-        form.append("ProjectID", visible?.showData?.ProjectID),
-        form.append("PagesName", formData?.ModuleName),
-        axios
-          .post(apiUrls?.CreatePages, form, { headers })
-          .then((res) => {
-            if (res?.data?.status === true) {
-              toast.success(res?.data?.message);
-              getModuleSearch();
-              setLoading(false);
-              setVisible(false);
-              if (onCloseInnerModal) {
-                onCloseInnerModal(); // call parent's handleNews here
-              }
-            } else {
-              toast.error(res?.data?.message);
-              setLoading(false);
-            }
-          })
-          .catch((err) => {
-            console.log(err);
-            setLoading(false);
-          });
-    }
-  };
-  const handleUpdate = () => {
-    setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("ProjectID", visible?.showData?.ProjectID),
-      form.append("PagesID", tableData[0]?.ID),
-      form.append("PagesName", formData?.ModuleName),
-      form.append("IsActive", formData?.IsActive),
-      axios
-        .post(apiUrls?.UpdatePages, form, { headers })
+      axiosInstances
+        .post(apiUrls.CreatePages, {
+          ProjectID: Number(visible?.showData?.ProjectID),
+          PagesName: String(formData?.ModuleName),
+        })
+
         .then((res) => {
-          if (res?.data?.status === true) {
+          if (res?.data?.success) {
             toast.success(res?.data?.message);
             getModuleSearch();
             setLoading(false);
             setVisible(false);
             if (onCloseInnerModal) {
-              onCloseInnerModal(); // call parent's handleNews here
+              onCloseInnerModal();
             }
           } else {
             toast.error(res?.data?.message);
@@ -115,26 +78,49 @@ const PageNameModal = ({ visible, setVisible, onCloseInnerModal }) => {
           console.log(err);
           setLoading(false);
         });
+    }
+  };
+  const handleUpdate = () => {
+    setLoading(true);
+    axiosInstances
+      .post(apiUrls.UpdatePages, {
+        PagesID: tableData[0]?.ID,
+        PagesName: formData?.ModuleName,
+        IsActive: formData?.IsActive,
+      })
+      .then((res) => {
+        if (res?.data?.success) {
+          toast.success(res?.data?.message);
+          getModuleSearch();
+          setLoading(false);
+          setVisible(false);
+          if (onCloseInnerModal) {
+            onCloseInnerModal(); // call parent's handleNews here
+          }
+        } else {
+          toast.error(res?.data?.message);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
   };
   const getModuleSearch = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "RoleID",
-        useCryptoLocalStorage("user_Data", "get", "RoleID")
-      ),
-      form.append("ProjectID", visible?.showData?.ProjectID),
-      form.append("IsActive", "1"),
-      form.append("IsMaster", "0"),
-      axios
-        .post(apiUrls?.Pages_Select, form, { headers })
-        .then((res) => {
-          console.log("Response", res?.data?.data);
-          setTableData(res?.data?.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls.Pages_Select, {
+        RoleID: useCryptoLocalStorage("user_Data", "get", "RoleID"),
+        ProjectID: visible?.showData?.ProjectID,
+        IsActive: 1,
+        IsMaster: 0,
+      })
+      .then((res) => {
+        setTableData(res?.data?.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const handleEditModule = (ele) => {
     setFormData({

@@ -8,8 +8,9 @@ import ReactSelect from "../formComponent/ReactSelect";
 import Heading from "../UI/Heading";
 import Input from "../formComponent/Input";
 import NoRecordFound from "../formComponent/NoRecordFound";
-import videopng from "../../assets/image/videopng.png"
+import videopng from "../../assets/image/videopng.png";
 import { useCryptoLocalStorage } from "../../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../../networkServices/axiosInstance";
 const WelcomeVideoTable = ({ visible, setVisible }) => {
   // console.log("Video Testing", visible, setVisible);
   const [showVideo, setShowVideo] = useState(false);
@@ -34,19 +35,17 @@ const WelcomeVideoTable = ({ visible, setVisible }) => {
     { name: "VideoLink", width: "10%" },
   ];
   const getVertical = () => {
-    let form = new FormData();
-    form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Vertical_Select, form, { headers })
-        .then((res) => {
-          const verticals = res?.data.data.map((item) => {
-            return { label: item?.Vertical, value: item?.VerticalID };
-          });
-          setVertical(verticals);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.Vertical_Select, {})
+      .then((res) => {
+        const verticals = res?.data.data.map((item) => {
+          return { label: item?.Vertical, value: item?.VerticalID };
         });
+        setVertical(verticals);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const handleDeliveryChange = (name, e) => {
     const { value } = e;
@@ -58,26 +57,25 @@ const WelcomeVideoTable = ({ visible, setVisible }) => {
   };
   const handleVideoSearch = (vertical) => {
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("ActionType", "Search"),
-      form.append("VerticalID", vertical),
-      form.append("Title", ""),
-      form.append("VedioLink", ""),
-      form.append("VedioLinkID", ""),
-      axios
-        .post(apiUrls?.TrainingVedio, form, { headers })
-        .then((res) => {
-          const dataset = res?.data?.data;
-          setTableData(dataset);
-          setFilteredData(dataset);
-          setLoading(false);
-        })
-        .catch((err) => {
-          console.log(err);
-          setLoading(false);
-        });
+
+    axiosInstances
+      .post(apiUrls.TrainingVedio, {
+        ActionType: String("Search"),
+        VerticalID: vertical,
+        Title: String(""),
+        VedioLink: String(""),
+        VedioLinkID: String(""),
+      })
+      .then((res) => {
+        const dataset = res?.data?.data;
+        setTableData(dataset);
+        setFilteredData(dataset);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
   };
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
@@ -193,14 +191,12 @@ const WelcomeVideoTable = ({ visible, setVisible }) => {
                   <div>
                     {!showVideo ? (
                       <img
-                      src={videopng}
-                      height="20px"
-                      width="20px"
+                        src={videopng}
+                        height="20px"
+                        width="20px"
                         onClick={() => handleClick(ele?.VedioLink)}
-                       title="Click to Play."
-                      >
-                        
-                      </img>
+                        title="Click to Play."
+                      ></img>
                     ) : (
                       <div
                         style={{

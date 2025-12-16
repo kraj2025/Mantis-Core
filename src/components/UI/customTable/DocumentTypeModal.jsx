@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 import Loading from "../../loader/Loading";
 import { apiUrls } from "../../../networkServices/apiEndpoints";
 import { useCryptoLocalStorage } from "../../../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../../../networkServices/axiosInstance";
 
 const DocumentTypeModal = ({ tableData, setVisible }) => {
   const [loading, setLoading] = useState(false);
@@ -23,10 +24,11 @@ const DocumentTypeModal = ({ tableData, setVisible }) => {
   const fileInputRef = useRef(null);
 
   const getType = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-    axios
-      .post(apiUrls?.DocumentType_Select, form, { headers })
+  
+       axiosInstances
+          .post(apiUrls.DocumentType_Select, {
+        ID: useCryptoLocalStorage("user_Data", "get", "ID"),
+          })
       .then((res) => {
         const options = res?.data.data.map((item) => ({
           label: item?.DocumentTypeName,
@@ -91,25 +93,35 @@ const DocumentTypeModal = ({ tableData, setVisible }) => {
     }
 
     setLoading(true);
-    const form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-    form.append(
-      "LoginName",
-      useCryptoLocalStorage("user_Data", "get", "realname")
-    );
-    form.append("ProjectID", tableData?.showData?.ProjectID);
-    form.append("DocumentTypeID", formData.DocumentType);
-    form.append(
-      "DocumentTypeName",
-      documenttype.find((item) => item?.value === formData.DocumentType)?.label
-    );
-    form.append("File", formData.SelectFile);
-    form.append("FileExtension", formData.FileExtension);
+    // const form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
+    // form.append(
+    //   "LoginName",
+    //   useCryptoLocalStorage("user_Data", "get", "realname")
+    // );
+    // form.append("ProjectID", tableData?.showData?.ProjectID);
+    // form.append("DocumentTypeID", formData.DocumentType);
+    // form.append(
+    //   "DocumentTypeName",
+    //   documenttype.find((item) => item?.value === formData.DocumentType)?.label
+    // );
+    // form.append("File", formData.SelectFile);
+    // form.append("FileExtension", formData.FileExtension);
 
-    axios
-      .post(apiUrls?.UploadDocument, form, { headers })
+    // axios
+    //   .post(apiUrls?.UploadDocument, form, { headers })
+    axiosInstances
+      .post(apiUrls.UploadDocument, {
+        ID: useCryptoLocalStorage("user_Data", "get", "ID"),
+        LoginName: useCryptoLocalStorage("user_Data", "get", "realname"),
+        ProjectID: tableData?.showData?.ProjectID,
+        DocumentTypeID: String(formData.DocumentType),
+        DocumentTypeName: String(documenttype.find((item) => item?.value === formData.DocumentType)?.label),
+        FileExtension: String(formData.FileExtension),
+        Document_Base64: String(formData.Document_Base64),
+      })
       .then((res) => {
-        if (res?.data?.status === true) {
+        if (res?.data?.success) {
           toast.success(res?.data?.message);
           setFormData({
             DocumentType: "",

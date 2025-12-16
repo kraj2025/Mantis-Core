@@ -7,6 +7,7 @@ import { apiUrls } from "../../../networkServices/apiEndpoints";
 import ReactSelect from "../../formComponent/ReactSelect";
 import { useTranslation } from "react-i18next";
 import { useCryptoLocalStorage } from "../../../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../../../networkServices/axiosInstance";
 const RemoveAmountSubmissionModal = ({ visible, setVisible, ele }) => {
   // console.log(visible);
   const [t] = useTranslation();
@@ -39,46 +40,39 @@ const RemoveAmountSubmissionModal = ({ visible, setVisible, ele }) => {
     if (formData?.CancelReason == "") {
       toast.error("Please Enter Cancel Reason.");
     } else {
-      let form = new FormData();
-      form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-        form.append(
-          "LoginName",
-          useCryptoLocalStorage("user_Data", "get", "realname")
-        ),
-        form.append("OnAccount_Req_ID", visible?.showData?.EncryptID),
-        form.append("CancelReason", getlabel(formData?.CancelReason, reason)),
-        form.append("CancelReasonID", formData?.CancelReason),
-        form.append("OtherCancelReason", formData?.OtherReason),
-        axios
-          .post(apiUrls?.AmountSubmission_ByAccounts_IsCancel, form, {
-            headers,
-          })
-          .then((res) => {
-            toast.success(res?.data?.message);
-            setVisible((val) => ({ ...val, removeVisible: false }));
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-    }
-  };
+      
+      const payload = {
+        OnAccount_Req_ID: String(visible?.showData?.EncryptID || ""),
+        CancelReason: String(getlabel(formData?.CancelReason, reason) || ""),
+        CancelReasonID: String(formData?.CancelReason || ""),
+        OtherCancelReason: String(formData?.OtherReason || ""),
+      };
 
-  const handleSearchReason = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.AmountSub_CancelReason_Select, form, {
-          headers,
-        })
+      axiosInstances
+        .post(apiUrls?.AmountSubmission_ByAccounts_IsCancel, payload)
         .then((res) => {
-          const verticals = res?.data.data.map((item) => {
-            return { label: item?.NAME, value: item?.ID };
-          });
-          setreason(verticals);
+          toast.success(res?.data?.message);
+          setVisible((val) => ({ ...val, removeVisible: false }));
         })
         .catch((err) => {
           console.log(err);
         });
+    }
+  };
+
+  const handleSearchReason = () => {
+  
+    axiosInstances
+      .post(apiUrls?.AmountSub_CancelReason_Select, {})
+      .then((res) => {
+        const verticals = res?.data.data.map((item) => {
+          return { label: item?.NAME, value: item?.ID };
+        });
+        setreason(verticals);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const othersReason = reason?.find(

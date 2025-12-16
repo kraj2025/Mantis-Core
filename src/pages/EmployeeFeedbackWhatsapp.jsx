@@ -1,17 +1,14 @@
 import React, { useState } from "react";
 import Loading from "../components/loader/Loading";
 import { toast } from "react-toastify";
-import axios from "axios";
-import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
 import { apiUrls } from "../networkServices/apiEndpoints";
-import { headers } from "../utils/apitools";
 import Input from "../components/formComponent/Input";
 import { useTranslation } from "react-i18next";
 import { inputBoxValidation } from "../utils/utils";
 import { MOBILE_NUMBER_VALIDATION_REGX } from "../utils/constant";
+import { axiosInstances } from "../networkServices/axiosInstance";
 
 const EmployeeFeedbackWhatsapp = (showData) => {
-  console.log("showdata", showData);
   const [t] = useTranslation();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -19,33 +16,28 @@ const EmployeeFeedbackWhatsapp = (showData) => {
   });
   const handleConfirm = () => {
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("FeedbackID", showData?.visible?.showData?.FeedbackID),
-      form.append("EmployeeID", showData?.visible?.showData?.CrmEmployeeID),
-      form.append("EmployeeName", showData?.visible?.showData?.EmployeeName),
-      form.append("MobileNo", formData?.WhatsappNumber),
-    
-      axios
-        .post(apiUrls?.ResendEmployeeFeedbackWhatsapp, form, { headers })
-        .then((res) => {
-          if (res?.data?.status === true) {
-            toast.success(res?.data?.message);
-            showData.setVisible(false);
-            showData.handleSearchList();
-            setLoading(false);
-          } else {
-            toast.error(res?.data?.message);
-            setLoading(false);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+
+    axiosInstances
+      .post(apiUrls.ResendEmployeeFeedbackWhatsapp, {
+        FeedbackID: Number(showData?.visible?.showData?.FeedbackID),
+        EmployeeID: Number(showData?.visible?.showData?.CrmEmployeeID),
+        EmployeeName: String(showData?.visible?.showData?.EmployeeName),
+        MobileNo: String(formData?.WhatsappNumber),
+      })
+      .then((res) => {
+        if (res?.data?.status === true) {
+          toast.success(res?.data?.message);
+          showData.setVisible(false);
+          showData.handleSearchList();
+          setLoading(false);
+        } else {
+          toast.error(res?.data?.message);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const handleChange = (e) => {
     const { name, value, type, checked } = e?.target;
@@ -91,7 +83,7 @@ const EmployeeFeedbackWhatsapp = (showData) => {
           ) : (
             <button
               className="btn btn-sm btn-danger ml-2"
-                onClick={handleConfirm}
+              onClick={handleConfirm}
             >
               Send
             </button>

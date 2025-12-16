@@ -9,6 +9,7 @@ import axios from "axios";
 import Loading from "../components/loader/Loading";
 import { toast } from "react-toastify";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../networkServices/axiosInstance";
 const Master = () => {
   const [tableData, setTableData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -19,7 +20,7 @@ const Master = () => {
     MasterName: "",
     IsActive: "",
     MasterHeadID: "",
-    MasterID:""
+    MasterID: "",
   });
   const searchHandleChange = (e) => {
     const { name, value, checked, type } = e?.target;
@@ -49,41 +50,72 @@ const Master = () => {
     handleMasterTypeSearch(value);
   };
   const handleMasterTypeSearch = (id) => {
-    let form = new FormData();
-    form.append("ID",  useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("ActionType", "MasterSearch"),
-      form.append("MasterHeadID", id || formData?.MasterType),
-      form.append("MasterName", ""),
-      form.append("IsActive", ""),
-      axios
-        .post(apiUrls?.ManageGlobalMaster, form, { headers })
-        .then((res) => {
-          setTableData(res?.data?.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+ 
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append(
+    //     "LoginName",
+    //     useCryptoLocalStorage("user_Data", "get", "realname")
+    //   ),
+    //   form.append("ActionType", "MasterSearch"),
+    //   form.append("MasterHeadID", id || formData?.MasterType),
+    //   form.append("MasterName", ""),
+    //   form.append("IsActive", ""),
+    // axios
+    //   .post(apiUrls?.ManageGlobalMaster, form, { headers })
+    const payload = {
+      ActionType: "MasterSearch",
+      MasterHeadID: Number(id || formData?.MasterType),
+      MasterName: "",
+      MasterHeadName: "",
+      IsActive: Boolean(1),
+    };
+    axiosInstances
+      .post(apiUrls?.ManageGlobalMaster, payload)
+      .then((res) => {
+        setTableData(res?.data?.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getMasterType = () => {
-    let form = new FormData();
-    form.append("ID",  useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("ActionType", "MasterHeadSearch"),
-      form.append("MasterHeadName", ""),
-      form.append("IsActive", ""),
-      axios
-        .post(apiUrls?.ManageGlobalMaster, form, { headers })
-        .then((res) => {
-          console.log("res ", res);
-          const verticals = res?.data?.data?.map((item) => {
-            return { label: item?.NAME, value: item?.Id };
-          });
-          setMasterType(verticals);
-        })
-        .catch((err) => {
-          console.log(err);
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append(
+    //     "LoginName",
+    //     useCryptoLocalStorage("user_Data", "get", "realname")
+    //   ),
+    //   form.append("ActionType", "MasterHeadSearch"),
+    //   form.append("MasterHeadName", ""),
+    //   form.append("IsActive", ""),
+    // axios
+    //   .post(apiUrls?.ManageGlobalMaster, form, { headers })
+    // const payload = {
+    //   ActionType: "MasterHeadSearch",
+    //   MasterHeadName: "",
+    //   IsActive: "",
+    // };
+
+    const payload = {
+      ActionType: "MasterHeadSearch",
+      MasterHeadID: 0,
+      MasterName: "",
+      MasterHeadName: "",
+    };
+
+    axiosInstances
+      .post(apiUrls?.ManageGlobalMaster, payload)
+      .then((res) => {
+        console.log("res ", res);
+        const verticals = res?.data?.data?.map((item) => {
+          return { label: item?.NAME, value: item?.Id };
         });
+        setMasterType(verticals);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   useEffect(() => {
     getMasterType();
@@ -100,7 +132,6 @@ const Master = () => {
     "Edit",
   ];
 
-
   function getlabel(id, dropdownData) {
     const ele = dropdownData?.filter((item) => item?.value === id);
     return ele?.length > 0 ? ele[0].label : "";
@@ -112,56 +143,36 @@ const Master = () => {
       toast.error("Please Select MasterType");
     } else {
       setLoading(true);
-      let form = new FormData();
-      form.append("ID",  useCryptoLocalStorage("user_Data", "get", "ID")),
-        form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-        form.append("ActionType", "MasterInsert"),
-        form.append(
-          "MasterHeadName",
-          getlabel(formData?.MasterType, mastertype)
-        ),
-        form.append("MasterHeadID", formData?.MasterType),
-        form.append("MasterName", formData?.MasterName),
-        // form.append("IsActive", formData?.IsActive === 1 ? 1 : 0),
-        axios
-          .post(apiUrls?.ManageGlobalMaster, form, { headers })
-          .then((res) => {
-            if (res?.data?.status === true) {
-              toast.success(res?.data?.message);
-              setLoading(false);
-            setFormData({ ...formData, MasterName: ""});
-              handleMasterTypeSearch();
-            } else {
-              toast.error(res?.data?.message);
-              setLoading(false);
-            }
-          })
-          .catch((err) => {
-            console.log(err);
-            setLoading(false);
-          });
-    }
-  };
-  const handleMasterTypeUpdate = () => {
-    setLoading(true);
-    let form = new FormData();
-    form.append("ID",  useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("ActionType", "MasterUpdate"),
-      form.append("MasterHeadName", getlabel(formData?.MasterType, mastertype)),
-      form.append("MasterHeadID", formData?.MasterHeadID),
-      form.append("MasterID", formData?.MasterID),
-      form.append("MasterName", formData?.MasterName),
-      form.append("IsActive", formData?.IsActive === 1 ? 1 : 0),
-      axios
-        .post(apiUrls?.ManageGlobalMaster, form, { headers })
+      // let form = new FormData();
+      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+      //   form.append(
+      //     "LoginName",
+      //     useCryptoLocalStorage("user_Data", "get", "realname")
+      //   ),
+      //   form.append("ActionType", "MasterInsert"),
+      //   form.append(
+      //     "MasterHeadName",
+      //     getlabel(formData?.MasterType, mastertype)
+      //   ),
+      //   form.append("MasterHeadID", formData?.MasterType),
+      //   form.append("MasterName", formData?.MasterName),
+      // form.append("IsActive", formData?.IsActive === 1 ? 1 : 0),
+      // axios
+      //   .post(apiUrls?.ManageGlobalMaster, form, { headers })
+      const payload = {
+        ActionType: "MasterInsert",
+        MasterHeadName: getlabel(formData?.MasterType, mastertype),
+        MasterHeadID: formData?.MasterType,
+        MasterName: formData?.MasterName,
+      };
+      axiosInstances
+        .post(apiUrls?.ManageGlobalMaster, payload)
         .then((res) => {
-          if (res?.data?.status === true) {
+          if (res?.data?.success === true) {
             toast.success(res?.data?.message);
             setLoading(false);
-            // setFormData({ ...formData, MasterName: "", MasterType: "" });
-            setEditMode(false);
-             handleMasterTypeSearch();
+            setFormData({ ...formData, MasterName: "" });
+            handleMasterTypeSearch();
           } else {
             toast.error(res?.data?.message);
             setLoading(false);
@@ -171,16 +182,63 @@ const Master = () => {
           console.log(err);
           setLoading(false);
         });
+    }
+  };
+
+  console.log("formDatass",formData)
+  const handleMasterTypeUpdate = () => {
+    setLoading(true);
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append(
+    //     "LoginName",
+    //     useCryptoLocalStorage("user_Data", "get", "realname")
+    //   ),
+    //   form.append("ActionType", "MasterUpdate"),
+    //   form.append("MasterHeadName", getlabel(formData?.MasterType, mastertype)),
+    //   form.append("MasterHeadID", formData?.MasterHeadID),
+    //   form.append("MasterID", formData?.MasterID),
+    //   form.append("MasterName", formData?.MasterName),
+    //   form.append("IsActive", formData?.IsActive === 1 ? 1 : 0),
+    const payload = {
+      ActionType: "MasterUpdate",
+      MasterHeadName: getlabel(formData?.MasterType, mastertype),
+      MasterHeadID: formData?.MasterHeadID,
+      MasterID: formData?.MasterID,
+      MasterName: formData?.MasterName,
+      IsActive: Boolean(formData?.IsActive === 1 ? 1 : 0,)
+    };
+
+    // axios
+    //   .post(apiUrls?.ManageGlobalMaster, form, { headers })
+    axiosInstances
+      .post(apiUrls?.ManageGlobalMaster, payload)
+      .then((res) => {
+        if (res?.data?.success === true) {
+          toast.success(res?.data?.message);
+          setLoading(false);
+          // setFormData({ ...formData, MasterName: "", MasterType: "" });
+          setEditMode(false);
+          handleMasterTypeSearch();
+        } else {
+          toast.error(res?.data?.message);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
   };
   const handleBillingEdit = (ele) => {
-    // console.log("ele elel ", ele);
+    console.log("ele elel ", ele);
     setFormData({
       ...formData,
       MasterName: ele?.NAME,
       MasterType: ele?.MasterTypeID,
       IsActive: ele?.IsActive,
       MasterHeadID: ele?.MasterTypeID,
-      MasterID:ele?.Id
+      MasterID: ele?.Id,
     });
     setEditMode(true);
   };

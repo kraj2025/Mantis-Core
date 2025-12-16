@@ -12,6 +12,7 @@ import ReactSelect from "../components/formComponent/ReactSelect";
 import { apiUrls } from "../networkServices/apiEndpoints";
 import { useTranslation } from "react-i18next";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../networkServices/axiosInstance";
 
 const EmployeeChangePassword = () => {
   const ReportingManager = useCryptoLocalStorage(
@@ -41,15 +42,13 @@ const EmployeeChangePassword = () => {
   };
 
   const getReporter = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("IsMaster", "1"),
-      form.append(
-        "RoleID",
-        useCryptoLocalStorage("user_Data", "get", "RoleID")
-      ),
-      axios
-        .post(apiUrls?.Reporter_Select, form, { headers })
+    axiosInstances
+      .post(apiUrls.Reporter_Select, {
+        ID: useCryptoLocalStorage("user_Data", "get", "ID"),
+        IsMaster: "1",
+        RoleID: useCryptoLocalStorage("user_Data", "get", "RoleID"),
+  
+      })
         .then((res) => {
           const reporters = res?.data?.data?.map((item) => {
             return { label: item?.NAME, value: item?.ID };
@@ -60,40 +59,6 @@ const EmployeeChangePassword = () => {
           console.log(err);
         });
   };
-  const getChangePassword = () => {
-    if (formData?.Reporter == "") {
-      toast.error("Please Select User.");
-      setLoading(false);
-    } else if (formData?.Password == "") {
-      toast.error("Please Enter Password.");
-      setLoading(false);
-    } else {
-      setLoading(true);
-      let form = new FormData();
-      form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-        form.append(
-          "LoginName",
-          useCryptoLocalStorage("user_Data", "get", "realname")
-        ),
-        form.append("UserID", formData?.Reporter),
-        form.append("Password", formData?.Password),
-        axios
-          .post(apiUrls?.ChangePassword, form, { headers })
-          .then((res) => {
-            if (res?.data?.status === true) {
-              toast.success(res?.data?.message);
-              setLoading(false);
-            } else {
-              toast.error(res?.data?.message);
-              setLoading(false);
-            }
-          })
-          .catch((err) => {
-            console.log(err);
-            setLoading(false);
-          });
-    }
-  };
 
   const getChangePasswordEmployee = () => {
     if (formData?.Password == "") {
@@ -101,18 +66,14 @@ const EmployeeChangePassword = () => {
       setLoading(false);
     } else {
       setLoading(true);
-      let form = new FormData();
-      form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-        form.append(
-          "LoginName",
-          useCryptoLocalStorage("user_Data", "get", "realname")
-        ),
-        form.append("UserID", useCryptoLocalStorage("user_Data", "get", "ID")),
-        form.append("Password", formData?.Password),
-        axios
-          .post(apiUrls?.ChangePassword, form, { headers })
+    
+      axiosInstances
+      .post(apiUrls.ChangePassword, {
+        UserID: String(useCryptoLocalStorage("user_Data", "get", "ID")),
+        Password: String(formData?.Password),
+      })
           .then((res) => {
-            if (res?.data?.status === true) {
+            if (res?.data?.success) {
               toast.success(res?.data?.message);
               setLoading(false);
             } else {

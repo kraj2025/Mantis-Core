@@ -23,7 +23,9 @@ import excelimg from "../../src/assets/image/excel.png";
 import { set, update } from "lodash";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
 import { parse } from "date-fns";
+import { axiosInstances } from "../networkServices/axiosInstance";
 const ImplementationPlan = ({ data }) => {
+  console.log("check ", data);
   const TrackerProjectID = data?.Id || data?.ProjectID;
   const TrackerProjectName = data?.NAME || data?.ProjectName;
   const [t] = useTranslation();
@@ -43,24 +45,32 @@ const ImplementationPlan = ({ data }) => {
   });
 
   const getProject = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      axios
-        .post(apiUrls?.ProjectSelect, form, { headers })
-        .then((res) => {
-          const poc3s = res?.data.data.map((item) => {
-            return { label: item?.Project, value: item?.ProjectId };
-          });
-
-          setProject(poc3s);
-        })
-        .catch((err) => {
-          console.log(err);
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append(
+    //     "LoginName",
+    //     useCryptoLocalStorage("user_Data", "get", "realname")
+    //   ),
+    // axios
+    //   .post(apiUrls?.ProjectSelect, form, { headers })
+    axiosInstances
+      .post(apiUrls?.ProjectSelect, {
+        ProjectID: 0,
+        IsMaster: "string",
+        VerticalID: 0,
+        TeamID: 0,
+        WingID: 0,
+      })
+      .then((res) => {
+        const poc3s = res?.data.data.map((item) => {
+          return { label: item?.Project, value: item?.ProjectId };
         });
+
+        setProject(poc3s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const { VITE_DATE_FORMAT } = import.meta.env;
@@ -83,8 +93,7 @@ const ImplementationPlan = ({ data }) => {
     const [day, month, year] = expectedDate.split("-");
     const formattedExpectedDate = new Date(`${year}-${month}-${day}`);
     console.log("formattedExpectedDate", formattedExpectedDate);
-    const formattedActualDate = new Date(actualDate
-    );
+    const formattedActualDate = new Date(actualDate);
     console.log("formattedActualDate", formattedActualDate);
     if (
       isNaN(formattedExpectedDate.getTime()) ||
@@ -152,30 +161,41 @@ const ImplementationPlan = ({ data }) => {
     let day = date.getDate().toString().padStart(2, "0");
     return `${year}-${month}-${day}`;
   }
-
+  console.log("formData", formData);
   const handleTableShow = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "RoleID",
-        useCryptoLocalStorage("user_Data", "get", "RoleID")
-      ),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append(
-        "ProjectID",
-        formData?.ProjectID || data?.ProjectID || data?.Id
-      ),
-      form.append("ProductID", data?.productid || data?.ProductID),
-      form.append(
-        "FromDate",
-        formData?.FromDate ? formatDate(formData?.FromDate) : " "
-      );
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append(
+    //     "RoleID",
+    //     useCryptoLocalStorage("user_Data", "get", "RoleID")
+    //   ),
+    //   form.append(
+    //     "LoginName",
+    //     useCryptoLocalStorage("user_Data", "get", "realname")
+    //   ),
+    //   form.append(
+    //     "ProjectID",
+    //     formData?.ProjectID || data?.ProjectID || data?.Id
+    //   ),
+    //   form.append("ProductID", data?.productid || data?.ProductID),
+    //   form.append(
+    //     "FromDate",
+    //     formData?.FromDate ? formatDate(formData?.FromDate) : " "
+    //   );
+    // axios
+    //   .post(apiUrls?.ShowImpleStepsMaster_select, form, { headers })
 
-    axios
-      .post(apiUrls?.ShowImpleStepsMaster_select, form, { headers })
+    const payload = {
+      RoleID: Number(useCryptoLocalStorage("user_Data", "get", "RoleID")),
+      ProjectID: Number(formData?.ProjectID || data?.ProjectID || data?.Id),
+      ProductID: Number(data?.productid || data?.ProductID),
+      FromDate: String(
+        formData?.FromDate ? formatDate(formData?.FromDate) : " "
+      ),
+      IsExcel: 0,
+    };
+    axiosInstances
+      .post(apiUrls?.ShowImpleStepsMaster_select, payload)
       .then((res) => {
         setTableData(res?.data?.data);
       })
@@ -184,29 +204,41 @@ const ImplementationPlan = ({ data }) => {
       });
   };
   const handleTableShowExcel = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "RoleID",
-        useCryptoLocalStorage("user_Data", "get", "RoleID")
-      ),
-      form.append("IsExcel", "1"),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append(
-        "ProjectID",
-        formData?.ProjectID || data?.ProjectID || data?.Id
-      ),
-      form.append("ProductID", data?.productid || data?.ProductID),
-      form.append(
-        "FromDate",
-        formData?.FromDate ? formatDate(formData?.FromDate) : ""
-      );
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append(
+    //     "RoleID",
+    //     useCryptoLocalStorage("user_Data", "get", "RoleID")
+    //   ),
+    //   form.append("IsExcel", "1"),
+    //   form.append(
+    //     "LoginName",
+    //     useCryptoLocalStorage("user_Data", "get", "realname")
+    //   ),
+    //   form.append(
+    //     "ProjectID",
+    //     formData?.ProjectID || data?.ProjectID || data?.Id
+    //   ),
+    //   form.append("ProductID", data?.productid || data?.ProductID),
+    //   form.append(
+    //     "FromDate",
+    //     formData?.FromDate ? formatDate(formData?.FromDate) : ""
+    //   );
 
-    axios
-      .post(apiUrls?.ShowImpleStepsMaster_select, form, { headers })
+    // axios
+    //   .post(apiUrls?.ShowImpleStepsMaster_select, form, { headers })
+    const payload = {
+      RoleID: Number(useCryptoLocalStorage("user_Data", "get", "RoleID") || 0),
+      IsExcel: "1",
+      ProjectID: Number(
+        formData?.ProjectID || data?.ProjectID || data?.Id || 0
+      ),
+      ProductID: Number(data?.productid || data?.ProductID || 0),
+      FromDate: formData?.FromDate ? formatDate(formData.FromDate) : "",
+    };
+
+    axiosInstances
+      .post(apiUrls?.ShowImpleStepsMaster_select, payload)
       .then((res) => {
         setTableData(res?.data?.data);
         const data = res?.data?.data;
@@ -265,29 +297,41 @@ const ImplementationPlan = ({ data }) => {
       });
   };
   const handleTableShowExcelTracker = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "RoleID",
-        useCryptoLocalStorage("user_Data", "get", "RoleID")
-      ),
-      form.append("IsExcel", "2"),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append(
-        "ProjectID",
-        formData?.ProjectID || data?.ProjectID || data?.Id
-      ),
-      form.append("ProductID", data?.productid || data?.ProductID),
-      form.append(
-        "FromDate",
-        formData?.FromDate ? formatDate(formData?.FromDate) : ""
-      );
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append(
+    //     "RoleID",
+    //     useCryptoLocalStorage("user_Data", "get", "RoleID")
+    //   ),
+    //   form.append("IsExcel", "2"),
+    //   form.append(
+    //     "LoginName",
+    //     useCryptoLocalStorage("user_Data", "get", "realname")
+    //   ),
+    //   form.append(
+    //     "ProjectID",
+    //     formData?.ProjectID || data?.ProjectID || data?.Id
+    //   ),
+    //   form.append("ProductID", data?.productid || data?.ProductID),
+    //   form.append(
+    //     "FromDate",
+    //     formData?.FromDate ? formatDate(formData?.FromDate) : ""
+    //   );
 
-    axios
-      .post(apiUrls?.ShowImpleStepsMaster_select, form, { headers })
+    // axios
+    //   .post(apiUrls?.ShowImpleStepsMaster_select, form, { headers })
+    const payload = {
+      RoleID: Number(useCryptoLocalStorage("user_Data", "get", "RoleID") || 0),
+      IsExcel: "2",
+      ProjectID: Number(
+        formData?.ProjectID || data?.ProjectID || data?.Id || 0
+      ),
+      ProductID: Number(data?.productid || data?.ProductID || 0),
+      FromDate: formData?.FromDate ? formatDate(formData.FromDate) : "",
+    };
+
+    axiosInstances
+      .post(apiUrls?.ShowImpleStepsMaster_select, payload)
       .then((res) => {
         setTableData(res?.data?.data);
         const data = res?.data?.data;
@@ -347,52 +391,65 @@ const ImplementationPlan = ({ data }) => {
   };
 
   const handleTableFinalsave = () => {
-    let payload = [];
+    let StepMasterRequestData = [];
     tableData?.map((val, index) => {
-      // console.log("val ", val);
-      payload.push({
+      StepMasterRequestData.push({
         // "S.No.":index+1,
         StepMasterId: val?.Id,
         StepMaster: val?.Steps,
         Expefromdt: val?.Expefromdt
-          ? moment(val?.Expefromdt).format("YYYY-MM-DD")
-          : "2001-01-01",
-        ExpeToDt: val?.ExpeTodt == "" ? "2001-01-01" : val?.ExpeTodt,
-        // ? moment(val?.ExpeTodt).format("YYYY-MM-DD")
-        // : "2001-01-01",
+          ? moment(val.Expefromdt).toISOString()
+          : new Date("2001-01-01T00:00:00.000Z").toISOString(),
+        ExpeToDt: val?.ExpeTodt
+          ? moment(val.ExpeTodt).toISOString()
+          : new Date("2001-01-01T00:00:00.000Z").toISOString(),
+        Actdt: val?.Actdt
+          ? moment(val.Actdt).toISOString()
+          : new Date("0001-01-01T00:00:00.000Z").toISOString(),
         ActDt: val?.Actdt
           ? moment(val?.Actdt).format("YYYY-MM-DD")
           : "01-Jan-0001",
         DeviationInDay: val?.DeviationInDay,
         ReasonForDelay: val?.ReasonforDelay,
+        IsNotification: true,
       });
     });
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("ProjectID", data?.Id || data?.ProjectID),
-      form.append("ProjectName", data?.NAME || data?.ProjectName),
-      form.append("IsApprove", "0"),
-      form.append("IsNotification", "0"),
-      form.append("StepMasterRequest", JSON.stringify(payload)),
-      axios
-        .post(apiUrls?.ImplementationSteps_Insert_details, form, { headers })
-        .then((res) => {
-          if (res?.data?.status === true) {
-            toast.success(res?.data?.message);
-            setLoading(false);
-          } else {
-            toast.error(res?.data?.message);
-            setLoading(false);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append(
+    //     "LoginName",
+    //     useCryptoLocalStorage("user_Data", "get", "realname")
+    //   ),
+    // form.append("ProjectID", data?.Id || data?.ProjectID),
+    // form.append("ProjectName", data?.NAME || data?.ProjectName),
+    // form.append("IsApprove", "0"),
+    // form.append("IsNotification", "0"),
+    // form.append("StepMasterRequest", JSON.stringify(payload)),
+    // axios
+    //   .post(apiUrls?.ImplementationSteps_Insert_details, form, { headers })
+    const payload = {
+      ProjectID: Number(data?.Id || data?.ProjectID || 0),
+      ProjectName: String(data?.NAME || data?.ProjectName || ""),
+      IsApprove: Boolean(0),
+      IsNotification: 0,
+      StepMasterRequest: StepMasterRequestData,
+    };
+
+    axiosInstances
+      .post(apiUrls?.ImplementationSteps_Insert_details, payload)
+      .then((res) => {
+        if (res?.data?.success === true) {
+          toast.success(res?.data?.message);
+          setLoading(false);
+        } else {
+          toast.error(res?.data?.message);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const shortenName = (name) => {

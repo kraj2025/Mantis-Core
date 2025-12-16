@@ -8,6 +8,7 @@ import { headers } from "../utils/apitools";
 import { toast } from "react-toastify";
 import Loading from "../components/loader/Loading";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../networkServices/axiosInstance";
 const CheckListEntry = ({ data }) => {
   const [tableData, setTableData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -39,56 +40,49 @@ const CheckListEntry = ({ data }) => {
   };
 
   const handleCheckListSearch = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("RoleID", useCryptoLocalStorage("user_Data", "get", "RoleID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname") ),
-      form.append("ProjectID", data?.Id || data?.ProjectID),
-      form.append("Title", "Checklist"),
-      axios
-        .post(apiUrls?.getViewProject, form, { headers })
-        .then((res) => {
-          setTableData(res?.data?.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls?.getViewProject, {
+        RoleID: Number(useCryptoLocalStorage("user_Data", "get", "RoleID")),
+        ProjectID: Number(data?.Id || data?.ProjectID),
+        Title: "Checklist",
+      })
+      .then((res) => {
+        setTableData(res?.data?.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const handleCheckListSave = () => {
-    let payload = [];
-    tableData?.map((val, index) => {
-      payload.push({
-        "S.No.": index + 1,
-        "CheckListName": val?.CheckListName,
-        ChecklistID: val?.ChecklistID,
-        Status: val?.Status,
-        Remarks: val.Remarks,
-      });
-    });
+    const payload = tableData?.map((val, index) => ({
+      "S.No.": index + 1, // index starts at 0, so +1
+      CheckListName: val?.CheckListName,
+      ChecklistID: val?.ChecklistID,
+      Status: val?.Status,
+      Remarks: val?.Remarks,
+    }));
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("RoleID", useCryptoLocalStorage("user_Data", "get", "RoleID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname") ),
-      form.append("ProjectID", data?.Id || data?.ProjectID),
-      form.append("ActionType", "UpdateCheckList"),
-      form.append("ProjectData", JSON.stringify(payload)),
-      axios
-        .post(apiUrls?.ProjectMasterUpdate, form, { headers })
-        .then((res) => {
-          if (res?.data?.status === true) {
-            toast.success(res?.data?.message);
-            setLoading(false);
-            handleCheckListSearch();
-          } else {
-            toast.error(res?.data?.message);
-            setLoading(false);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+
+    axiosInstances
+      .post(apiUrls?.ProjectMasterUpdate, {
+        ProjectID: Number(data?.Id || data?.ProjectID),
+        ActionType: "UpdateCheckList",
+        ProjectData: String(JSON.stringify(payload)),
+      })
+      .then((res) => {
+        if (res?.data?.success === true) {
+          toast.success(res?.data?.message);
+          setLoading(false);
+          handleCheckListSearch();
+        } else {
+          toast.error(res?.data?.message);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const handleStatusChange = (index, value) => {
@@ -172,7 +166,6 @@ const CheckListEntry = ({ data }) => {
               ),
             };
           })}
-          
         />
         <div className="card p-1">
           <div className="row ">

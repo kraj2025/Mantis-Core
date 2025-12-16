@@ -15,6 +15,7 @@ import Modal from "../components/modalComponent/Modal";
 import MachineDeleteModal from "./MachineDeleteModal";
 import Heading from "../components/UI/Heading";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../networkServices/axiosInstance";
 const MachineModuleModal = ({ data }) => {
   console.log("dataa", data);
   const [tableData, setTableData] = useState([]);
@@ -70,40 +71,67 @@ const MachineModuleModal = ({ data }) => {
           QuoteNo: "",
         },
       ]);
-      let form = new FormData();
-      form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-        form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname") ),
-        form.append("ProjectID", data?.Id || data?.ProjectID || data?.Id),
-        form.append("ActionType", "InsertMachine"),
-        form.append("ProjectData", formDataJson),
-        axios
-          .post(apiUrls?.ProjectMasterUpdate, form, { headers })
-          .then((res) => {
-            if (res?.data?.status == true) {
-              toast.success(res?.data?.message);
-              handleSearch();
-              setLoading(false);
-              setFormData({
-                ...formData,
-                MachineName: "",
-                MachineID: "",
-                InterfaceType: "",
-                LiveStatus: "",
-                AfterLiveStatus: "",
-                MIType: "",
-                MotherBoardID: "",
-                LiveDate: "",
-                IsActive: "",
-              });
-            } else {
-              toast.error(res?.data?.message);
-              setLoading(false);
-            }
-          })
-          .catch((err) => {
-            console.log(err);
+      // let form = new FormData();
+      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+      //   form.append(
+      //     "LoginName",
+      //     useCryptoLocalStorage("user_Data", "get", "realname")
+      //   ),
+      //   form.append("ProjectID", data?.Id || data?.ProjectID || data?.Id),
+      //   form.append("ActionType", "InsertMachine"),
+      //   form.append("ProjectData", formDataJson),
+      //   axios
+      // .post(apiUrls?.ProjectMasterUpdate, form, { headers })
+      const payload = {
+        ProjectID: Number(data?.Id || data?.ProjectID || data?.Id),
+        ActionType: "InsertMachine",
+        MachineName: formData?.MachineName ? String(formData.MachineName) : "",
+        InterfaceType: formData?.InterfaceType
+          ? String(formData.InterfaceType)
+          : "",
+        LiveStatus: formData?.LiveStatus ? String(formData.LiveStatus) : "0",
+        AfterLiveStatus: formData?.AfterLiveStatus
+          ? String(formData.AfterLiveStatus)
+          : "0",
+        MIType: formData?.MIType ? String(formData.MIType) : "",
+        MachineID: formData?.MachineID ? Number(formData.MachineID) : 0,
+        MotherBoardID: formData?.MotherBoardID
+          ? Number(formData.MotherBoardID)
+          : 0,
+        LiveDate: formData?.LiveDate
+          ? formatDate(formData.LiveDate)
+          : "1970-01-01",
+        QuoteNo: "", // always a string
+      };
+
+      axiosInstances
+        .post(apiUrls?.ProjectMasterUpdate, payload)
+        .then((res) => {
+          if (res?.data?.success == true) {
+            toast.success(res?.data?.message);
+            handleSearch();
             setLoading(false);
-          });
+            setFormData({
+              ...formData,
+              MachineName: "",
+              MachineID: "",
+              InterfaceType: "",
+              LiveStatus: "",
+              AfterLiveStatus: "",
+              MIType: "",
+              MotherBoardID: "",
+              LiveDate: "",
+              IsActive: "",
+            });
+          } else {
+            toast.error(res?.data?.message);
+            setLoading(false);
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+          setLoading(false);
+        });
     }
   };
   function formatDate(dateString) {
@@ -134,7 +162,10 @@ const MachineModuleModal = ({ data }) => {
     ]);
     let form = new FormData();
     form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname") ),
+      form.append(
+        "LoginName",
+        useCryptoLocalStorage("user_Data", "get", "realname")
+      ),
       form.append(
         "ProjectID",
         formData?.ProjectID || data?.ProjectID || data?.Id
@@ -175,14 +206,20 @@ const MachineModuleModal = ({ data }) => {
   //   setTableData([...tableData, ...visible?.showData?.showData]);
   // }, []);
   const handleSearch = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname") ),
-      form.append("ProjectName", data?.NAME || data?.ProjectName);
-    form.append("ProjectID", data?.Id || data?.ProjectID);
-    form.append("Title", "Machine");
-    axios
-      .post(apiUrls?.getViewProject, form, { headers })
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname") ),
+    //   form.append("ProjectName", data?.NAME || data?.ProjectName);
+    // form.append("ProjectID", data?.Id || data?.ProjectID);
+    // form.append("Title", "Machine");
+    // axios
+    //   .post(apiUrls?.getViewProject, form, { headers })
+    axiosInstances
+      .post(apiUrls?.getViewProject, {
+        ProjectName:String(data?.NAME || data?.ProjectName),
+        ProjectID: Number(data?.Id || data?.ProjectID),
+        Title: "Machine",
+      })
       .then((res) => {
         setTableData(res?.data?.data);
         setFilteredData(res?.data?.data);
@@ -226,7 +263,6 @@ const MachineModuleModal = ({ data }) => {
     setEditMode(true);
   };
 
- 
   const [t] = useTranslation();
 
   const [visible, setVisible] = useState({
@@ -331,7 +367,10 @@ const MachineModuleModal = ({ data }) => {
     }
     const form = new FormData();
     form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname") ),
+      form.append(
+        "LoginName",
+        useCryptoLocalStorage("user_Data", "get", "realname")
+      ),
       form.append("ProjectID", data?.Id || data?.ProjectID),
       form.append("ActionType", "DeleteMachine"),
       form.append("MachinePrimaryID", selectedIds.join(",")),

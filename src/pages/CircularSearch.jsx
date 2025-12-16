@@ -16,6 +16,8 @@ import ViewMessageCircular from "./ViewMessageCircular";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
 import CircularCountModal from "./CircularCountModal";
 import CircularUNCountModal from "./CircularUNCountModal";
+import { Type } from "lucide-react";
+import { axiosInstances } from "../networkServices/axiosInstance";
 const CircularSearch = () => {
   const { VITE_DATE_FORMAT } = import.meta.env;
   const [tableData, setTableData] = useState([]);
@@ -35,20 +37,19 @@ const CircularSearch = () => {
     Status: "",
   });
   const getCircular = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("Type", "To"),
-      axios
-        .post(apiUrls?.Circular_UserList, form, { headers })
-        .then((res) => {
-          const poc3s = res?.data.data.map((item) => {
-            return { label: item?.RealName, value: item?.Id };
-          });
-          setCircular(poc3s);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.Circular_UserList, {
+        Type: "To",
+      })
+      .then((res) => {
+        const poc3s = res?.data.data.map((item) => {
+          return { label: item?.RealName, value: item?.Id };
         });
+        setCircular(poc3s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const handleDeliveryChange = (name, e) => {
@@ -56,13 +57,6 @@ const CircularSearch = () => {
     setFormData({
       ...formData,
       [name]: value,
-    });
-  };
-  const handleSelectChange = (e) => {
-    const { name, value, checked, type } = e?.target;
-    setFormData({
-      ...formData,
-      [name]: type === "checkbox" ? (checked ? "1" : "0") : value,
     });
   };
 
@@ -81,32 +75,35 @@ const CircularSearch = () => {
     return `${year}/${month}/${day}`;
   }
   const handleCircularSearch = () => {
-    if (formData?.DateType == "") {
+    if (formData?.DateType === "") {
       toast.error("Please Select DateType.");
     } else {
       setLoading(true);
-      let form = new FormData();
-      form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-        form.append("DateType", formData?.DateType),
-        form.append("dtFrom", formatDate(formData?.FromDate)),
-        form.append("dtTo", formatDate(formData?.ToDate)),
-        form.append("CircularSentByID", formData?.CircularSentBy),
-        form.append("Status", formData?.Status),
-        axios
-          .post(apiUrls?.Circular_Search, form, { headers })
-          .then((res) => {
-            setTableData(res?.data?.data);
-            setLoading(false);
-          })
-          .catch((err) => {
-            console.log(err);
-            setLoading(false);
-          });
+
+      const payload = {
+        ID: Number(useCryptoLocalStorage("user_Data", "get", "ID") || 0),
+        DateType: String(formData?.DateType || ""),
+        DtFrom: String(formatDate(formData?.FromDate)),
+        DtTo: String(formatDate(formData?.ToDate)),
+        CircularSentByID: Number(formData?.CircularSentBy || 0),
+        Status: String(formData?.Status || ""),
+      };
+
+      axiosInstances
+        .post(apiUrls?.Circular_Search, {
+          ...payload,
+        })
+        .then((res) => {
+          setTableData(res?.data?.data || []);
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.log(err);
+          setLoading(false);
+        });
     }
   };
-  const shortenName = (name) => {
-    return name.length > 90 ? name.substring(0, 95) + "..." : name;
-  };
+
 
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
@@ -178,9 +175,7 @@ const CircularSearch = () => {
           title={"Circular Search"}
           secondTitle={
             <div style={{ fontWeight: "bold" }}>
-              <Link to="/Circular">
-                Create Circular
-              </Link>
+              <Link to="/Circular">Create Circular</Link>
             </div>
           }
         />
@@ -283,9 +278,9 @@ const CircularSearch = () => {
                 //     {shortenName(ele?.Message)}
                 //   </span>
                 // ),
-                "Entry Date": ele?.dtEntry,
-                "Valid From": ele?.dtFrom,
-                "Valid To": ele?.dtTo,
+                "Entry Date": ele?.DtEntry,
+                "Valid From": ele?.DtFrom,
+                "Valid To": ele?.DtTo,
                 TotalUserCount: ele?.TotalUserCount,
                 ReadByCount: (
                   <div
@@ -293,7 +288,7 @@ const CircularSearch = () => {
                   >
                     <div>{ele?.ReadByCount}</div>
                     <div>
-                      {
+                      {ele?.ReadByCount > 0 ? (
                         <i
                           className="fa fa-eye"
                           onClick={() => {
@@ -302,7 +297,9 @@ const CircularSearch = () => {
                         >
                           {" "}
                         </i>
-                      }
+                      ) : (
+                        ""
+                      )}
                     </div>
                   </div>
                 ),
@@ -312,7 +309,7 @@ const CircularSearch = () => {
                   >
                     <div>{ele?.UnReadByCount}</div>
                     <div>
-                      {
+                      {ele?.UnReadByCount > 0 ? (
                         <i
                           className="fa fa-eye"
                           onClick={() => {
@@ -321,7 +318,9 @@ const CircularSearch = () => {
                         >
                           {" "}
                         </i>
-                      }
+                      ) : (
+                        ""
+                      )}
                     </div>
                   </div>
                 ),

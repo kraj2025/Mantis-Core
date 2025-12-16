@@ -9,36 +9,15 @@ import {
   Tooltip,
 } from "chart.js";
 import { useTranslation } from "react-i18next";
-import axios from "axios";
-import { apiUrls } from "../networkServices/apiEndpoints";
-import { headers } from "../utils/apitools";
 import { useSelector } from "react-redux";
-import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
 const FeedbackByMonth = () => {
   const { t } = useTranslation();
   const { memberID } = useSelector((state) => state?.loadingSlice);
   const [countData, setCountData] = useState([]);
-  const handleFirstDashboardCount = () => {
-    let form = new FormData();
-    form.append("ID",  useCryptoLocalStorage("user_Data", "get", "ID")),
-    form.append("Title", "");
-    form.append("DeveloperID",memberID|| 0),
-      axios
-        .post(apiUrls?.DevDashboard_Summary, form, { headers })
-        .then((res) => {
-          setCountData(res?.data?.dtDelayed[0]);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-  };
-  useEffect(() => {
-    // handleFirstDashboardCount();
-  }, []);
 
-//   useEffect(() => {
-//     handleFirstDashboardCount(memberID);
-//  }, [memberID]);
+ 
+
+
 
   ChartJS.register(CategoryScale, LinearScale, Title, BarElement, Tooltip);
 

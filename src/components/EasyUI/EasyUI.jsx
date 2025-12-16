@@ -4,7 +4,6 @@ import { DataGrid, GridColumn } from "rc-easyui";
 const EasyUI = ({ dataBind, dataColoum, onClick, selectedIndex }) => {
   // useEffect(() => {
   //   if (selectedIndex !== null) {
-  //     debugger;
   //     const data = document.getElementsByClassName("datagrid-row");
   //     console.log(data[selectedIndex].classList);
   //   }

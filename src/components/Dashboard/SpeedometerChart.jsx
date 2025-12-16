@@ -10,39 +10,82 @@ const SpeedometerChart = ({ getItem }) => {
   const [maxValue, setMaxValue] = useState(100);
   const { memberID } = useSelector((state) => state?.loadingSlice);
 
-  const handleFirstDashboardCount = () => {
-    axiosInstances
-      .post(apiUrls.DevDashboard_Summary, {
-        title: String("DeveloperPerformance"),
-        developerID: String(memberID || "0"),
-      })
-      .then((res) => {
-        const performance = Number(res?.data?.Score || 0);
-        setPerformanceValue(performance);
-        const minPerf = 0;
-        const maxPerf = 100;
-        setMinValue(minPerf);
-        setMaxValue(maxPerf);
-        getItem(performance);
-        let color = "steelblue"; // Default
-        if (performance <= 20) {
-          color = "#FF0000"; // Very Poor
-        } else if (performance <= 40) {
-          color = "#FF4500"; // Poor
-        } else if (performance <= 60) {
-          color = "#FFD700"; // Average
-        } else if (performance <= 80) {
-          color = "#ADFF2F"; // Good
-        } else if (performance <= 100) {
-          color = "#008000"; // Very Good
-        }
+  // const handleFirstDashboardCount = () => {
+  //   axiosInstances
+  //     .post(apiUrls.DevDashboard_Summary, {
+  //       title: String("DeveloperPerformance"),
+  //       developerID: String(memberID || "0"),
+  //     })
+  //     .then((res) => {
+  //       const performance = Number(res?.data?.Score || 0);
+  //       setPerformanceValue(performance);
+  //       const minPerf = 0;
+  //       const maxPerf = 100;
+  //       setMinValue(minPerf);
+  //       setMaxValue(maxPerf);
+  //       getItem(performance);
+  //       let color = "steelblue"; // Default
+  //       if (performance <= 20) {
+  //         color = "#FF0000"; // Very Poor
+  //       } else if (performance <= 40) {
+  //         color = "#FF4500"; // Poor
+  //       } else if (performance <= 60) {
+  //         color = "#FFD700"; // Average
+  //       } else if (performance <= 80) {
+  //         color = "#ADFF2F"; // Good
+  //       } else if (performance <= 100) {
+  //         color = "#008000"; // Very Good
+  //       }
 
-        setNeedleColor(color);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
+  //       setNeedleColor(color);
+  //     })
+  //     .catch((err) => {
+  //       console.log(err);
+  //     });
+  // };
+
+const handleFirstDashboardCount = () => {
+  axiosInstances
+    .post(apiUrls.DevDashboard_Summary, {
+      Title: String("DeveloperPerformance"),
+      DeveloperID: String(memberID || "0"),
+    })
+    .then((res) => {
+      const performance = Number(res?.data?.performance?.Score || 0);
+      
+      setPerformanceValue(performance);
+
+      const minPerf = 0;
+      const maxPerf = 100;
+      setMinValue(minPerf);
+      setMaxValue(maxPerf);
+
+      getItem(performance);
+
+      let color = "steelblue"; // Default color
+      if (performance <= 20) {
+        color = "#FF0000"; // Very Poor
+      } else if (performance <= 40) {
+        color = "#FF4500"; // Poor
+      } else if (performance <= 60) {
+        color = "#FFD700"; // Average
+      } else if (performance <= 80) {
+        color = "#ADFF2F"; // Good
+      } else if (performance <= 100) {
+        color = "#008000"; // Very Good
+      }
+
+      setNeedleColor(color);
+
+      // Optionally, you can handle dtCal if needed, e.g.
+      const dtCal = res?.data?.performance?.dtCal || [];
+      console.log('Performance Breakdown:', dtCal);
+    })
+    .catch((err) => {
+      console.error(err);
+    });
+};
+
 
   useEffect(() => {
     handleFirstDashboardCount(memberID);

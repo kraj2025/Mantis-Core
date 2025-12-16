@@ -56,7 +56,11 @@ const AttendanceDashboard = ({ data }) => {
           usePointStyle: true,
           pointStyle: "circle",
         },
+        datalabels: {
+          display: false, // 👈 disables value labels on bars
+        },
       },
+
       title: { display: false },
     },
     scales: {

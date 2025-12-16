@@ -12,6 +12,7 @@ import Loading from "../components/loader/Loading";
 import excelimg from "../../src/assets/image/excel.png";
 import { ExportToExcel } from "../networkServices/Tools";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../networkServices/axiosInstance";
 const AgeingSheet = () => {
   const [t] = useTranslation();
   const [loading, setLoading] = useState(false);
@@ -35,116 +36,101 @@ const AgeingSheet = () => {
   const [poc3, setPoc3] = useState([]);
 
   const getProject = () => {
-    let form = new FormData();
-    form.append("ID",  useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      axios
-        .post(apiUrls?.ProjectSelect, form, { headers })
-        .then((res) => {
-          const poc3s = res?.data.data.map((item) => {
-            return { name: item?.Project, code: item?.ProjectId };
-          });
-          setProject(poc3s);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.ProjectSelect, {})
+      .then((res) => {
+        const poc3s = res?.data.data.map((item) => {
+          return { name: item?.Project, code: item?.ProjectId };
         });
+        setProject(poc3s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const getVertical = () => {
-    let form = new FormData();
-    form.append("Id",  useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Vertical_Select, form, { headers })
-        .then((res) => {
-          const verticals = res?.data.data.map((item) => {
-            return { name: item?.Vertical, code: item?.VerticalID };
-          });
-          setVertical(verticals);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.Vertical_Select, {})
+      .then((res) => {
+        const verticals = res?.data.data.map((item) => {
+          return { name: item?.Vertical, code: item?.VerticalID };
         });
+        setVertical(verticals);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const getTeam = () => {
-    let form = new FormData();
-    form.append("ID",  useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Team_Select, form, { headers })
-        .then((res) => {
-          const teams = res?.data.data.map((item) => {
-            return { name: item?.Team, code: item?.TeamID };
-          });
-          setTeam(teams);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.Team_Select, {})
+      .then((res) => {
+        const teams = res?.data.data.map((item) => {
+          return { name: item?.Team, code: item?.TeamID };
         });
+        setTeam(teams);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const getWing = () => {
-    let form = new FormData();
-    form.append("ID",  useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Wing_Select, form, { headers })
-        .then((res) => {
-          const wings = res?.data.data.map((item) => {
-            return { name: item?.Wing, code: item?.WingID };
-          });
-          setWing(wings);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.Wing_Select, {})
+      .then((res) => {
+        const wings = res?.data.data.map((item) => {
+          return { name: item?.Wing, code: item?.WingID };
         });
+        setWing(wings);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const getPOC1 = () => {
-    let form = new FormData();
-    form.append("ID",  useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.POC_1_Select, form, { headers })
-        .then((res) => {
-          const poc1s = res?.data.data.map((item) => {
-            return { name: item?.POC_1_Name, code: item?.POC_1_ID };
-          });
-          setPoc1(poc1s);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.POC_1_Select, {})
+      .then((res) => {
+        const poc1s = res?.data.data.map((item) => {
+          return { name: item?.POC_1_Name, code: item?.POC_1_ID };
         });
+        setPoc1(poc1s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const getPOC2 = () => {
-    let form = new FormData();
-    form.append("ID",  useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.POC_2_Select, form, { headers })
-        .then((res) => {
-          const poc2s = res?.data.data.map((item) => {
-            return { name: item?.POC_2_Name, code: item?.POC_2_ID };
-          });
-          setPoc2(poc2s);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.POC_2_Select, {})
+      .then((res) => {
+        const poc2s = res?.data.data.map((item) => {
+          return { name: item?.POC_2_Name, code: item?.POC_2_ID };
         });
+        setPoc2(poc2s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const getPOC3 = () => {
-    let form = new FormData();
-    form.append("ID",  useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.POC_3_Select, form, { headers })
-        .then((res) => {
-          const poc3s = res?.data.data.map((item) => {
-            return { name: item?.POC_3_Name, code: item?.POC_3_ID };
-          });
-          setPoc3(poc3s);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.POC_3_Select, {})
+      .then((res) => {
+        const poc3s = res?.data.data.map((item) => {
+          return { name: item?.POC_3_Name, code: item?.POC_3_ID };
         });
+        setPoc3(poc3s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const handleDeliveryChange = (name, e) => {
@@ -165,28 +151,35 @@ const AgeingSheet = () => {
 
   const handleSearch = () => {
     setLoading(true);
-    let form = new FormData();
-    form.append("ID",  useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("RoleID", useCryptoLocalStorage("user_Data", "get", "RoleID")),
-      form.append("ProjectID", formData.ProjectID),
-      form.append("VerticalID", formData.VerticalID),
-      form.append("TeamID", formData.TeamID),
-      form.append("WingID", formData.WingID),
-      form.append("POC1", formData.POC1),
-      form.append("POC2", formData.POC2),
-      form.append("POC3", formData.POC3),
-      form.append("GroupBy", formData.GroupBy),
-      axios
-        .post(apiUrls?.MantisSummary_Search, form, { headers })
-        .then((res) => {
-          setTableData(res?.data?.dtAgeing);
-          setLoading(false);
-        })
-        .catch((err) => {
-          console.log(err);
-          setLoading(false);
-        });
+
+    axiosInstances
+      .post(apiUrls.MantisSummary_Search, {
+        ID: 0,
+        DateType: "string",
+        DateRange: "string",
+        FromDate: new Date().toISOString(),
+        ToDate: new Date().toISOString(),
+
+        ProjectIDs: formData?.ProjectID?.length ? [...formData.ProjectID] : [0],
+        VerticalIDs: formData?.VerticalID?.length
+          ? [...formData.VerticalID]
+          : [0],
+        TeamIDs: formData?.TeamID?.length ? [...formData.TeamID] : [0],
+        WingIDs: formData?.WingID?.length ? [...formData.WingID] : [0],
+        POC1s: formData?.POC1?.length ? [...formData.POC1] : [0],
+        POC2s: formData?.POC2?.length ? [...formData.POC2] : [0],
+        POC3s: formData?.POC3?.length ? [...formData.POC3] : [0],
+
+        DeveloperID: formData?.DeveloperID || 0,
+      })
+      .then((res) => {
+        setTableData(res?.data?.dtAgeing);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
   };
 
   useEffect(() => {

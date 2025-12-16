@@ -28,6 +28,7 @@ import { ExportToPDF } from "../../src/networkServices/Tools";
 import gmaillogo from "../../src/assets/image/Gmail_Logo.png";
 import GmailConnecterModal from "../components/UI/customTable/GmailConnecterModal";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../networkServices/axiosInstance";
 const SearchConnectorRequest = ({ data }) => {
   // console.log("jsjshjshj", data);
   const [t] = useTranslation();
@@ -117,12 +118,18 @@ const SearchConnectorRequest = ({ data }) => {
     if (savedData) {
       setFormData(JSON.parse(savedData));
     }
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("Type", "AmountSubmission"),
-      form.append("FilterData", savedData),
-      axios
-        .post(apiUrls?.SaveFilterDataSubmission, form, { headers })
+    
+    axiosInstances
+      .post(apiUrls.SaveFilterDataSubmission, {
+  "Type": "AmountSubmission",
+  "FilterData": String(savedData)
+})
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append("Type", "AmountSubmission"),
+    //   form.append("FilterData", savedData),
+    //   axios
+    //     .post(apiUrls?.SaveFilterDataSubmission, form, { headers })
         .then((res) => {
           toast.success(res?.data?.message);
           setFormData({
@@ -156,12 +163,16 @@ const SearchConnectorRequest = ({ data }) => {
   };
 
   const handleSearchFilter = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("Type", "AmountSubmission"),
-      // form.append("FilterData", savedData),
-      axios
-        .post(apiUrls?.SearchFilterDataSubmission, form, { headers })
+    axiosInstances
+      .post(apiUrls.SearchFilterDataSubmission, {
+  "Type": "AmountSubmission"
+})
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append("Type", "AmountSubmission"),
+    //   // form.append("FilterData", savedData),
+    //   axios
+    //     .post(apiUrls?.SearchFilterDataSubmission, form, { headers })
         .then((res) => {
           console.log("Response data:", res?.data);
 
@@ -212,10 +223,16 @@ const SearchConnectorRequest = ({ data }) => {
     });
   };
   const getMultiReporter = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Reporter_Select, form, { headers })
+    axiosInstances
+      .post(apiUrls.Reporter_Select, {
+  "IsMaster": 0,
+  "RoleID": 0,
+  "OnlyItdose": 0
+})
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   axios
+    //     .post(apiUrls?.Reporter_Select, form, { headers })
         .then((res) => {
           const reporters = res?.data.data.map((item) => {
             return { name: item?.NAME, code: item?.ID };
@@ -227,10 +244,12 @@ const SearchConnectorRequest = ({ data }) => {
         });
   };
   const getVertical = () => {
-    let form = new FormData();
-    form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Vertical_Select, form, { headers })
+    axiosInstances
+      .post(apiUrls.Vertical_Select, {})
+    // let form = new FormData();
+    // form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   axios
+    //     .post(apiUrls?.Vertical_Select, form, { headers })
         .then((res) => {
           const verticals = res?.data.data.map((item) => {
             return { name: item?.Vertical, code: item?.VerticalID };
@@ -242,10 +261,12 @@ const SearchConnectorRequest = ({ data }) => {
         });
   };
   const getTeam = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Team_Select, form, { headers })
+        axiosInstances
+      .post(apiUrls.Team_Select, {})
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   axios
+    //     .post(apiUrls?.Team_Select, form, { headers })
         .then((res) => {
           const teams = res?.data.data.map((item) => {
             return { name: item?.Team, code: item?.TeamID };
@@ -257,10 +278,12 @@ const SearchConnectorRequest = ({ data }) => {
         });
   };
   const getWing = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Wing_Select, form, { headers })
+            axiosInstances
+      .post(apiUrls.Wing_Select, {})
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   axios
+    //     .post(apiUrls?.Wing_Select, form, { headers })
         .then((res) => {
           const wings = res?.data.data.map((item) => {
             return { name: item?.Wing, code: item?.WingID };
@@ -272,10 +295,12 @@ const SearchConnectorRequest = ({ data }) => {
         });
   };
   const getPOC1 = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.POC_1_Select, form, { headers })
+            axiosInstances
+      .post(apiUrls.POC_1_Select, {})
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   axios
+    //     .post(apiUrls?.POC_1_Select, form, { headers })
         .then((res) => {
           const poc1s = res?.data.data.map((item) => {
             return { name: item?.POC_1_Name, code: item?.POC_1_ID };
@@ -287,10 +312,12 @@ const SearchConnectorRequest = ({ data }) => {
         });
   };
   const getPOC2 = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.POC_2_Select, form, { headers })
+     axiosInstances
+      .post(apiUrls.POC_2_Select, {})
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   axios
+    //     .post(apiUrls?.POC_2_Select, form, { headers })
         .then((res) => {
           const poc2s = res?.data.data.map((item) => {
             return { name: item?.POC_2_Name, code: item?.POC_2_ID };
@@ -302,10 +329,12 @@ const SearchConnectorRequest = ({ data }) => {
         });
   };
   const getPOC3 = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.POC_3_Select, form, { headers })
+     axiosInstances
+      .post(apiUrls.POC_3_Select, {})
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   axios
+    //     .post(apiUrls?.POC_3_Select, form, { headers })
         .then((res) => {
           const poc3s = res?.data.data.map((item) => {
             return { name: item?.POC_3_Name, code: item?.POC_3_ID };
@@ -317,11 +346,19 @@ const SearchConnectorRequest = ({ data }) => {
         });
   };
   const getProject = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      axios
-        .post(apiUrls?.ProjectSelect, form, { headers })
+     axiosInstances
+      .post(apiUrls.ProjectSelect, {
+  "ProjectID": 0,
+  "IsMaster": "0",
+  "VerticalID": 0,
+  "TeamID": 0,
+  "WingID": 0
+})
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
+    //   axios
+    //     .post(apiUrls?.ProjectSelect, form, { headers })
         .then((res) => {
           const poc3s = res?.data.data.map((item) => {
             return { name: item?.Project, code: item?.ProjectId };
@@ -348,33 +385,51 @@ const SearchConnectorRequest = ({ data }) => {
       toast.error("Please Select Status.");
     } else {
       setLoading(true);
-      let form = new FormData();
-      form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-        form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-        form.append(
-          "ProjectID",
-          project?.length > 0 && project !== "0" ? project : formData?.ProjectID
-        ),
-        form.append("VerticalID", formData?.VerticalID),
-        form.append("TeamID", formData?.TeamID),
-        form.append("WingID", formData?.WingID),
-        form.append("POC1", formData?.POC1),
-        form.append("POC2", formData?.POC2),
-        form.append("POC3", formData?.POC3),
-        form.append("Status", formData?.Status),
-        form.append("DateType", formData?.DateType),
-        form.append("FromDate", formatDate(formData?.FromDate)),
-        form.append("ToDate", formatDate(formData?.ToDate)),
-        form.append("ConnectorID", ""),
-        form.append("IsExcel", "0"),
-        form.append("rowColor", code ? code : ""),
-        form.append("PageSize", formData?.PageSize),
-        form.append("PageNo", page ?? currentPage - 1),
-        axios
-          .post(apiUrls?.Connector_Search, form, { headers })
+       axiosInstances
+      .post(apiUrls.Connector_Search, {
+  "ConnectorID": 0,
+  "DateType": String(formData?.DateType),
+  "FromDate": String(formatDate(formData?.FromDate)),
+  "ToDate": String(formatDate(formData?.ToDate)),
+  "Status": String(formData?.Status),
+  "rowColor": String(code ? code : ""),
+  "PageSize": Number(formData?.PageSize),
+  "PageNo": Number(page ?? currentPage - 1),
+  "IsExcel": 0,
+  "ProjectID": String(project?.length > 0 && project !== "0" ? project : formData?.ProjectID),
+  "VerticalID": String(formData?.VerticalID),
+  "TeamID":String(formData?.TeamID),
+  "WingID": String(formData?.WingID),
+  "POC1":String(formData?.POC1),
+  "POC2": String(formData?.POC2),
+  "POC3": String(formData?.POC3),
+})
+      // let form = new FormData();
+      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+      //   form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
+      //   form.append(
+      //     "ProjectID",
+      //     project?.length > 0 && project !== "0" ? project : formData?.ProjectID
+      //   ),
+      //   form.append("VerticalID", formData?.VerticalID),
+      //   form.append("TeamID", formData?.TeamID),
+      //   form.append("WingID", formData?.WingID),
+      //   form.append("POC1", formData?.POC1),
+      //   form.append("POC2", formData?.POC2),
+      //   form.append("POC3", formData?.POC3),
+      //   form.append("Status", formData?.Status),
+      //   form.append("DateType", formData?.DateType),
+      //   form.append("FromDate", formatDate(formData?.FromDate)),
+      //   form.append("ToDate", formatDate(formData?.ToDate)),
+      //   form.append("ConnectorID", ""),
+      //   form.append("IsExcel", "0"),
+      //   form.append("rowColor", code ? code : ""),
+      //   form.append("PageSize", formData?.PageSize),
+      //   form.append("PageNo", page ?? currentPage - 1),
+      //   axios
+      //     .post(apiUrls?.Connector_Search, form, { headers })
           .then((res) => {
             const data = res?.data?.data;
-            console.log("dataaa", data);
             if (data?.length == 0) {
               setShownodata(true);
             }
@@ -405,25 +460,44 @@ const SearchConnectorRequest = ({ data }) => {
   };
   const handleExcel = () => {
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("ProjectID", formData?.ProjectID),
-      form.append("VerticalID", formData?.VerticalID),
-      form.append("TeamID", formData?.TeamID),
-      form.append("WingID", formData?.WingID),
-      form.append("POC1", formData?.POC1),
-      form.append("POC2", formData?.POC2),
-      form.append("POC3", formData?.POC3),
-      form.append("Status", formData?.Status),
-      form.append("DateType", formData?.DateType),
-      form.append("FromDate", formatDate(formData?.FromDate)),
-      form.append("ToDate", formatDate(formData?.ToDate)),
-      form.append("ConnectorID", ""),
-      form.append("IsExcel", "1"),
-      form.append("PageSize", formData?.PageSize),
-      axios
-        .post(apiUrls?.Connector_Search, form, { headers })
+     axiosInstances
+      .post(apiUrls.Connector_Search, {
+  ConnectorID: formData?.ConnectorID ? Number(formData.ConnectorID) : 0,
+  DateType: formData?.DateType ? String(formData.DateType) : "",
+  FromDate: formData?.FromDate ? String(formatDate(formData.FromDate)) : "",
+  ToDate: formData?.ToDate ? String(formatDate(formData.ToDate)) : "",
+  Status: formData?.Status ? String(formData.Status) : "",
+  rowColor: formData?.rowColor ? String(formData.rowColor) : "",
+  PageSize: formData?.PageSize ? Number(formData.PageSize) : 0,
+  PageNo: formData?.PageNo ? Number(formData.PageNo) : 0,
+  IsExcel: formData?.IsExcel ? Number(formData.IsExcel) : 0,
+  ProjectID: formData?.ProjectID ? String(formData.ProjectID) : "",
+  VerticalID: formData?.VerticalID ? String(formData.VerticalID) : "",
+  TeamID: formData?.TeamID ? String(formData.TeamID) : "",
+  WingID: formData?.WingID ? String(formData.WingID) : "",
+  POC1: formData?.POC1 ? String(formData.POC1) : "",
+  POC2: formData?.POC2 ? String(formData.POC2) : "",
+  POC3: formData?.POC3 ? String(formData.POC3) : ""
+})
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
+    //   form.append("ProjectID", formData?.ProjectID),
+    //   form.append("VerticalID", formData?.VerticalID),
+    //   form.append("TeamID", formData?.TeamID),
+    //   form.append("WingID", formData?.WingID),
+    //   form.append("POC1", formData?.POC1),
+    //   form.append("POC2", formData?.POC2),
+    //   form.append("POC3", formData?.POC3),
+    //   form.append("Status", formData?.Status),
+    //   form.append("DateType", formData?.DateType),
+    //   form.append("FromDate", formatDate(formData?.FromDate)),
+    //   form.append("ToDate", formatDate(formData?.ToDate)),
+    //   form.append("ConnectorID", ""),
+    //   form.append("IsExcel", "1"),
+    //   form.append("PageSize", formData?.PageSize),
+    //   axios
+    //     .post(apiUrls?.Connector_Search, form, { headers })
         .then((res) => {
           console.log("dataatata", res?.data?.data);
           const datas = res?.data?.data;
@@ -815,7 +889,7 @@ const SearchConnectorRequest = ({ data }) => {
             id="FromDate"
             name="FromDate"
             lable={t("From Date")}
-            maxDate={formData?.ToDate}
+            // maxDate={formData?.ToDate}
             placeholder={VITE_DATE_FORMAT}
             value={formData?.FromDate}
             respclass="col-xl-2 col-md-4 col-sm-6 col-12"
@@ -826,7 +900,7 @@ const SearchConnectorRequest = ({ data }) => {
             id="ToDate"
             name="ToDate"
             lable={t("To Date")}
-            minDate={formData?.FromDate}
+            // minDate={formData?.FromDate}
             placeholder={VITE_DATE_FORMAT}
             value={formData?.ToDate}
             respclass="col-xl-2 col-md-4 col-sm-6 col-12"

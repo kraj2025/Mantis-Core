@@ -10,6 +10,7 @@ import Loading from "../../components/loader/Loading";
 import { Fade } from "react-bootstrap";
 import Heading from "../../components/UI/Heading";
 import { useCryptoLocalStorage } from "../../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../../networkServices/axiosInstance";
 
 const NewFileMaster = () => {
   const [editMode, setEditMode] = useState(false);
@@ -46,74 +47,61 @@ const NewFileMaster = () => {
     }
   };
   const bindMenu = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("MenuName", ""),
-      axios
-        .post(apiUrls?.SearchMenu, form, { headers })
-        .then((res) => {
-          const poc3s = res?.data.data.map((item) => {
-            return { label: item?.MenuName, value: item?.ID };
-          });
-          setMenuMaster(poc3s);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.SearchMenu, {
+        MenuName: String(""),
+      })
+      .then((res) => {
+        const poc3s = res?.data.data.map((item) => {
+          return { label: item?.MenuName, value: item?.ID };
         });
+        setMenuMaster(poc3s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const newFileTHEAD = ["S.No.", "Display Name", "Url Name", "Status", "Edit"];
   const handleSave = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("MenuID", formData?.MenuName),
-      form.append("URLName", formData?.URL),
-      form.append("DispName", formData?.DisplayName),
-      axios
-        .post(apiUrls?.CreateFile, form, { headers })
-        .then((res) => {
-          if (res?.data?.status === true) {
-            toast.success(res?.data?.message);
-          } else {
-            toast.error(res?.data?.message);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls.CreateFile, {
+        MenuID: Number(formData?.MenuName),
+        URLName: String(formData?.URL),
+        DispName: String(formData?.DisplayName),
+        Description: String(),
+      })
+      .then((res) => {
+        if (res?.data?.success === true) {
+          toast.success(res?.data?.message);
+        } else {
+          toast.error(res?.data?.message);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const handleUpdate = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("MenuID", formData?.MenuName),
-      form.append("URLName", formData?.URL),
-      form.append("URLID", formData?.UrlID),
-      form.append("DispName", formData?.DisplayName),
-      form.append("ActiveStatus", formData?.IsActive),
-      axios
-        .post(apiUrls?.UpdateFile, form, { headers })
-        .then((res) => {
-          if (res?.data?.status === true) {
-            toast.success(res?.data?.message);
-          } else {
-            toast.error(res?.data?.message);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls.UpdateFile, {
+        MenuID: Number(formData?.MenuName),
+        URLName: String(formData?.URL),
+        URLID: Number(formData?.UrlID),
+        DispName: String(formData?.DisplayName),
+        Description: String(),
+        ActiveStatus: Number(formData?.IsActive),
+      })
+      .then((res) => {
+        if (res?.data?.success === true) {
+          toast.success(res?.data?.message);
+        } else {
+          toast.error(res?.data?.message);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const handleBillingEdit = (ele) => {
@@ -129,22 +117,17 @@ const NewFileMaster = () => {
     setEditMode(true);
   };
   const bindTableData = (menuID) => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("MenuID", menuID),
-      form.append("DispName", formData?.DisplayName),
-      axios
-        .post(apiUrls?.SearchFile, form, { headers })
-        .then((res) => {
-          setTableData(res?.data?.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls.SearchFile, {
+        MenuID: Number(menuID),
+        DispName: String(formData?.DisplayName),
+      })
+      .then((res) => {
+        setTableData(res?.data?.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;

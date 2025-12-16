@@ -6,20 +6,23 @@ import axios from "axios";
 import { apiUrls } from "../networkServices/apiEndpoints";
 import { headers } from "../utils/apitools";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../networkServices/axiosInstance";
 const PlannedList = () => {
   const [todaysdeliverylist, settodaysdeliverylist] = useState([]);
   const handleTodaysDeliveryList = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("SearchType", "Planned"),
-      axios
-        .post(apiUrls?.DevDashboard_Detailed, form, { headers })
-        .then((res) => {
-          settodaysdeliverylist(res?.data?.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+  
+    axiosInstances
+      .post(apiUrls?.DevDashboard_Detailed, {
+        ID: Number(useCryptoLocalStorage("user_Data", "get", "ID")),
+        SearchType: String("Planned"),
+        DeveloperID: Number(0),
+      })
+      .then((res) => {
+        settodaysdeliverylist(res?.data?.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const shortenName1 = (name) => {
     return name.length > 30 ? name.substring(0, 25) + "..." : name;

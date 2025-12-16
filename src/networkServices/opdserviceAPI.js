@@ -1,7 +1,7 @@
 import { setLoading } from "../store/reducers/loadingSlice/loadingSlice";
 import store from "../store/store";
 import { apiUrls } from "./apiEndpoints";
-import makeApiRequest from "./axiosInstance";
+import makeApiRequest, { axiosInstances } from "./axiosInstance";
 
 export const Oldpatientsearch = async (searchKey, Type = 0) => {
   store.dispatch(setLoading(true));
@@ -527,7 +527,7 @@ export const GetImplementaionMaster= async (params) => {
       method: "POST",
       data: params,
     };
-    const data = await makeApiRequest(
+    const data = await axiosInstances(
       `${apiUrls?.GetImplementaiondropdown}`,
       options
     );
@@ -545,7 +545,7 @@ export const SaveImplementaionMaster= async (params) => {
       method: "POST",
       data: params,
     };
-    const data = await makeApiRequest(
+    const data = await axiosInstances(
       `${apiUrls?.InsertImplementaion}`,
       options
     );
@@ -563,7 +563,7 @@ export const DeleteImplementaionMaster= async (params) => {
       method: "POST",
       data: params,
     };
-    const data = await makeApiRequest(
+    const data = await axiosInstances(
       `${apiUrls?.DeleteImplementation}`,
       options
     );
@@ -581,7 +581,7 @@ export const UpdateImplementation= async (params) => {
       method: "POST",
       data: params,
     };
-    const data = await makeApiRequest(
+    const data = await axiosInstances(
       `${apiUrls?.UpdateImplementation}`,
       options
     );

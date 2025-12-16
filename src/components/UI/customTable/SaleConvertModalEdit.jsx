@@ -10,9 +10,10 @@ import DatePicker from "../../formComponent/DatePicker";
 import moment from "moment";
 import Loading from "../../loader/Loading";
 import { useCryptoLocalStorage } from "../../../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../../../networkServices/axiosInstance";
 
 const SaleConvertModalEdit = ({ visible, setVisible, handleSearch }) => {
-  console.log("lotus edit ", visible);
+  console.log("lotus edit ", visible.showData.saveEditData.ProjectName);
   const [loading, setLoading] = useState(false);
   // console.log(visible?.visible?.showData?.EncryptID);
   const { VITE_DATE_FORMAT } = import.meta.env;
@@ -34,18 +35,21 @@ const SaleConvertModalEdit = ({ visible, setVisible, handleSearch }) => {
   });
   const [errors, setErrors] = useState({});
   const getProjectEmail = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("ProjectID", visible?.showData?.saveEditData?.ProjectID),
-      axios
-        .post(apiUrls?.ProjectSelect, form, { headers })
-        .then((res) => {
-          setProjectEmail(res?.data?.data[0]);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls.ProjectSelect, {
+        ProjectID: String(visible?.showData?.saveEditData?.ProjectID),
+        IsMaster: "0",
+        VerticalID: 0,
+        TeamID: 0,
+        WingID: 0,
+      })
+   
+      .then((res) => {
+        setProjectEmail(res?.data?.data[0]);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const handleCheckBoxEmail = (e) => {
@@ -77,32 +81,33 @@ const SaleConvertModalEdit = ({ visible, setVisible, handleSearch }) => {
 
   const searchHandleChange = (e, index) => {
     const { name, value } = e.target;
-  
+
     if (typeof index === "undefined") {
       console.error("Index is not defined. Please provide a valid index.");
       return;
     }
-  
+
     setTableData((prevTableData) => {
       const updatedTableData = [...prevTableData];
       const newErrors = { ...errors };
-  
+
       if (!updatedTableData[index]) return prevTableData;
-  
-      let netAmount = parseFloat(visible?.showData?.saveEditData?.NetAmount) || 0;
-  
+
+      let netAmount =
+        parseFloat(visible?.showData?.saveEditData?.NetAmount) || 0;
+
       if (name === "Percent") {
         let percentValue = parseFloat(value);
         if (percentValue > 100) percentValue = 100;
-  
+
         let calculatedAmount = (percentValue / 100) * netAmount;
-  
+
         let totalAmount = updatedTableData.reduce((sum, row, i) => {
           return (
-            sum + (i === index ? calculatedAmount : parseFloat(row.Amount ))
+            sum + (i === index ? calculatedAmount : parseFloat(row.Amount))
           );
         }, 0);
-  
+
         if (totalAmount > netAmount) {
           newErrors[index] = "Enter Valid Percent.";
         } else {
@@ -116,12 +121,12 @@ const SaleConvertModalEdit = ({ visible, setVisible, handleSearch }) => {
       } else if (name === "Amount") {
         let enteredAmount = value; // allow raw input including empty string
         let parsedAmount = parseFloat(enteredAmount);
-      
+
         let totalAmount = updatedTableData.reduce((sum, row, i) => {
           let amt = i === index ? parsedAmount : parseFloat(row.Amount || 0);
           return sum + (isNaN(amt) ? 0 : amt);
         }, 0);
-      
+
         if (!isNaN(parsedAmount) && totalAmount > netAmount) {
           newErrors[index] = "Enter Valid Amount.";
         } else {
@@ -134,7 +139,6 @@ const SaleConvertModalEdit = ({ visible, setVisible, handleSearch }) => {
                 ? ((parsedAmount / netAmount) * 100).toFixed(2)
                 : "",
           };
-        
         }
       } else {
         // Handle all other generic fields like Terms, Remark, etc.
@@ -143,12 +147,11 @@ const SaleConvertModalEdit = ({ visible, setVisible, handleSearch }) => {
           [name]: value,
         };
       }
-  
+
       setErrors(newErrors);
       return updatedTableData;
     });
   };
-  
 
   const handleRemoveRow = (index) => {
     if (typeof index === "undefined") {
@@ -162,74 +165,68 @@ const SaleConvertModalEdit = ({ visible, setVisible, handleSearch }) => {
   };
 
   const Quotation_PaymentTerms_Select = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append(
-        "QuotationID",
-        visible?.showData?.recordID || visible?.encryptFile
-      ),
-      axios
-        .post(apiUrls?.Quotation_PaymentTerms_Select, form, { headers })
-        .then((res) => {
-          const uploadData = res?.data?.data;
-          const updatedData = uploadData.map((item) => ({
-            ...item,
-            ExpectedDate: item?.ExpectedDate || new Date(),
-            Amount: item.Amount, // Default to empty string if undefined
-            Remark: item.Remark || "",
-            Percent: item.Percent, // Default to 0 if undefined
-          }));
+    axiosInstances
+      .post(apiUrls.Quotation_PaymentTerms_Select, {
+        QuotationID: String(
+          visible?.showData?.recordID || visible?.encryptFile
+        ),
+      })
+    
+      .then((res) => {
+        const uploadData = res?.data?.data;
+        const updatedData = uploadData.map((item) => ({
+          ...item,
+          ExpectedDate: item?.ExpectedDate || new Date(),
+          Amount: item.Amount, // Default to empty string if undefined
+          Remark: item.Remark || "",
+          Percent: item.Percent, // Default to 0 if undefined
+        }));
 
-          setTableData(updatedData);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+        setTableData(updatedData);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const handleSaleConvert = () => {
     let DatePayload = [];
     tableData?.map((val, index) => {
-      // console.log("val val", val);
+      console.log("val val", val);
       DatePayload?.push({
-        "S.No.": index + 1,
-        // Installment: val?.Installment,
+        // "S.No.": index + 1,
         ExpectedDate: moment(val?.ExpectedDate).format("YYYY-MM-DD"),
-        Percent: val?.Percent,
-        Amount: val?.Amount,
-        Remark: val?.Remark || "",
-        Terms: val?.Terms,
-        TermsID: val?.TermsID,
+        Percent: String(val?.Percent || ""),
+        Amount: String(val?.Amount || ""),
+        Remark: String(val?.Remark || ""),
+        Terms: String(val?.Terms || ""),
+        TermsID: String(val?.TermsID || ""),
+        ItemName: String(""),
+        ItemID: String(""),
+        SAC: String(""),
+        IsActive: String(""),
+        PaymentMode: String(""),
+        TaxAmount: String(""),
+        TaxPercentage: String(""),
+        Rate: String(val?.Rate || ""),
+        Quantity: String(val?.Quantity || ""),
+        DiscountAmount: String(val?.DiscountAmount || ""),
       });
     });
 
-    // let PaymentTerms = [];
-    // termsdata?.map((val, index) => {
-    //   PaymentTerms?.push({
-    //     "S.No.": index,
-    //     TermsID: val?.TermsID,
-    //     Terms: val?.Terms,
-    //   });
-    // });
+ 
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("QuotationID", visible?.showData?.recordID),
-      form.append("EmailTo", formData?.EmailTo),
-      form.append("EmailCC", formData?.EmailCC),
-      // form.append("InstallmentNo", formData?.Installment),
-      form.append(
-        "dtAcknowledgment",
-        moment(formData?.AcknowledgmentDate).format("YYYY-MM-DD")
-      ),
-      form.append("InstallmentData", JSON.stringify(DatePayload));
-    // form.append("PaymentTerms", JSON.stringify(PaymentTerms));
-    axios
-      .post(apiUrls?.Quotation_SalesConvert, form, { headers })
+    axiosInstances
+      .post(apiUrls.Quotation_SalesConvert, {
+        QuotationID: String(visible?.showData?.saveEditData?.recordID),
+        dtAcknowledgement: String(
+          moment(formData?.AcknowledgmentDate).format("YYYY-MM-DD")
+        ),
+        InstallmentData: DatePayload,
+      })
+    
       .then((res) => {
-        if (res?.data?.status == true) {
+        if (res?.data?.success == true) {
           toast.success(res?.data?.message);
           setLoading(false);
           setVisible(false);
@@ -388,7 +385,7 @@ const SaleConvertModalEdit = ({ visible, setVisible, handleSearch }) => {
                       lable="₹"
                       placeholder=" "
                       onChange={(e) => searchHandleChange(e, index)}
-                      value={ele?.Amount }
+                      value={ele?.Amount}
                       // respclass="col-xl-12 col-md-4 col-sm-6 col-12 mt-2"
                     />
                     {errors[index] && (
@@ -417,7 +414,7 @@ const SaleConvertModalEdit = ({ visible, setVisible, handleSearch }) => {
                     value={
                       ele?.Terms
                         ? ele?.Terms
-                        :visible?.showData?.saveEditData?.Terms
+                        : visible?.showData?.saveEditData?.Terms
                     }
                   />
                 ),
@@ -433,7 +430,7 @@ const SaleConvertModalEdit = ({ visible, setVisible, handleSearch }) => {
                     value={
                       ele?.Remark
                         ? ele?.Remark
-                        : visible?.showData?.saveEditData?.Remark 
+                        : visible?.showData?.saveEditData?.Remark
                     }
                     style={{ width: "200px", marginLeft: "7.5px" }}
                   ></textarea>

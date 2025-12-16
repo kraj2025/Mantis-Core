@@ -8,7 +8,7 @@ import Loading from "../components/loader/Loading";
 import ReactSelect from "../components/formComponent/ReactSelect";
 import Heading from "../components/UI/Heading";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
-
+import { axiosInstances } from "../networkServices/axiosInstance";
 
 const DocumentTypeModalProject = (visible, showData) => {
   const [loading, setLoading] = useState(false);
@@ -28,65 +28,53 @@ const DocumentTypeModalProject = (visible, showData) => {
   };
 
   const [documenttype, setDocumentType] = useState([]);
+  
   const getType = () => {
-    let form = new FormData();
-    form.append("ID",  useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(
-          apiUrls?.DocumentType_Select,
-          form,
-          { headers }
-        )
-        .then((res) => {
-          const wings = res?.data.data.map((item) => {
-            return {
-              label: item?.DocumentTypeName,
-              value: item?.DocumentTypeID,
-            };
-          });
-          setDocumentType(wings);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.DocumentType_Select, {})
+      .then((res) => {
+        const wings = res?.data.data.map((item) => {
+          return {
+            label: item?.DocumentTypeName,
+            value: item?.DocumentTypeID,
+          };
         });
+        setDocumentType(wings);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const handleUploadDocument = () => {
     setLoading(true);
-    let form = new FormData();
-    form.append("ID",  useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("ProjectID", visible?.tableData?.ProjectID),
-      form.append("DocumentTypeID", formData?.DocumentType),
-      form.append(
-        "DocumentTypeName",
-        documenttype.find((item) => item?.value === formData?.DocumentType)
-          ?.label
-      ),
-      form.append("Document_Base64", formData?.Document_Base64),
-      form.append("FileExtension", formData?.FileExtension),
-      axios
-        .post(
-         apiUrls?.UploadDocument,
-          form,
-          { headers }
-        )
-        .then((res) => {
-          toast.success(res?.data?.message);
-          setLoading(false);
-          setFormData({
-            ...formData,
-            DocumentType: "",
-            SelectFile: "",
-            Document_Base64: "",
-            FileExtension: "",
-          });
-          document.getElementById('SelectFile').value = '';
-        })
-        .catch((err) => {
-          console.log(err);
-          setLoading(false);
+    axiosInstances
+      .post(apiUrls.Reporter_Select, {
+        ProjectID: String(tableData?.showData?.ProjectID),
+        DocumentTypeID: String(formData.DocumentType),
+        DocumentTypeName: String(
+          documenttype.find((item) => item?.value === formData.DocumentType)
+            ?.label
+        ),
+        File: formData.SelectFile,
+        FileExtension: formData.FileExtension,
+      })
+      .then((res) => {
+        toast.success(res?.data?.message);
+        setLoading(false);
+        setFormData({
+          ...formData,
+          DocumentType: "",
+          SelectFile: "",
+          Document_Base64: "",
+          FileExtension: "",
         });
+        document.getElementById("SelectFile").value = "";
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
   };
 
   useEffect(() => {

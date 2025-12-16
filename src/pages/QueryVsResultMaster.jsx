@@ -15,6 +15,7 @@ import { headers } from "../utils/apitools";
 import axios from "axios";
 import { apiUrls } from "../networkServices/apiEndpoints";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../networkServices/axiosInstance";
 const QueryVsResultMaster = () => {
   const [query, setQuery] = useState([]);
   const [tableData, setTableData] = useState([]);
@@ -52,7 +53,7 @@ const QueryVsResultMaster = () => {
     alert("update done");
   };
 
-  const getQueryTable = () => {};
+  const getQueryTable = () => { };
   const [visible, setVisible] = useState({
     showVisible: false,
     saveQueryVisible: false,
@@ -75,47 +76,57 @@ const QueryVsResultMaster = () => {
         });
   };
   const getModules = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      axios
-        .post(apiUrls?.GetClientModuleList, form, { headers })
-        .then((res) => {
-          const assigntos = res?.data.data.map((item) => {
-            return { label: item?.ModuleName, value: item?.ID };
-          });
-          setModules(assigntos);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.GetClientModuleList, {
+
+      })
+      .then((res) => {
+        const assigntos = res?.data.data.map((item) => {
+          return { label: item?.ModuleName, value: item?.ID };
         });
+        setModules(assigntos);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const getQuery = (value, type) => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      // form.append("IsActive", ""),
-      form.append("ProductID", type == "Product" ? value : formData?.Product),
-      form.append("ModuleID", type == "Module" ? value : formData?.Module),
-      form.append("QueryID", type == "Query" ? value : formData?.Query),
-      form.append("SearchType", "Result_Select"),
-      axios
-        .post(apiUrls?.QueryVsResult_Select, form, { headers })
-        .then((res) => {
-          console.log(res?.data?.data);
-          const assigntos = res?.data.data.map((item) => {
-            return { label: item?.Query, value: item?.QueryID };
-          });
-          setQuery(assigntos);
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
+    //   // form.append("IsActive", ""),
+    //   form.append("ProductID", type == "Product" ? value : formData?.Product),
+    //   form.append("ModuleID", type == "Module" ? value : formData?.Module),
+    //   form.append("QueryID", type == "Query" ? value : formData?.Query),
+    // form.append("SearchType", "Result_Select"),
+    // axiosInstances
+    // .post(apiUrls?.QueryVsResult_Select, form, { headers })
+    const payload = {
+      ProductID: Number(type == "Product" ? value : formData?.Product) || 0,
+      ModuleID: Number(type == "Module" ? value : formData?.Module) || 0,
+      QueryID: Number(type == "Query" ? value : formData?.Query) || 0,
+      SearchType: "Result_Select",
+      IsActive: 0, // API expects 0 or 1, not ""
 
-          if (type == "Query") {
-            setTableData(res?.data?.data);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
+    };
+
+    axiosInstances
+      .post(apiUrls.QueryVsResult_Select, payload)
+      .then((res) => {
+        console.log(res?.data?.data);
+        const assigntos = res?.data.data.map((item) => {
+          return { label: item?.Query, value: item?.QueryID };
         });
+        setQuery(assigntos);
+
+        if (type == "Query") {
+          setTableData(res?.data?.data);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   useEffect(() => {
     getQueryTable();
@@ -290,51 +301,51 @@ const QueryVsResultMaster = () => {
           }))}
           tableHeight={"tableHeight"}
         /> */}
-    <table className="content-table">
-      <thead>
-        <tr>
-          <th>Steps</th>
-          <th>Comments</th>
-          <th>User Info</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td className="steps-column">
-            <p>This worked for me and it's easy..</p>
-            <ol>
-              <li>Hover over IIS taskbar icon.</li>
-              <li>Right click on miniature popup.</li>
-              <li>Click on Maximize.</li>
-            </ol>
-            <p className="edit-info">edited Jan 19, 2016 at 5:22</p>
-          </td>
-        
-          <td className="comments-column">
-            <div className="comments">
-              <p>😟 something so simple took an hour to find people were recommending a Windows reinstall. Thank you!!</p>
-              <p className="comment-info">– dynamiclynk Dec 13, 2023 at 21:31</p>
+        <table className="content-table">
+          <thead>
+            <tr>
+              <th>Steps</th>
+              <th>Comments</th>
+              <th>User Info</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td className="steps-column">
+                <p>This worked for me and it's easy..</p>
+                <ol>
+                  <li>Hover over IIS taskbar icon.</li>
+                  <li>Right click on miniature popup.</li>
+                  <li>Click on Maximize.</li>
+                </ol>
+                <p className="edit-info">edited Jan 19, 2016 at 5:22</p>
+              </td>
 
-              <p>incredible, why was it even like this in the first place lol.</p>
-              <p className="comment-info">– Fuey500 Sept 15, 2024 at 16:31</p>
+              <td className="comments-column">
+                <div className="comments">
+                  <p>😟 something so simple took an hour to find people were recommending a Windows reinstall. Thank you!!</p>
+                  <p className="comment-info">– dynamiclynk Dec 13, 2023 at 21:31</p>
 
-              <p>9 years and this isn't fixed...</p>
-              <p className="comment-info">– Abcd Mar 15 at 12:56</p>
-            </div>
-          </td>
-          <td className="user-info-column">
-            <div className="user-info">
-              <img src="https://via.placeholder.com/50" alt="User Avatar" className="avatar" />
-              <div>
-                <p className="username">Lotus</p>
-                <p className="details">6,525 ● 6 ● 34 ● 51</p>
-                <p className="date">answered Sept 14, 2024 at 6:57</p>
-              </div>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+                  <p>incredible, why was it even like this in the first place lol.</p>
+                  <p className="comment-info">– Fuey500 Sept 15, 2024 at 16:31</p>
+
+                  <p>9 years and this isn't fixed...</p>
+                  <p className="comment-info">– Abcd Mar 15 at 12:56</p>
+                </div>
+              </td>
+              <td className="user-info-column">
+                <div className="user-info">
+                  <img src="https://via.placeholder.com/50" alt="User Avatar" className="avatar" />
+                  <div>
+                    <p className="username">Lotus</p>
+                    <p className="details">6,525 ● 6 ● 34 ● 51</p>
+                    <p className="date">answered Sept 14, 2024 at 6:57</p>
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </>
   );

@@ -9,6 +9,7 @@ import { useCryptoLocalStorage } from "../../../utils/hooks/useCryptoLocalStorag
 import NoRecordFound from "../../formComponent/NoRecordFound";
 import Heading from "../Heading";
 import Tables from ".";
+import { axiosInstances } from "../../../networkServices/axiosInstance";
 const ViewIssueDocModal = ({ visible, setVisible, handleViewSearch }) => {
   // console.log("lotus ", visible);
   const [loading, setLoading] = useState(false);
@@ -22,9 +23,7 @@ const ViewIssueDocModal = ({ visible, setVisible, handleViewSearch }) => {
   });
 
   const handleImageChange = (e) => {
-    // console.log(e);
     const file = e?.target?.files[0];
-
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -42,27 +41,21 @@ const ViewIssueDocModal = ({ visible, setVisible, handleViewSearch }) => {
   };
 
   const handleUploadDocs = () => {
-    const picsDocsJson = JSON.stringify([
-      {
-        Document_Base64: formData?.Document_Base64,
-        FileExtension: formData?.FileExtension,
-      },
-    ]);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("TicketID", visible?.showData?.TicketID),
-      form.append("ImageDetails", picsDocsJson);
-    axios
-      .post(apiUrls?.InsertAttachment, form, { headers })
+    axiosInstances
+      .post(apiUrls.InsertAttachment, {
+        TicketID: visible?.showData?.TicketID,
+        ImageDetails: [
+          {
+            Document_Base64: formData?.Document_Base64,
+            FileExtension: formData?.FileExtension,
+          },
+        ],
+      })
       .then((res) => {
-        if (res?.data?.status === true) {
+        if (res?.data?.success === true) {
           toast.success(res?.data?.message);
           setVisible(false);
-          // handleViewSearch();
+          handleViewSearch();
         } else {
           toast.error(res?.data?.message);
         }
@@ -72,43 +65,35 @@ const ViewIssueDocModal = ({ visible, setVisible, handleViewSearch }) => {
       });
   };
   const handleDetails = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("TicketID", visible?.showData?.TicketID),
-      axios
-        .post(apiUrls?.ViewAttachment, form, { headers })
-        .then((res) => {
-          setTableData(res?.data?.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls.ViewAttachment, {
+        TicketID: Number(visible?.showData?.TicketID),
+      })
+      .then((res) => {
+        setTableData(res?.data?.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const handleRemove = (ele) => {
-    // console.log("ele", ele);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "RoleID",
-        useCryptoLocalStorage("user_Data", "get", "RoleID")
-      ),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("TicketID", ele?.TicketID),
-      form.append("AttachmentID", ele?.ID),
-      axios
-        .post(apiUrls?.DeleteAttachment, form, { headers })
-        .then((res) => {
+    axiosInstances
+      .post(apiUrls.DeleteAttachment, {
+        TicketID: Number(ele?.TicketID),
+        AttachmentID: Number(ele?.ID),
+      })
+      .then((res) => {
+        if (res?.data?.success === true) {
           toast.success(res?.data?.message);
-          handleDetails();
           setVisible(false);
           handleViewSearch();
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+        } else {
+          toast.error(res?.data?.message);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const centreTHEAD = ["S.No.", "CreatedBy", "EntryDate", "Print", "Remove"];
   useEffect(() => {

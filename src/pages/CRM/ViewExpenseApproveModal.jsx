@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import { set } from "lodash";
 import Loading from "../../components/loader/Loading";
 import { useCryptoLocalStorage } from "../../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../../networkServices/axiosInstance";
 const ViewExpenseApproveModal = ({
   visible,
   setVisible,
@@ -17,16 +18,21 @@ const ViewExpenseApproveModal = ({
 
   const handleApprove = () => {
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("ExpenseReportID", visible?.showData?.expense_report_ID),
-      form.append("ActionType", "Approve"),
-      axios
-        .post(apiUrls?.UpdateStatusCopy, form, { headers })
+    axiosInstances
+      .post(apiUrls.UpdateStatusCopy, {
+  "ActionType": "Approve",
+  "ExpenseReportID": Number(0)
+})
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append(
+    //     "LoginName",
+    //     useCryptoLocalStorage("user_Data", "get", "realname")
+    //   ),
+    //   form.append("ExpenseReportID", visible?.showData?.expense_report_ID),
+    //   form.append("ActionType", "Approve"),
+    //   axios
+    //     .post(apiUrls?.UpdateStatusCopy, form, { headers })
         .then((res) => {
           if (res?.data?.status === true) {
             toast.success(res?.data?.message);

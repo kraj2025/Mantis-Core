@@ -9,6 +9,7 @@ import { headers } from "../../../utils/apitools";
 import Tables from "../../UI/customTable";
 import { toast } from "react-toastify";
 import { apiUrls } from "../../../networkServices/apiEndpoints";
+import { axiosInstances } from "../../../networkServices/axiosInstance";
 const AutoBackupShowLogModal = ({ visible, props }) => {
   const [t] = useTranslation();
   const [formData, setFormData] = useState({
@@ -31,14 +32,10 @@ const AutoBackupShowLogModal = ({ visible, props }) => {
   });
 
   const handleSubmit = () => {
-    let form = new FormData();
-    form.append("ProjectID", visible?.showLogData?.id);
-    axios
-      .post(
-       apiUrls?.AutobackupLog,
-        form,
-        { headers }
-      )
+ 
+
+         axiosInstances
+      .post(apiUrls?.AutobackupLog, {ProjectID:String(visible?.showLogData?.id)})
       .then((res) => {
         setTableData(res?.data?.data);
       })

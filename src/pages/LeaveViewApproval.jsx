@@ -19,6 +19,7 @@ import SlideScreen from "./SlideScreen";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
 import LeaveRequestList from "./LeaveRequestList";
 import Tooltip from "./Tooltip";
+import { axiosInstances } from "../networkServices/axiosInstance";
 
 const currentDate = new Date();
 const currentMonth = currentDate.getMonth() + 1; // Months are 0-indexed, so add 1
@@ -31,15 +32,9 @@ const LeaveViewApproval = () => {
     "IsReportingManager"
   );
   const IsEmployee = useCryptoLocalStorage("user_Data", "get", "realname");
-  const [vertical, setVertical] = useState([]);
-  const [team, setTeam] = useState([]);
-  const [wing, setWing] = useState([]);
   const [employee, setEmployee] = useState([]);
   const [formData, setFormData] = useState({
     Month: new Date(),
-    VerticalID: [],
-    TeamID: [],
-    WingID: [],
     Employee: "0",
     Name: "",
     Year: "",
@@ -90,72 +85,22 @@ const LeaveViewApproval = () => {
     return name?.length > 45 ? name?.substring(0, 45) + "..." : name;
   };
   const getReporter = () => {
-    let form = new FormData();
-    form.append(
-      "CrmEmployeeID",
-      useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-    ),
-    form.append(
-      "RoleID",
-      useCryptoLocalStorage("user_Data", "get", "RoleID")
-    ),
-      axios
-        .post(apiUrls?.EmployeeBind, form, { headers })
-        .then((res) => {
-          // console.log("res", res);
-          const reporters = res?.data?.data?.map((item) => {
-            return { label: item?.EmployeeName, value: item?.Employee_ID };
-          });
-          setEmployee(reporters);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.EmployeeEmail, {
+        CrmEmployeeID: Number(
+          useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+        ),
+        RoleID: Number(useCryptoLocalStorage("user_Data", "get", "RoleID")),
+      })
+      .then((res) => {
+        const assigntos = res?.data?.data?.map((item) => {
+          return { label: item?.EmployeeName, value: item?.Employee_ID };
         });
-  };
-  const getVertical = () => {
-    let form = new FormData();
-    form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Vertical_Select, form, { headers })
-        .then((res) => {
-          const verticals = res?.data.data.map((item) => {
-            return { name: item?.Vertical, code: item?.VerticalID };
-          });
-          setVertical(verticals);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-  };
-  const getTeam = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Team_Select, form, { headers })
-        .then((res) => {
-          const teams = res?.data.data.map((item) => {
-            return { name: item?.Team, code: item?.TeamID };
-          });
-          setTeam(teams);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-  };
-  const getWing = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Wing_Select, form, { headers })
-        .then((res) => {
-          const wings = res?.data.data.map((item) => {
-            return { name: item?.Wing, code: item?.WingID };
-          });
-          setWing(wings);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+        setEmployee(assigntos);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const handleDeliveryChange = (name, e) => {
@@ -180,75 +125,93 @@ const LeaveViewApproval = () => {
 
   const handleTableSearch = (code) => {
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append(
-        "CrmEmployeeID",
-        formData?.Employee ? formData.Employee : "0"
-      );
-    form.append("SearchType", formData?.SearchType);
-    form.append("Month", formData?.currentMonth),
-      form.append("Year", formData?.currentYear),
-      // form.append("IsApproved", "2"),
-      // form.append("RowColor", code ? code : "0"),
-      axios
-        .post(apiUrls?.LeaveApproval_Search, form, { headers })
-        .then((res) => {
-          if (res?.data?.status === true) {
-            setTableData(res?.data?.data);
-            setFilteredData(res?.data?.data);
-            setLoading(false);
-          } else {
-            toast.error("No Record Found..");
-            setLoading(false);
-            setTableData([]);
-            setFilteredData([]);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append(
+    //     "LoginName",
+    //     useCryptoLocalStorage("user_Data", "get", "realname")
+    //   ),
+    //   form.append(
+    //     "CrmEmployeeID",
+    //     formData?.Employee ? formData.Employee : "0"
+    //   );
+    // form.append("SearchType", formData?.SearchType);
+    // form.append("Month", formData?.currentMonth),
+    //   form.append("Year", formData?.currentYear),
+    axiosInstances
+      .post(apiUrls.LeaveApproval_Search, {
+        CrmID: Number(formData?.Employee ? formData.Employee : "0"),
+        Month: Number(formData?.currentMonth),
+        Year: Number(formData?.currentYear),
+        IsApproved: Number(0),
+        VerticalID: Number(0),
+        TeamID: Number(0),
+        WingID: Number(0),
+        Name: String(""),
+      })
+      .then((res) => {
+        if (res?.data?.success === true) {
+          setTableData(res?.data?.data);
+          setFilteredData(res?.data?.data);
           setLoading(false);
-        });
+        } else {
+          toast.error("No Record Found..");
+          setLoading(false);
+          setTableData([]);
+          setFilteredData([]);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
   };
   const handleTableSearchEmployee = () => {
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append(
-        "CrmEmployeeID",
-        useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-      ),
-      form.append("SearchType", formData?.SearchType);
-    form.append("Month", formData?.currentMonth),
-      form.append("Year", formData?.currentYear),
-      // form.append("IsApproved", "2"),
-      // form.append("RowColor", code ? code : "0"),
-      axios
-        .post(apiUrls?.LeaveApproval_Search, form, { headers })
-        .then((res) => {
-          if (res?.data?.status === true) {
-            setTableData(res?.data?.data);
-            setFilteredData(res?.data?.data);
-            setLoading(false);
-          } else {
-            toast.error("No Record Found..");
-            setLoading(false);
-            setTableData([]);
-            setFilteredData([]);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append(
+    //     "LoginName",
+    //     useCryptoLocalStorage("user_Data", "get", "realname")
+    //   ),
+    //   form.append(
+    //     "CrmEmployeeID",
+    //     useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+    //   ),
+    //   form.append("SearchType", formData?.SearchType);
+    // form.append("Month", formData?.currentMonth),
+    //   form.append("Year", formData?.currentYear),
+    //   // form.append("IsApproved", "2"),
+    //   // form.append("RowColor", code ? code : "0"),
+    //   axios
+    //     .post(apiUrls?.LeaveApproval_Search, form, { headers })
+    axiosInstances
+      .post(apiUrls.LeaveApproval_Search, {
+        CrmID: Number(formData?.Employee ? formData.Employee : "0"),
+        Month: Number(formData?.currentMonth),
+        Year: Number(formData?.currentYear),
+        IsApproved: Number(0),
+        VerticalID: Number(0),
+        TeamID: Number(0),
+        WingID: Number(0),
+        Name: String(""),
+      })
+      .then((res) => {
+        if (res?.data?.success === true) {
+          setTableData(res?.data?.data);
+          setFilteredData(res?.data?.data);
           setLoading(false);
-        });
+        } else {
+          toast.error("No Record Found..");
+          setLoading(false);
+          setTableData([]);
+          setFilteredData([]);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
   };
   const [listVisible, setListVisible] = useState(false);
   const [renderComponent, setRenderComponent] = useState({
@@ -268,9 +231,6 @@ const LeaveViewApproval = () => {
     ModalComponent(e?.label, e?.component);
   };
   useEffect(() => {
-    getVertical();
-    getTeam();
-    getWing();
     getReporter();
   }, []);
   return (
@@ -339,7 +299,7 @@ const LeaveViewApproval = () => {
               name="Employee"
               respclass="col-xl-2 col-md-4 col-sm-6 col-12"
               placeholderName="Employee"
-              dynamicOptions={[{label:"Select",value:"0"},...employee]}
+              dynamicOptions={[{ label: "Select", value: "0" }, ...employee]}
               value={formData?.Employee}
               handleChange={handleDeliveryChange}
             />

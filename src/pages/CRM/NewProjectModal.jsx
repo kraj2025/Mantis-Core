@@ -12,6 +12,7 @@ import Heading from "../../components/UI/Heading";
 import ReactSelect from "../../components/formComponent/ReactSelect";
 import NoRecordFound from "../../components/formComponent/NoRecordFound";
 import { useCryptoLocalStorage } from "../../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../../networkServices/axiosInstance";
 
 const NewProjectModal = ({ setVisible }) => {
   const [formData, setFormData] = useState({
@@ -45,6 +46,7 @@ const NewProjectModal = ({ setVisible }) => {
       </div>
     );
   };
+
   const handleDeliveryChange = (name, e) => {
     const { value } = e;
     setFormData({
@@ -54,43 +56,39 @@ const NewProjectModal = ({ setVisible }) => {
   };
 
   const handleNewProject = () => {
-    if(!formData?.ProjectName){
-      toast.error("Please Enter Project Name.")
-      return
+    if (!formData?.ProjectName) {
+      toast.error("Please Enter Project Name.");
+      return;
     }
     setLoading(true);
-    let form = new FormData();
-    form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("UserName", formData?.UserName),
-      form.append("VerticalID", formData?.VerticalID),
-      form.append("TeamID", formData?.TeamID),
-      form.append("WingID", formData?.WingID),
-      form.append("VerticalName", getlabel(formData?.VerticalID, vertical)),
-      form.append("TeamName", getlabel(formData?.TeamID, team)),
-      form.append("WingName", getlabel(formData?.WingID, wing)),
-      form.append("ProjectName", formData?.ProjectName),
-      form.append("Password", formData?.Password),
-      axios
-        .post(apiUrls?.CreateProject, form, { headers })
-        .then((res) => {
-          if (res?.data?.status === true) {
-            toast.success(res?.data?.message);
-            setLoading(false);
-            // setVisible(false);
-            handleSearch();
-          } else {
-            toast.error(res?.data?.message);
-            setLoading(false);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
+    const payload = {
+      UserName: formData?.UserName ? String(formData.UserName) : "",
+      VerticalID: formData?.VerticalID ? Number(formData.VerticalID) : 0,
+      TeamID: formData?.TeamID ? Number(formData.TeamID) : 0,
+      WingID: formData?.WingID ? Number(formData.WingID) : 0,
+      VerticalName: getlabel(formData?.VerticalID, vertical) || "",
+      TeamName: getlabel(formData?.TeamID, team) || "",
+      WingName: getlabel(formData?.WingID, wing) || "",
+      ProjectName: formData?.ProjectName ? String(formData.ProjectName) : "",
+      Password: formData?.Password ? String(formData.Password) : "",
+    };
+    axiosInstances
+      .post(apiUrls?.CreateProject, payload)
+      .then((res) => {
+        if (res?.data?.success === true) {
+          toast.success(res?.data?.message);
           setLoading(false);
-        });
+          // setVisible(false);
+          handleSearch();
+        } else {
+          toast.error(res?.data?.message);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
   };
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -116,75 +114,75 @@ const NewProjectModal = ({ setVisible }) => {
     setEditMode(true);
   };
   const getVertical = () => {
-    let form = new FormData();
-    form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Vertical_Select, form, { headers })
-        .then((res) => {
-          const verticals = res?.data.data.map((item) => {
-            return { label: item?.Vertical, value: item?.VerticalID };
-          });
-          setVertical(verticals);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls?.Vertical_Select, {})
+      .then((res) => {
+        const verticals = res?.data.data.map((item) => {
+          return { label: item?.Vertical, value: item?.VerticalID };
         });
+        setVertical(verticals);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getTeam = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Team_Select, form, { headers })
-        .then((res) => {
-          const teams = res?.data.data.map((item) => {
-            return { label: item?.Team, value: item?.TeamID };
-          });
-          setTeam(teams);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls?.Team_Select, {})
+      .then((res) => {
+        const teams = res?.data.data.map((item) => {
+          return { label: item?.Team, value: item?.TeamID };
         });
+        setTeam(teams);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   function getlabel(id, dropdownData) {
     const ele = dropdownData.filter((item) => item.value === id);
     return ele.length > 0 ? ele[0].label : undefined;
   }
   const getWing = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Wing_Select, form, { headers })
-        .then((res) => {
-          const wings = res?.data.data.map((item) => {
-            return { label: item?.Wing, value: item?.WingID };
-          });
-          setWing(wings);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls?.Wing_Select, {})
+      .then((res) => {
+        const wings = res?.data.data.map((item) => {
+          return { label: item?.Wing, value: item?.WingID };
         });
+        setWing(wings);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const ProjectTHEAD = [{ name: "S.No.", width: "10%" }, "Project Name"];
   const handleSearch = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "RoleID",
-        useCryptoLocalStorage("user_Data", "get", "RoleID")
-      ),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      axios
-        .post(apiUrls?.ViewProject, form, { headers })
-        .then((res) => {
-          setTableData(res?.data?.data);
-          setFilteredData(res?.data?.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls?.ViewProject, {
+        RoleID: useCryptoLocalStorage("user_Data", "get", "RoleID"),
+        ProjectID: 0,
+        ProjectName: "",
+        VerticalID: "",
+        TeamID: "",
+        WingID: "",
+        POC1: "",
+        POC2: "",
+        POC3: "",
+        CategoryID: "",
+        DateType: "",
+        FromDate: "",
+        ToDate: "",
+        Status: "",
+        IsExcel: "0",
+      })
+      .then((res) => {
+        setTableData(res?.data?.data);
+        setFilteredData(res?.data?.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const normalizeString = (str) => str.toLowerCase().replace(/\s+/g, "").trim();

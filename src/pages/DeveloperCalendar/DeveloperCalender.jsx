@@ -9,6 +9,7 @@ import { apiUrls } from "../../networkServices/apiEndpoints";
 import { headers } from "../../utils/apitools";
 import axios from "axios";
 import { useCryptoLocalStorage } from "../../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../../networkServices/axiosInstance";
 
 const DeveloperCalendar = () => {
   const [formData, setFormData] = useState({
@@ -18,9 +19,9 @@ const DeveloperCalendar = () => {
   const [assignto, setAssignedto] = useState([]);
 
   const getAssignTo = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios.post(apiUrls?.AssignTo_Select, form, { headers })
+    axiosInstances
+      .post(apiUrls.Reporter_Select, {
+      })
         .then((res) => {
           const assigntos = res?.data.data.map((item) => {
             return { label: item?.NAME, value: item?.ID };

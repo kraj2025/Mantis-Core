@@ -25,6 +25,7 @@ import AmountSubmissionSeeMoreList from "../networkServices/AmountSubmissionSeeM
 import SlideScreen from "./SlideScreen";
 import SeeMoreSlideScreen from "../components/SearchableTable/SeeMoreSlideScreen";
 import Tooltip from "./Tooltip";
+import { axiosInstances } from "../networkServices/axiosInstance";
 const currentDate = new Date();
 const currentMonth = currentDate.getMonth() + 1; // Months are 0-indexed, so add 1
 const currentYear = currentDate.getFullYear();
@@ -63,120 +64,140 @@ const TechnicalSupportAgreement = () => {
   });
   const [t] = useTranslation();
   const getVertical = () => {
-    let form = new FormData();
-    form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Vertical_Select, form, { headers })
-        .then((res) => {
-          const verticals = res?.data.data.map((item) => {
-            return { name: item?.Vertical, code: item?.VerticalID };
-          });
-          setVertical(verticals);
-        })
-        .catch((err) => {
-          console.log(err);
+    // let form = new FormData();
+    // form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   axios
+    //     .post(apiUrls?.Vertical_Select, form, { headers })
+    axiosInstances
+      .post(apiUrls?.Vertical_Select, {})
+      .then((res) => {
+        const verticals = res?.data.data.map((item) => {
+          return { name: item?.Vertical, code: item?.VerticalID };
         });
+        setVertical(verticals);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getTeam = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Team_Select, form, { headers })
-        .then((res) => {
-          const teams = res?.data.data.map((item) => {
-            return { name: item?.Team, code: item?.TeamID };
-          });
-          setTeam(teams);
-        })
-        .catch((err) => {
-          console.log(err);
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   axios
+    //     .post(apiUrls?.Team_Select, form, { headers })
+    axiosInstances
+      .post(apiUrls?.Team_Select, {})
+      .then((res) => {
+        const teams = res?.data.data.map((item) => {
+          return { name: item?.Team, code: item?.TeamID };
         });
+        setTeam(teams);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const shortenName = (name) => {
     return name.length > 10 ? name.substring(0, 25) + "..." : name;
   };
   const getWing = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Wing_Select, form, { headers })
-        .then((res) => {
-          const wings = res?.data.data.map((item) => {
-            return { name: item?.Wing, code: item?.WingID };
-          });
-          setWing(wings);
-        })
-        .catch((err) => {
-          console.log(err);
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   axios
+    //     .post(apiUrls?.Wing_Select, form, { headers })
+    axiosInstances
+      .post(apiUrls?.Wing_Select, {})
+      .then((res) => {
+        const wings = res?.data.data.map((item) => {
+          return { name: item?.Wing, code: item?.WingID };
         });
+        setWing(wings);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const searchHandleChange = (e, index) => {
     const { name, value } = e?.target;
     setFormData({ ...formData, [name]: value });
   };
   const getPOC1 = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.POC_1_Select, form, { headers })
-        .then((res) => {
-          const poc1s = res?.data.data.map((item) => {
-            return { name: item?.POC_1_Name, code: item?.POC_1_ID };
-          });
-          setPoc1(poc1s);
-        })
-        .catch((err) => {
-          console.log(err);
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   axios
+    //     .post(apiUrls?.POC_1_Select, form, { headers })
+    axiosInstances
+      .post(apiUrls?.POC_1_Select, {})
+      .then((res) => {
+        const poc1s = res?.data.data.map((item) => {
+          return { name: item?.POC_1_Name, code: item?.POC_1_ID };
         });
+        setPoc1(poc1s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getPOC2 = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.POC_2_Select, form, { headers })
-        .then((res) => {
-          const poc2s = res?.data.data.map((item) => {
-            return { name: item?.POC_2_Name, code: item?.POC_2_ID };
-          });
-          setPoc2(poc2s);
-        })
-        .catch((err) => {
-          console.log(err);
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   axios
+    //     .post(apiUrls?.POC_2_Select, form, { headers })
+    axiosInstances
+      .post(apiUrls?.POC_2_Select, {})
+      .then((res) => {
+        const poc2s = res?.data.data.map((item) => {
+          return { name: item?.POC_2_Name, code: item?.POC_2_ID };
         });
+        setPoc2(poc2s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getPOC3 = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.POC_3_Select, form, { headers })
-        .then((res) => {
-          const poc3s = res?.data.data.map((item) => {
-            return { name: item?.POC_3_Name, code: item?.POC_3_ID };
-          });
-          setPoc3(poc3s);
-        })
-        .catch((err) => {
-          console.log(err);
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   axios
+    //     .post(apiUrls?.POC_3_Select, form, { headers })
+    axiosInstances
+      .post(apiUrls?.POC_3_Select, {})
+      .then((res) => {
+        const poc3s = res?.data.data.map((item) => {
+          return { name: item?.POC_3_Name, code: item?.POC_3_ID };
         });
+        setPoc3(poc3s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getProject = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      axios
-        .post(apiUrls?.ProjectSelect, form, { headers })
-        .then((res) => {
-          const poc3s = res?.data.data.map((item) => {
-            return { name: item?.Project, code: item?.ProjectId };
-          });
-          setProject(poc3s);
-        })
-        .catch((err) => {
-          console.log(err);
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append(
+    //     "LoginName",
+    //     useCryptoLocalStorage("user_Data", "get", "realname")
+    //   ),
+    //   axios
+    //     .post(apiUrls?.ProjectSelect, form, { headers })
+    axiosInstances
+      .post(apiUrls?.ProjectSelect, {
+        ProjectID: 0,
+        IsMaster: "",
+        VerticalID: 0,
+        TeamID: 0,
+        WingID: 0,
+      })
+      .then((res) => {
+        const poc3s = res?.data.data.map((item) => {
+          return { name: item?.Project, code: item?.ProjectId };
         });
+        setProject(poc3s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const handleMultiSelectChange = (name, selectedOptions) => {
     const selectedValues = selectedOptions.map((option) => option.code);
@@ -284,58 +305,76 @@ const TechnicalSupportAgreement = () => {
     { name: "Action", width: "5%" },
   ];
 
+  console.log("formData",formData)
   const handleSearch = (code) => {
     setLoading(true);
-    const form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "RoleID",
-        useCryptoLocalStorage("user_Data", "get", "RoleID")
-      ),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("ProjectID", formData?.ProjectID),
-      form.append("VerticalID", formData?.VerticalID),
-      form.append("TeamID", formData?.TeamID),
-      form.append("WingID", formData?.WingID),
-      form.append("POC1", formData?.POC1),
-      form.append("POC2", formData?.POC2),
-      form.append("POC3", formData?.POC3),
-      form.append("Month", formData?.currentMonth),
-      form.append("Year", formData?.currentYear),
-      form.append("RowColor", code ? code : "0"),
-      axios
-        .post(apiUrls?.TSAAggrementSearch, form, { headers })
-        .then((res) => {
-          const data = res?.data?.data;
-          const updatedData = data?.map((ele, index) => {
-            return {
-              ...ele,
-              index: index,
-              IsActive: "0",
+    // const form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append(
+    //     "RoleID",
+    //     useCryptoLocalStorage("user_Data", "get", "RoleID")
+    //   ),
+    //   form.append(
+    //     "LoginName",
+    //     useCryptoLocalStorage("user_Data", "get", "realname")
+    //   ),
+    //   form.append("ProjectID", formData?.ProjectID),
+    //   form.append("VerticalID", formData?.VerticalID),
+    //   form.append("TeamID", formData?.TeamID),
+    //   form.append("WingID", formData?.WingID),
+    //   form.append("POC1", formData?.POC1),
+    //   form.append("POC2", formData?.POC2),
+    //   form.append("POC3", formData?.POC3),
+    //   form.append("Month", formData?.currentMonth),
+    //   form.append("Year", formData?.currentYear),
+    //   form.append("RowColor", code ? code : "0"),
+    // axios
+    //   .post(apiUrls?.TSAAggrementSearch, form, { headers })
+    const payload = {
+      ProjectID: String(formData?.ProjectID || 0),
+      VerticalID: String(formData?.VerticalID || 0),
+      TeamID: String(formData?.TeamID || 0),
+      WingID: String(formData?.WingID || 0),
 
-              ConfirmDropDown: "",
-              ConfirmResolve: false,
-              ConfirmDropDownValue: "",
+      POC1: String(formData?.POC1 || ""),
+      POC2: String(formData?.POC2 || ""),
+      POC3: String(formData?.POC3 || ""),
 
-              HoldDropDown: "",
-              HoldResolve: false,
-              HoldDropDownValue: "",
+      Month: Number(formData?.currentMonth || 0),
+      Year: Number(formData?.currentYear || 0),
+      RowColor: String(code || "0"),
+    };
 
-              CancelDropDown: "",
-              CancelResolve: false,
-              CancelDropDownValue: "",
-            };
-          });
-          setTableData(updatedData);
-          setLoading(false);
-        })
-        .catch((err) => {
-          console.log(err);
-          setLoading(false);
+    axiosInstances
+      .post(apiUrls?.TSAAggrementSearch, payload)
+      .then((res) => {
+        const data = res?.data?.data;
+        const updatedData = data?.map((ele, index) => {
+          return {
+            ...ele,
+            index: index,
+            IsActive: "0",
+
+            ConfirmDropDown: "",
+            ConfirmResolve: false,
+            ConfirmDropDownValue: "",
+
+            HoldDropDown: "",
+            HoldResolve: false,
+            HoldDropDownValue: "",
+
+            CancelDropDown: "",
+            CancelResolve: false,
+            CancelDropDownValue: "",
+          };
         });
+        setTableData(updatedData);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
   };
 
   const [visible, setVisible] = useState({
@@ -865,17 +904,17 @@ const TechnicalSupportAgreement = () => {
               ),
               AgreementType: ele?.AgreementType,
               CreatedBy: ele?.CreatedBy,
-              CreatedDate: new Date(ele.dtEntry).toLocaleDateString("en-GB", {
+              CreatedDate: new Date(ele.dtEntry?.Value).toLocaleDateString("en-GB", {
                 day: "2-digit",
                 month: "short",
                 year: "numeric",
               }),
-              ValidFrom: new Date(ele.ValidFrom).toLocaleDateString("en-GB", {
+              ValidFrom: new Date(ele.ValidFrom?.Value).toLocaleDateString("en-GB", {
                 day: "2-digit",
                 month: "short",
                 year: "numeric",
               }),
-              ValidTo: new Date(ele.ValidTo).toLocaleDateString("en-GB", {
+              ValidTo: new Date(ele.ValidTo?.Value).toLocaleDateString("en-GB", {
                 day: "2-digit",
                 month: "short",
                 year: "numeric",
@@ -902,7 +941,7 @@ const TechnicalSupportAgreement = () => {
                 ></i>
               ),
               Print:
-                ele?.IsDocumentGenrate == 1  ? (
+                ele?.IsDocumentGenrate == 1 ? (
                   <i
                     className="fa fa-print"
                     style={{
@@ -958,7 +997,7 @@ const TechnicalSupportAgreement = () => {
               //     </div>
               //   </>
               // ),
-              Action: ele?.IsDocumentGenrate == 1 && (
+              Action:ele?.IsDocumentGenrate === 1 && (
                 <>
                   <ReactSelect
                     style={{ width: "100%" }}

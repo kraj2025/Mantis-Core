@@ -10,9 +10,10 @@ import Tables from ".";
 import { settlementTHAED } from "../../modalComponent/Utils/HealperThead";
 import { useTranslation } from "react-i18next";
 import { useCryptoLocalStorage } from "../../../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../../../networkServices/axiosInstance";
 const ConnectorSettlementModal = (visible) => {
-  const [t]=useTranslation()
- 
+  const [t] = useTranslation();
+
   const [loading, setLoading] = useState(false);
   const { VITE_DATE_FORMAT } = import.meta.env;
   const [tableData, setTableData] = useState([]);
@@ -45,40 +46,39 @@ const ConnectorSettlementModal = (visible) => {
 
   const handleSave = () => {
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("IssueNo", visible?.visible?.connectdata?.IssueNo),
-      form.append("ReceivedDate", formatDate(formData?.ReceivedDate)),
-      form.append("Amount", formData?.Amount),
-      form.append("PaymentMode", formData?.PaymentMode),
-      axios
-        .post(apiUrls?.Connector_Settlement_Insert, form, { headers })
-        .then((res) => {
-          toast.success(res?.data?.message);
-          // setTableData([...tableData, formData]);
-          setLoading(false);
-        })
-        .catch((err) => {
-          console.log(err);
-          setLoading(false);
-        });
+
+    axiosInstances
+      .post(apiUrls.Connector_Settlement_Insert, {
+        IssueNo: String(visible?.visible?.connectdata?.IssueNo || ""),
+        ReceivedDate: String(
+          formData?.ReceivedDate ? formatDate(formData?.ReceivedDate) : ""
+        ),
+        Amount: Number(formData?.Amount) || 0, // keep number
+        PaymentMode: String(formData?.PaymentMode || ""),
+      })
+      .then((res) => {
+        toast.success(res?.data?.message);
+        // setTableData([...tableData, formData]);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
   };
   const getSettlementDetails = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("SearchType", "SettlementDetail"),
-      form.append("ProjectID", visible?.visible?.connectdata?.ProjectID),
-      form.append("IssueNo", visible?.data?.IssueNo),
-      axios
-        .post(apiUrls?.Connector_Select, form, { headers })
-        .then((res) => {
-          setTableData(res?.data?.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls.Connector_Select, {
+        ProjectID: Number(visible?.visible?.connectdata?.ProjectID) || 0,
+        SearchType: String("SettlementDetail"),
+        IssueNo: String(visible?.data?.IssueNo || ""),
+      })
+      .then((res) => {
+        setTableData(res?.data?.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   console.log(tableData);
   const [currentPage, setCurrentPage] = useState(1);
@@ -106,7 +106,7 @@ const ConnectorSettlementModal = (visible) => {
             name="PaymentMode"
             placeholderName={t("Payment Mode")}
             dynamicOptions={[
-              { label: "Cash", value: "Cash" },
+              { label: "Delta", value: "Cash" },
               { label: "NEFT", value: "NEFT" },
               { label: "Cheque", value: "Cheque" },
               { label: "Draft", value: "Draft" },

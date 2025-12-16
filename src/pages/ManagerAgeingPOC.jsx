@@ -4,20 +4,26 @@ import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
 import { apiUrls } from "../networkServices/apiEndpoints";
 import { headers } from "../utils/apitools";
 import axios from "axios";
+import { axiosInstances } from "../networkServices/axiosInstance";
 
 const ManagerAgeingPOC = () => {
   const [tableData, setTableData] = useState([]);
   const handleSearch = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.ManagerDashboard_Ageing_POC, form, { headers })
-        .then((res) => {
-          setTableData(res?.data?.data || []);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   axios
+    //     .post(apiUrls?.ManagerDashboard_Ageing_POC, form, { headers })
+    axiosInstances
+      .post(apiUrls?.ManagerDashboard_Ageing_POC, {
+        DeveloperID: String(useCryptoLocalStorage("user_Data", "get", "ID")),
+        SearchType: String(""),
+      })
+      .then((res) => {
+        setTableData(res?.data?.data || []);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   useEffect(() => {
     handleSearch();

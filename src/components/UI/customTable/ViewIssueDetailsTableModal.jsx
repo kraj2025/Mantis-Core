@@ -20,31 +20,32 @@ import Loading from "../../loader/Loading";
 import { useSelector } from "react-redux";
 import Tooltip from "../../../pages/Tooltip";
 import { useCryptoLocalStorage } from "../../../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../../../networkServices/axiosInstance";
 
 const ViewIssueDetailsTableModal = ({ visible, tableData, setVisible }) => {
   // console.log("visible", visible);
 
-   const AllowDeliveryDateEdit = useCryptoLocalStorage(
-     "user_Data",
-     "get",
-     "AllowDeliveryDateEdit"
-   );
-   const AllowManHourEdit = useCryptoLocalStorage(
-     "user_Data",
-     "get",
-     "AllowManHourEdit"
-   );
- 
-   const ShowClientDeliveryDate = useCryptoLocalStorage(
-     "user_Data",
-     "get",
-     "ShowClientDeliveryDate"
-   );
-   const ShowClientManHour = useCryptoLocalStorage(
-     "user_Data",
-     "get",
-     "ShowClientManHour"
-   );
+  const AllowDeliveryDateEdit = useCryptoLocalStorage(
+    "user_Data",
+    "get",
+    "AllowDeliveryDateEdit"
+  );
+  const AllowManHourEdit = useCryptoLocalStorage(
+    "user_Data",
+    "get",
+    "AllowManHourEdit"
+  );
+
+  const ShowClientDeliveryDate = useCryptoLocalStorage(
+    "user_Data",
+    "get",
+    "ShowClientDeliveryDate"
+  );
+  const ShowClientManHour = useCryptoLocalStorage(
+    "user_Data",
+    "get",
+    "ShowClientManHour"
+  );
   const [t] = useTranslation();
   const { VITE_DATE_FORMAT } = import.meta.env;
   const [reopen, setReOpen] = useState([]);
@@ -119,43 +120,43 @@ const ViewIssueDetailsTableModal = ({ visible, tableData, setVisible }) => {
 
   const RoleID = useCryptoLocalStorage("user_Data", "get", "RoleID");
   const getModule = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("RoleID", useCryptoLocalStorage("user_Data", "get", "RoleID")),
-      form.append("ProjectID", visible?.showData?.ProjectID),
-      form.append("IsActive", "1"),
-      form.append("IsMaster", "0"),
-      axios
-        .post(apiUrls?.Module_Select, form, { headers })
-        .then((res) => {
-          const poc3s = res?.data.data.map((item) => {
-            return { label: item?.ModuleName, value: item?.ModuleID };
-          });
-          setModuleName(poc3s);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.Module_Select, {
+        RoleID: useCryptoLocalStorage("user_Data", "get", "RoleID"),
+        ProjectID: visible?.showData?.ProjectID,
+        IsActive: 1,
+        IsMaster: 0,
+      })
+
+      .then((res) => {
+        const poc3s = res?.data.data.map((item) => {
+          return { label: item?.ModuleName, value: item?.ModuleID };
         });
+        setModuleName(poc3s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const getPage = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("RoleID", useCryptoLocalStorage("user_Data", "get", "RoleID")),
-      form.append("ProjectID", visible?.showData?.ProjectID),
-      form.append("IsActive", "1"),
-      form.append("IsMaster", "0"),
-      axios
-        .post(apiUrls?.Pages_Select, form, { headers })
-        .then((res) => {
-          const poc3s = res?.data.data.map((item) => {
-            return { label: item?.PagesName, value: item?.ID };
-          });
-          setPageName(poc3s);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.Pages_Select, {
+        RoleID: useCryptoLocalStorage("user_Data", "get", "RoleID"),
+        ProjectID: visible?.showData?.ProjectID,
+        IsActive: 1,
+        IsMaster: 0,
+      })
+
+      .then((res) => {
+        const poc3s = res?.data.data.map((item) => {
+          return { label: item?.PagesName, value: item?.ID };
         });
+        setPageName(poc3s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const shortenNamesummary = (name) => {
@@ -186,21 +187,16 @@ const ViewIssueDetailsTableModal = ({ visible, tableData, setVisible }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // if (name == "ReferenceCode") {
-    //   if (value.length == 40) return;
-    // }
     setFormDataUpdate({ ...formDataUpdate, [name]: value });
   };
 
   const handleSearchNote = () => {
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("TicketID", visible?.showData?.TicketID);
-    axios
-      .post(apiUrls?.ViewNote, form, {
-        headers,
+    axiosInstances
+      .post(apiUrls.ViewNote, {
+        TicketID: visible?.showData?.TicketID,
       })
+
       .then((res) => {
         const data = res?.data?.data;
         const updateddata = data?.map((ele, index) => {
@@ -224,13 +220,11 @@ const ViewIssueDetailsTableModal = ({ visible, tableData, setVisible }) => {
 
   const handleSearchHistory = () => {
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("TicketID", visible?.showData?.TicketID);
-    axios
-      .post(apiUrls?.ViewHistory, form, {
-        headers,
+    axiosInstances
+      .post(apiUrls.ViewHistory, {
+        TicketID: visible?.showData?.TicketID,
       })
+
       .then((res) => {
         setTableData1(res?.data?.data);
         setLoading(false);
@@ -246,16 +240,12 @@ const ViewIssueDetailsTableModal = ({ visible, tableData, setVisible }) => {
   };
 
   const handleIssueSearch = (ticket) => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-    form.append("TicketID", ticket);
-
-    axios
-      .post(apiUrls?.ViewTicket, form, {
-        headers,
+    axiosInstances
+      .post(apiUrls.ViewTicket, {
+        TicketID: ticket,
       })
+
       .then((res) => {
-        // console.log(" lotus", res);
         setFormData({
           TicketID: res?.data.data[0].Id,
           Project: res?.data.data[0].ProjectName,
@@ -345,59 +335,48 @@ const ViewIssueDetailsTableModal = ({ visible, tableData, setVisible }) => {
   const handleEdit = () => {
     if (edit) {
       setLoading(true);
-      let form = new FormData();
-      form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-        form.append("RoleID", useCryptoLocalStorage("user_Data", "get", "RoleID")),
-        form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname"));
-      form.append("TicketID", formDataUpdate?.TicketID);
-      form.append("CategoryID", formDataUpdate?.Category);
-      form.append("AssignToID", formDataUpdate?.AssignedTo);
-      form.append("PriorityID", formDataUpdate?.Priority);
-      form.append("Status", formDataUpdate?.Status);
-      // form.append(
-      //   "DeliveryDate",
-      //   formDataUpdate?.DeliveryDate != ""
-      //     ? new Date(formDataUpdate?.DeliveryDate)?.toISOString()?.split("T")[0]
-      //     : ""
-      // );
-      form.append(
-        "DeliveryDate",
-        formatDate(formDataUpdate?.DeliveryDate)
-          ? formatDate(formDataUpdate?.DeliveryDate)
-          : ""
-      );
-      form.append("Manhour", formDataUpdate?.ManHour || "0");
-      form.append("ManhoursClient", formDataUpdate?.ClientManHour || "0");
-      form.append(
-        "DeliveryDateClient",
-        formatDate(formDataUpdate?.ClientDeliveryDate) || ""
-      );
-      form.append("Summary", formDataUpdate?.Summary ||"");
-      form.append("Note", formDataUpdate?.Note ? formDataUpdate?.Note : "");
-      form.append("Description", removeHtmlTags(formDataUpdate?.Description) ||"");
-      form.append("ReportedByName", formDataUpdate?.ReportedByName ||"");
-      form.append("ReportedByMobileNo", formDataUpdate?.ReportedByMobile ||"");
-      form.append("ReferenceCode", formDataUpdate?.ReferenceCode);
-      form.append("HoldReason", formDataUpdate?.HoldReason);
-      form.append(
-        "ModuleName",
-        getlabel(formDataUpdate?.ModuleName, moduleName) ||""
-      );
-      form.append("ModuleID", formDataUpdate.ModuleName || "0");
-      form.append("PagesName", getlabel(formDataUpdate?.PageName, pageName) ||"");
-      form.append("PagesID", formDataUpdate.PageName ||"0");
-      form.append("IsReOpen", "1");
-      form.append(
-        "ReOpenReason",
-        getlabel(formDataUpdate?.ReOpen, reopen) || ""
-      );
-      form.append("ReOpenID", formDataUpdate?.ReOpen || "0");
-      axios
-        .post(apiUrls?.UpdateTicket, form, {
-          headers,
+      axiosInstances
+        .post(apiUrls.UpdateTicket, {
+          TicketID: Number(formDataUpdate?.TicketID ?? 0),
+          User_id: 0,
+          CategoryID: Number(formDataUpdate?.Category ?? 0),
+          AssignToID: Number(formDataUpdate?.AssignedTo ?? 0),
+          PriorityID: Number(formDataUpdate?.Priority ?? 0),
+          DeliveryDate: String(
+            formDataUpdate?.DeliveryDate == ""
+              ? moment(new Date()).format("YYYY-MM-DD")
+              : formatDate(formDataUpdate?.DeliveryDate)
+          ),
+          DeliveryDateClient: String(
+            formDataUpdate?.ClientDeliveryDate == ""
+              ? moment(new Date()).format("YYYY-MM-DD")
+              : formatDate(formDataUpdate?.ClientDeliveryDate)
+          ),
+          Summary: String(formDataUpdate?.Summary || ""),
+          Description: String(
+            removeHtmlTags(formDataUpdate?.Description) || ""
+          ),
+          Note: String(formDataUpdate?.Note || ""),
+          ReferenceCode: String(formDataUpdate?.ReferenceCode || ""),
+          ManHour: String(formDataUpdate?.ManHour || "0"),
+          ManHoursClient: String(formDataUpdate?.ClientManHour || "0"),
+          ReportedByName: String(formDataUpdate?.ReportedByName || ""),
+          ReportedByMobileNo: String(formDataUpdate?.ReportedByMobile || ""),
+          HoldReason: String(formDataUpdate?.HoldReason || ""),
+          Status: String(formDataUpdate?.Status || ""),
+          ModuleID: Number(formDataUpdate?.ModuleName ?? 0),
+          ModuleName: String(
+            getlabel(formDataUpdate?.ModuleName, moduleName) || ""
+          ),
+          PagesID: Number(formDataUpdate?.PageName ?? 0),
+          PagesName: String(getlabel(formDataUpdate?.PageName, pageName) || ""),
+          IsReOpen: Boolean(Number(formDataUpdate?.IsReOpen ?? 1)), // "1" → true, "0" → false
+          ReOpenReasonID: Number(formDataUpdate?.ReOpen ?? 0),
+          ReOpenReason: String(getlabel(formDataUpdate?.ReOpen, reopen) || ""),
         })
+
         .then((res) => {
-          if (res?.data?.status === true) {
+          if (res?.data?.success === true) {
             toast.success(res?.data?.message);
             setLoading(false);
             handleIssueSearch();
@@ -408,11 +387,6 @@ const ViewIssueDetailsTableModal = ({ visible, tableData, setVisible }) => {
           }
         })
         .catch((err) => {
-          // toast.error(
-          //   err?.response?.data?.message
-          //     ? err?.response?.data?.message
-          //     : "Error Occured"
-          // );
           const errorMessage = err?.response?.data?.message ?? "Error Occurred";
 
           // Display the error message in the toast notification
@@ -424,23 +398,15 @@ const ViewIssueDetailsTableModal = ({ visible, tableData, setVisible }) => {
     }
   };
   const handleDeleteNote = (id) => {
-   
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-    form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname"));
-    form.append("TicketID", formDataUpdate?.TicketID);
-    form.append("NoteID", id); // Assuming NoteID is part of the note object
-
-    axios
-      .post(apiUrls?.DeleteNote, form, {
-        headers,
+    axiosInstances
+      .post(apiUrls.DeleteNote, {
+        NoteID: id,
+        TicketID: formDataUpdate?.TicketID,
       })
+
       .then((res) => {
         toast.success(res?.data?.message);
 
-        // Optionally, remove the note from the tableData2 state after successful deletion
-        // const updatedTableData = tableData2.filter((item) => item.id !== id);
-        // setTableData2(updatedTableData);
         handleSearchNote();
       })
       .catch((err) => {
@@ -458,16 +424,13 @@ const ViewIssueDetailsTableModal = ({ visible, tableData, setVisible }) => {
     //   data[index]["IsUpdate"] = true;
     //   setTableData2(data);
     // } else {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("TicketID", formDataUpdate?.TicketID);
-    form.append("NoteID", ele?.NoteId);
-    form.append("NoteText", ele?.note);
-    axios
-      .post(apiUrls?.UpdateNote, form, {
-        headers,
+    axiosInstances
+      .post(apiUrls.UpdateNote, {
+        NoteID: ele?.NoteId,
+        TicketID: formDataUpdate?.TicketID,
+        NoteText: ele?.note,
       })
+
       .then((res) => {
         toast.success(res?.data?.message);
       })
@@ -477,7 +440,6 @@ const ViewIssueDetailsTableModal = ({ visible, tableData, setVisible }) => {
             ? err?.response?.data?.message
             : "Error Occured"
         );
-        // setLoading(false);
       });
   };
   const [rowHandler, setRowHandler] = useState({
@@ -499,83 +461,86 @@ const ViewIssueDetailsTableModal = ({ visible, tableData, setVisible }) => {
   const [priority, setPriority] = useState([]);
   const [status, setStatus] = useState([]);
   const getStatus = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Status_Select, form, { headers })
-        .then((res) => {
-          const poc3s = res?.data.data.map((item) => {
-            return { label: item?.STATUS, value: item?.id };
-          });
-          setStatus(poc3s);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.Status_Select, {})
+
+      .then((res) => {
+        const poc3s = res?.data.data.map((item) => {
+          return { label: item?.STATUS, value: item?.id };
         });
+        setStatus(poc3s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getProject = () => {
-    let form = new FormData();
+    axiosInstances
+      .post(apiUrls.ProjectSelect, {
+        ProjectID: 0,
+        IsMaster: "0",
+        VerticalID: 0,
+        TeamID: 0,
+        WingID: 0,
+      })
 
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      axios
-        .post(apiUrls?.ProjectSelect, form, { headers })
-        .then((res) => {
-          const poc3s = res?.data.data.map((item) => {
-            return { label: item?.Project, value: item?.ProjectId };
-          });
-          getCategory(poc3s[0]?.value);
-          setProject(poc3s);
-        })
-        .catch((err) => {
-          console.log(err);
+      .then((res) => {
+        const poc3s = res?.data.data.map((item) => {
+          return { label: item?.Project, value: item?.ProjectId };
         });
+        getCategory(poc3s[0]?.value);
+        setProject(poc3s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getPriority = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Priority_Select, form, { headers })
-        .then((res) => {
-          const assigntos = res?.data.data.map((item) => {
-            return { label: item?.NAME, value: item?.ID };
-          });
-          setPriority(assigntos);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.Priority_Select, {})
+
+      .then((res) => {
+        const assigntos = res?.data.data.map((item) => {
+          return { label: item?.NAME, value: item?.ID };
         });
+        setPriority(assigntos);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getCategory = (proj) => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("ProjectID", proj),
-      axios
-        .post(apiUrls?.Category_Select, form, { headers })
-        .then((res) => {
-          const poc3s = res?.data.data.map((item) => {
-            return { label: item?.NAME, value: item?.ID };
-          });
-          setCategory(poc3s);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.Category_Select, {
+        RoleID: 0,
+        ProjectID: proj,
+      })
+
+      .then((res) => {
+        const poc3s = res?.data.data.map((item) => {
+          return { label: item?.NAME, value: item?.ID };
         });
+        setCategory(poc3s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getAssignTo = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.AssignTo_Select, form, { headers })
-        .then((res) => {
-          const assigntos = res?.data.data.map((item) => {
-            return { label: item?.NAME, value: item?.ID };
-          });
-          setAssignedto(assigntos);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.AssignTo_Select, {
+        ProjectID: 0,
+      })
+
+      .then((res) => {
+        const assigntos = res?.data.data.map((item) => {
+          return { label: item?.NAME, value: item?.ID };
         });
+        setAssignedto(assigntos);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   useEffect(() => {
@@ -595,51 +560,31 @@ const ViewIssueDetailsTableModal = ({ visible, tableData, setVisible }) => {
   }, []);
 
   const getReopen = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("Title", "ReOpenReason"),
-      // form.append("DeveloperID", memberID || 0),
-      axios
-        .post(apiUrls?.Reason_Select, form, { headers })
-        .then((res) => {
-          const poc3s = res?.data.data.map((item) => {
-            return { label: item?.NAME, value: item?.ID };
-          });
-          setReOpen(poc3s);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.Reason_Select, {
+        Title: "ReOpenReason",
+      })
+
+      .then((res) => {
+        const poc3s = res?.data.data.map((item) => {
+          return { label: item?.NAME, value: item?.ID };
         });
+        setReOpen(poc3s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   useEffect(() => {
     getReopen();
   }, []);
   return (
     <>
-      {/* {updatevisible?.updateShow && (
-        <Modal
-          visible={updatevisible}
-          setVisible={setUpdateVisible}
-          Header="Updating Issue Information"
-        >
-          <UpdateViewIssueTableModal
-            visible={updatevisible}
-            setVisible={setUpdateVisible}
-          />
-        </Modal>
-      )} */}
       <div className="card">
         <Heading
           title={"Ticket Details"}
           secondTitle={
             <div className="col-sm-12 col-xs-12">
-              {/* <button
-              style={{background:"white" ,color:"black" ,border:"none"}}
-                className="previous  btn-success mx-2"
-                disabled={tableData[0]?.currentIndex === 0 ? true : false}
-              >
-                ‹
-              </button> */}
               {visible.showData.flag == true ? (
                 <></>
               ) : (
@@ -666,17 +611,6 @@ const ViewIssueDetailsTableModal = ({ visible, tableData, setVisible }) => {
                   ></i>
                 </>
               )}
-
-              {/* <button
-                className="next btn-success mx-2"
-                disabled={
-                  tableData[0]?.currentIndex === tableData.length - 1
-                    ? true
-                    : false
-                }
-              >
-                ›
-              </button> */}
             </div>
           }
         />
@@ -765,18 +699,7 @@ const ViewIssueDetailsTableModal = ({ visible, tableData, setVisible }) => {
             onChange={handleChange}
             disabled={edit == true || edit == false}
           />
-          {/* <Input
-            type="text"
-            className="form-control mt-2"
-            id="Reporter"
-            name="Reporter"
-            lable="Reporter"
-            value={formData?.Reporter}
-            placeholder=" "
-            respclass="col-md-2 col-12 col-sm-12"
-            onChange={handleChange}
-            disabled={edit == false}
-          /> */}
+
           {edit == false ? (
             <Input
               type="text"
@@ -865,40 +788,6 @@ const ViewIssueDetailsTableModal = ({ visible, tableData, setVisible }) => {
                   handleChange={handleDeliveryChange}
                 />
               )}
-              {/* {
-              formDataUpdate?.Status === 80 &&
-                <ReactSelect
-                  respclass="col-md-2 col-12 col-sm-12 mt-2"
-                  height={"6px"}
-                  name="ReOpen"
-                  id="ReOpen"
-                  placeholderName="Reopen"
-                  dynamicOptions={reopen}
-                  value={formDataUpdate?.ReOpen}
-                  handleChange={handleDeliveryChange}
-                />
-              } */}
-
-              {/* {(formDataUpdate?.Status === 80 ||
-                formDataUpdate?.Status === 70 ||
-                formDataUpdate?.Status === 90) && (
-                <Input
-                  type="text"
-                  className="form-control"
-                  name="Reason"
-                  lable={
-                    formDataUpdate?.Status === 80
-                      ? t("Resolved Reason")
-                      : formDataUpdate?.Status === 70
-                        ? t("DoneOnUAT Reason")
-                        : t("Closed Reason")
-                  }
-                  placeholderName=""
-                  respclass="col-md-2 col-12 col-sm-12"
-                  value={formDataUpdate?.Reason}
-                  onChange={handleChange}
-                />
-              )} */}
             </>
           )}
 
@@ -1054,10 +943,8 @@ const ViewIssueDetailsTableModal = ({ visible, tableData, setVisible }) => {
               lable="Note"
               value={formData?.Note}
               placeholder="Note "
-              //  respclass="col-md-4 col-12 col-sm-12"
               onChange={handleChange}
               disabled={edit == false}
-              // style={{ width: "32%", marginLeft: "7.5px" }}
             ></textarea>
           ) : (
             <textarea
@@ -1068,18 +955,13 @@ const ViewIssueDetailsTableModal = ({ visible, tableData, setVisible }) => {
               lable="Note"
               value={formDataUpdate?.Note}
               placeholder="Note "
-              //  respclass="col-md-4 col-12 col-sm-12"
               onChange={handleChange}
-              // disabled={edit == false}
-              // style={{ width: "32%", marginLeft: "7.5px" }}
             ></textarea>
           )}
-          {console.log("RoleiD", RoleID)}
 
           {RoleID == 7 && (
             <>
-              {edit == false ? 
-              (
+              {edit == false ? (
                 <Input
                   type="text"
                   className="form-control mt-2"
@@ -1109,7 +991,6 @@ const ViewIssueDetailsTableModal = ({ visible, tableData, setVisible }) => {
                 />
               )}
             </>
-           
           )}
 
           {RoleID != 7 && (
@@ -1207,7 +1088,6 @@ const ViewIssueDetailsTableModal = ({ visible, tableData, setVisible }) => {
                 />
               )}
             </>
-            
           )}
 
           {clientId === 7 ? (
@@ -1236,7 +1116,6 @@ const ViewIssueDetailsTableModal = ({ visible, tableData, setVisible }) => {
               placeholder=""
               respclass="col-md-2 col-12 col-sm-12"
               onChange={handleChange}
-            
             />
           )}
 
@@ -1360,20 +1239,9 @@ const ViewIssueDetailsTableModal = ({ visible, tableData, setVisible }) => {
                 </>
               ),
               NoteId: ele?.NoteId,
-              //  (
-              //   <Input
-              //     value={ele?.NoteId}
-              //     className="form-control"
-              //     disabled={true}
-              //   />
-              // ),
+
               Notes:
                 ele?.IsUpdate === false ? (
-                  // <Input
-                  //   value={ele?.note}
-                  //   className="form-control"
-                  //   disabled={ele?.IsUpdate == false}
-                  // />
                   <textarea
                     type="text"
                     className="summaryheightTicket"
@@ -1389,16 +1257,6 @@ const ViewIssueDetailsTableModal = ({ visible, tableData, setVisible }) => {
                     }}
                   ></textarea>
                 ) : (
-                  // <Input
-                  //   name="Note"
-                  //   className="form-control"
-                  //   value={ele?.note}
-                  //   onChange={(e) => {
-                  //     const updatedData = [...tableData2];
-                  //     updatedData[index]["note"] = e?.target.value;
-                  //     setTableData2(updatedData);
-                  //   }}
-                  // />
                   <textarea
                     type="text"
                     className="summaryheightTicket"
@@ -1424,21 +1282,8 @@ const ViewIssueDetailsTableModal = ({ visible, tableData, setVisible }) => {
                   </span>
                 </Tooltip>
               ),
-              //  (
-              //   <Input
-              //     value={ele?.RealName}
-              //     className="form-control"
-              //     disabled={true}
-              //   />
-              // ),
+
               DateSubmitted: ele?.dtEntry,
-              //  (
-              //   <Input
-              //     value={ele?.dtEntry}
-              //     disabled={true}
-              //     className="form-control"
-              //   />
-              // ),
             }))}
             tableHeight={"tableHeight"}
           />
@@ -1447,8 +1292,6 @@ const ViewIssueDetailsTableModal = ({ visible, tableData, setVisible }) => {
             There are no notes attached to this issue.
           </span>
         )}{" "}
-        {/* </>
-        )} */}
       </div>
 
       <div className="card patient_registration_card mt-3">
@@ -1481,8 +1324,8 @@ const ViewIssueDetailsTableModal = ({ visible, tableData, setVisible }) => {
                   DateModified: ele?.Updatedate,
                   "User Name": ele?.username,
                   Field: ele?.field_name,
-                  "Old Value": ele?.leble1,
-                  "New Value": ele?.leble2,
+                  "Old Value": ele?.leble1 == "01-01-1970" ? "" : ele.leble1,
+                  "New Value": ele?.leble2 == "01-01-1970" ? "" : ele.leble2,
                 }))}
                 tableHeight={"tableHeight"}
               />

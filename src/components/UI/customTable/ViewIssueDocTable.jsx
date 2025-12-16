@@ -1,15 +1,12 @@
 import React, { useEffect, useState } from "react";
 import Tables from ".";
 import { apiUrls } from "../../../networkServices/apiEndpoints";
-import { headers } from "../../../utils/apitools";
-import axios from "axios";
 import { toast } from "react-toastify";
 import NoRecordFound from "../../formComponent/NoRecordFound";
 import Heading from "../Heading";
-import { useCryptoLocalStorage } from "../../../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../../../networkServices/axiosInstance";
 
-const ViewIssueDocTable = ({ visible, setVisible ,handleViewSearch }) => {
-
+const ViewIssueDocTable = ({ visible, setVisible, handleViewSearch }) => {
   const [tableData, setTableData] = useState([]);
 
   const centreTHEAD = ["S.No.", "CreatedBy", "EntryDate", "Print", "Remove"];
@@ -28,37 +25,35 @@ const ViewIssueDocTable = ({ visible, setVisible ,handleViewSearch }) => {
   };
 
   const handleDetails = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("TicketID", visible?.ele?.TicketID),
-      axios
-        .post(apiUrls?.ViewAttachment, form, { headers })
-        .then((res) => {
-          setTableData(res?.data?.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls.ViewAttachment, {
+        TicketID: Number(visible?.showData?.TicketID),
+      })
+      .then((res) => {
+        setTableData(res?.data?.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const handleRemove = (ele) => {
-    console.log("ele", ele);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("RoleID", useCryptoLocalStorage("user_Data", "get", "RoleID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("TicketID", ele?.TicketID),
-      form.append("AttachmentID", ele?.ID),
-      axios
-        .post(apiUrls?.DeleteAttachment, form, { headers })
-        .then((res) => {
+    axiosInstances
+      .post(apiUrls.DeleteAttachment, {
+        TicketID: Number(ele?.TicketID),
+        AttachmentID: Number(ele?.ID),
+      })
+      .then((res) => {
+        if (res?.data?.success === true) {
           toast.success(res?.data?.message);
-          handleDetails();
           setVisible(false);
-          handleViewSearch()
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+          handleViewSearch();
+        } else {
+          toast.error(res?.data?.message);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   useEffect(() => {
     handleDetails();
@@ -74,7 +69,7 @@ const ViewIssueDocTable = ({ visible, setVisible ,handleViewSearch }) => {
         </span>
       </div>
       {tableData?.length > 0 ? (
-        <div className="card p-2">
+        <div className="card p-0">
           <Heading title={"Details"} />
           <Tables
             thead={centreTHEAD}

@@ -6,6 +6,7 @@ import { apiUrls } from "../../../networkServices/apiEndpoints";
 import { headers } from "../../../utils/apitools";
 import { useCryptoLocalStorage } from "../../../utils/hooks/useCryptoLocalStorage";
 import Loading from "../../loader/Loading";
+import { axiosInstances } from "../../../networkServices/axiosInstance";
 const TaxInvoicePIModal = (visible, setVisible) => {
   console.log("lotus ", visible);
   const [formData, setFormData] = useState({
@@ -47,32 +48,29 @@ const TaxInvoicePIModal = (visible, setVisible) => {
       toast.error("Please Select Document.");
     } else {
       setLoading(true);
-      let form = new FormData();
-      form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-        form.append(
-          "LoginName",
-          useCryptoLocalStorage("user_Data", "get", "realname")
-        ),
-        form.append("TaxInvoiceID", visible?.visible?.showData?.EncryptID),
-        form.append("TaxInvoiceNo", formData?.TaxInvoiceNo),
-        form.append("Document_Base64", formData?.Document_Base64),
-        form.append("Document_FormatType", formData?.FileExtension),
-        axios
-          .post(apiUrls?.TaxInvoice_Upload, form, { headers })
-          .then((res) => {
-            if (res?.data?.status === true) {
-              toast.success(res?.data?.message);
-              visible?.setVisible(false);
-              setLoading(false);
-              visible?.handleSearch();
-            } else {
-              toast.error(res?.data?.message);
-              setLoading(false);
-            }
-          })
-          .catch((err) => {
-            console.log(err);
-          });
+      const payload = {
+        TaxInvoiceID: String(visible?.visible?.showData?.EncryptID || 0),
+        TaxInvoiceNo: String(formData?.TaxInvoiceNo || ""),
+        Document_Base64: String(formData?.Document_Base64 || ""),
+        Document_FormatType: String(formData?.FileExtension || ""),
+      };
+
+      axiosInstances
+        .post(apiUrls?.TaxInvoice_Upload, payload)
+        .then((res) => {
+          if (res?.data?.success === true) {
+            toast.success(res?.data?.message);
+            visible?.setVisible(false);
+            setLoading(false);
+            visible?.handleSearch();
+          } else {
+            toast.error(res?.data?.message);
+            setLoading(false);
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     }
   };
   return (

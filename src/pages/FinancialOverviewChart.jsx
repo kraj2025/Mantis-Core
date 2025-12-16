@@ -14,6 +14,7 @@ import { apiUrls } from "../networkServices/apiEndpoints";
 import { headers } from "../utils/apitools";
 import { useSelector } from "react-redux";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../networkServices/axiosInstance";
 
 ChartJS.register(
   CategoryScale,
@@ -32,14 +33,11 @@ const FinancialOverviewChart = () => {
   const [xAxisKeys, setXAxisKeys] = useState(["financial_year_start", "today"]);
 
   const fetchSalesData = (developerId, searchType) => {
-    let form = new FormData();
-    form.append("ID",  useCryptoLocalStorage("user_Data", "get", "ID"));
-    form.append("DeveloperID", developerId);
-    form.append("SearchType", searchType === "" ? "0" : searchType);
-
-    axios
-      .post(apiUrls?.CoorDashboard_Financial_Recovery_Quotation, form, {
-        headers,
+    axiosInstances
+      .post(apiUrls.CoorDashboard_Financial_Recovery_Quotation, {
+        CoordinatorID: Number(useCryptoLocalStorage("user_Data", "get", "ID")),
+        DeveloperID: Number(developerId),
+        SearchType: Number(searchType == "" ? "0" : searchType),
       })
       .then((res) => {
         const data = res?.data?.data || [];
@@ -68,7 +66,6 @@ const FinancialOverviewChart = () => {
     fetchSalesData(memberID, developerSearchType);
   }, [memberID, developerSearchType]);
 
-  
   //   const transformData = (data, key) => {
   //     const labels = data.map((item) => item[key]);
 
@@ -123,6 +120,9 @@ const FinancialOverviewChart = () => {
           usePointStyle: true,
           pointStyle: "circle",
         },
+      },
+      datalabels: {
+        display: false, // 👈 disables value labels on bars
       },
       tooltip: {
         callbacks: {

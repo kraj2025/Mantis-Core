@@ -180,6 +180,17 @@ const allRoutes = {
     {
       Guard: Authenticated,
       layout: Layout,
+      path: "/AmcCalculator",
+      component: lazy(
+        () => import("@app/pages/AmcCalculator/AmcCalculator.jsx")
+      ),
+      exact: true,
+    },
+
+    // C:\Users\ADMIN\Desktop\mantis-new\Mantis-Core\src\pages\AmcCalculator\AmcCalculator.jsx
+    {
+      Guard: Authenticated,
+      layout: Layout,
       path: "/ImplementationStepMaster",
       component: lazy(() => import("@app/pages/ImplementationStepMaster.jsx")),
       exact: true,
@@ -201,11 +212,38 @@ const allRoutes = {
     {
       Guard: Authenticated,
       layout: Layout,
+      path: "/AIDashboard",
+      component: lazy(
+        () => import("@app/pages/AiReportDashboard/OtpLogin.jsx")
+      ),
+      exact: true,
+    },
+    {
+      Guard: Authenticated,
+      layout: Layout,
+      path: "/ReportViewer",
+      component: lazy(
+        () => import("@app/pages/AiReportDashboard/ChatAI/ReportViewer.jsx")
+      ),
+      exact: true,
+    },
+    {
+      // Guard: Authenticated,
+      // layout: Layout,
+      path: "/ReportChatAI",
+      component: lazy(
+        () => import("@app/pages/AiReportDashboard/ChatAI/ReportChatAI.jsx")
+      ),
+      exact: true,
+    },
+    {
+      Guard: Authenticated,
+      layout: Layout,
       path: "/AttendanceReport",
       component: lazy(() => import("@app/pages/AttendanceReport.jsx")),
       exact: true,
     },
-   
+
     {
       Guard: Authenticated,
       layout: Layout,
@@ -736,7 +774,13 @@ const allRoutes = {
       component: lazy(() => import("@app/pages/UploadDocument.jsx")),
       exact: true,
     },
-
+   {
+      Guard: Authenticated,
+      layout: Layout,
+      path: "/AdvanceRequestSettlement",
+      component: lazy(() => import("@app/pages/CRM/AdvanceRequestSettlement.jsx")),
+      exact: true,
+    },
     {
       Guard: Guest,
       path: "/login",

@@ -90,7 +90,6 @@ const LoginComponent = () => {
           client: "b2b",
         })
       );
-      // debugger
       const responseData = loginRes?.payload?.data;
 
       // const token =
@@ -226,29 +225,29 @@ const LoginComponent = () => {
     } else if (values?.mobile == "") {
       toast.error("Please Enter Mobile No.");
     } else {
-      let form = new FormData();
-      form.append("EmailID", values?.email),
-        form.append("MobileNo", values?.mobile),
-        axios
-          .post(apiUrls?.ForgetPassword_ValdiateEmailMobile, form, { headers })
-          .then((res) => {
-            if (res?.data?.status == true) {
-              toast.success(res?.data?.message);
-              setshowotp(res?.data?.data);
-              setShowForgotPage({
-                isLogin: false,
-                isForgetPassword: false,
-                isOTP: true,
-                isNewPassword: false,
-              });
-              setValues(values);
-            } else {
-              toast.error(res?.data?.message);
-            }
-          })
-          .catch((err) => {
-            console.log(err);
-          });
+      axiosInstances
+        .post(apiUrls.ForgetPassword_ValdiateEmailMobile, {
+          EmailID: String(values?.email),
+          MobileNo: String(values?.mobile),
+        })
+        .then((res) => {
+          if (res?.data?.success == true) {
+            toast.success(res?.data?.message);
+            setshowotp(res?.data?.data);
+            setShowForgotPage({
+              isLogin: false,
+              isForgetPassword: false,
+              isOTP: true,
+              isNewPassword: false,
+            });
+            setValues(values);
+          } else {
+            toast.error(res?.data?.message);
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     }
   };
 
@@ -258,29 +257,29 @@ const LoginComponent = () => {
     if (values?.otp == "") {
       toast.error("Please Enter 6 digit Otp No.");
     } else {
-      let form = new FormData();
-      form.append("EmpID", showotp[0]?.EmpID),
-        form.append("OTP", values?.otp),
-        axios
-          .post(apiUrls?.ForgetPassword_ValdiateOTP, form, { headers })
-          .then((res) => {
-            if (res?.data?.status === true) {
-              toast.success(res?.data?.message);
-              setshowpassword(res?.data?.data);
-              setShowForgotPage({
-                isLogin: false,
-                isForgetPassword: false,
-                isOTP: false,
-                isNewPassword: true,
-              });
-              setValues(values);
-            } else {
-              toast.error(res?.data?.message);
-            }
-          })
-          .catch((err) => {
-            console.log(err);
-          });
+      axiosInstances
+        .post(apiUrls.ForgetPassword_ValdiateOTP, {
+          EmpID: String(showotp[0]?.EmpID),
+          OTP: String(values?.otp),
+        })
+        .then((res) => {
+          if (res?.data?.success === true) {
+            toast.success(res?.data?.message);
+            setshowpassword(res?.data?.data);
+            setShowForgotPage({
+              isLogin: false,
+              isForgetPassword: false,
+              isOTP: false,
+              isNewPassword: true,
+            });
+            setValues(values);
+          } else {
+            toast.error(res?.data?.message);
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     }
   };
   const handlenewpassword = () => {
@@ -289,36 +288,30 @@ const LoginComponent = () => {
     } else if (values?.confirmPassword == "") {
       toast.error("Please Enter Confirm Password.");
     } else {
-      let form = new FormData();
-      form.append("EmpID", showpassword[0]?.EmpID),
-        form.append("Password", values?.newPassword),
-        form.append("ConfirmedPassword", values?.confirmPassword),
-        axios
-          .post(apiUrls?.ForgetPassword_ChangePassword, form, { headers })
-          .then((res) => {
-            if (res?.data?.status === true) {
-              toast.success(res?.data?.message);
-              setShowForgotPage({
-                isLogin: true,
-                isForgetPassword: false,
-                isOTP: false,
-                isNewPassword: false,
-              });
-              setValues(values);
-            } else {
-              toast.error(res?.data?.message);
-            }
-          })
-          .catch((err) => {
-            console.log(err);
-          });
+      axiosInstances
+        .post(apiUrls.ForgetPassword_ChangePassword, {
+          EmpID: String(showpassword[0]?.EmpID),
+          Password: String(values?.newPassword),
+          ConfirmedPassword: String(values?.confirmPassword),
+        })
+        .then((res) => {
+          if (res?.data?.success === true) {
+            toast.success(res?.data?.message);
+            setShowForgotPage({
+              isLogin: true,
+              isForgetPassword: false,
+              isOTP: false,
+              isNewPassword: false,
+            });
+            setValues(values);
+          } else {
+            toast.error(res?.data?.message);
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     }
-    // setShowForgotPage({
-    //   isLogin: true,
-    //   isForgetPassword: false,
-    //   isOTP: false,
-    //   isNewPassword: false,
-    // });
   };
 
   const handleChange = (e) => {
@@ -343,10 +336,7 @@ const LoginComponent = () => {
 
         <div className="card-body loginmedia">
           <h5 className="cardTitle my-2">{t("Welcome to itDose")}</h5>
-          {/* <div className="ml-5"  style={{ display: "flex", justifyContent: "center" ,marginLeft:"40px !important" }}><h5 className="cardTitle my-2">{t("Welcome to itDose")}</h5>
-            <div className="ml-3"> 
-          <LanguagesDropdown />
-        </div></div>  */}
+
           <Link to="/">
             <img
               className="logoStyle"
@@ -376,7 +366,6 @@ const LoginComponent = () => {
                         onChange={handleChange}
                         onKeyDown={Tabfunctionality}
                         tabIndex="1"
-                        //  respclass="col-xl-12 col-md-4 col-sm-6 col-12"
                       />
                     </div>
                     <div className="icondiv">

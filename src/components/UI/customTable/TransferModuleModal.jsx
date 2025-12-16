@@ -7,6 +7,7 @@ import Loading from "../../loader/Loading";
 import { toast } from "react-toastify";
 import { apiUrls } from "../../../networkServices/apiEndpoints";
 import { useCryptoLocalStorage } from "../../../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../../../networkServices/axiosInstance";
 
 const TransferModuleModal = ({ tableData, userData, setVisible }) => {
   console.log("tableData", tableData);
@@ -21,37 +22,37 @@ const TransferModuleModal = ({ tableData, userData, setVisible }) => {
     TargetUser: null,
   });
   const getReporter = () => {
-    let form = new FormData();
-    form.append("ID",  useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("RoleID", useCryptoLocalStorage("user_Data", "get", "RoleID")),
-      axios
-        .post(apiUrls?.Reporter_Select, form, { headers })
-        .then((res) => {
-          const reporters = res?.data.data.map((item) => {
-            return { label: item?.NAME, value: item?.ID };
-          });
-          setReporter(reporters);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.Reporter_Select, {
+        ID: useCryptoLocalStorage("user_Data", "get", "ID"),
+        RoleID: useCryptoLocalStorage("user_Data", "get", "RoleID"),
+      })
+      .then((res) => {
+        const reporters = res?.data.data.map((item) => {
+          return { label: item?.NAME, value: item?.ID };
         });
+        setReporter(reporters);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getTargetReporter = () => {
-    let form = new FormData();
-    form.append("ID",  useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("RoleID", useCryptoLocalStorage("user_Data", "get", "RoleID")),
-      form.append("IsMaster", "1"),
-      axios
-        .post(apiUrls?.Reporter_Select, form, { headers })
-        .then((res) => {
-          const reporters = res?.data.data.map((item) => {
-            return { label: item?.NAME, value: item?.ID };
-          });
-          setTargetReporter(reporters);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.Reporter_Select, {
+        ID: useCryptoLocalStorage("user_Data", "get", "ID"),
+        IsMaster: "1",
+        RoleID: useCryptoLocalStorage("user_Data", "get", "RoleID"),
+      })
+      .then((res) => {
+        const reporters = res?.data.data.map((item) => {
+          return { label: item?.NAME, value: item?.ID };
         });
+        setTargetReporter(reporters);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const handleDeliveryChange = (name, selectedOption) => {
     setFormData((prev) => ({
@@ -61,31 +62,28 @@ const TransferModuleModal = ({ tableData, userData, setVisible }) => {
   };
   const handleusermapping = () => {
     setLoading(true);
-    let form = new FormData();
-    form.append("ID",  useCryptoLocalStorage("user_Data", "get", "ID")),
-      // form.append("RoleID", useCryptoLocalStorage("user_Data", "get", "RoleID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("UserID", tableData?.User),
-      form.append("Status", "Transfer"),
-      form.append("TargetUserID", formData?.TargetUser?.value),
-      //   form.append("ProjectID", "2"),
-      form.append("ProjectID", userData[0]?.ProjectID),
-      axios
-        .post(apiUrls?.UserVsProjectMapping, form, { headers })
-        .then((res) => {
-          if (res?.data?.status === true) {
-            toast.success(res?.data?.message);
-            setLoading(false);
-            setVisible(false);
-          } else {
-            toast.error(res?.data?.message);
-            setLoading(false);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
+   
+    axiosInstances
+      .post(apiUrls.UserVsProjectMapping, {
+        ProjectID: String(userData[0]?.ProjectID),
+        UserID: String(tableData?.User),
+        TargetUserID: String(formData?.TargetUser?.value),
+        ProjectID: String(userData[0]?.ProjectID),
+      })
+      .then((res) => {
+        if (res?.data?.success === true) {
+          toast.success(res?.data?.message);
           setLoading(false);
-        });
+          setVisible(false);
+        } else {
+          toast.error(res?.data?.message);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
   };
   // console.log("formData?.TargetUser", formData?.TargetUser?.value);
 

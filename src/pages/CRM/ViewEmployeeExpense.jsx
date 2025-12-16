@@ -22,6 +22,7 @@ import ViewExpenseApproveModal from "./ViewExpenseApproveModal";
 import ViewExpenseRejectModal from "./ViewExpenseRejectModal";
 import ViewExpenseSubmitModal from "./ViewExpenseSubmitModal";
 import { useCryptoLocalStorage } from "../../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../../networkServices/axiosInstance";
 
 const currentDate = new Date();
 const currentMonth = currentDate.getMonth() + 1; // Months are 0-indexed, so add 1
@@ -82,10 +83,10 @@ const  ViewEmployeeExpense= () => {
   });
 
   const getReporter = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Reporter_Select, form, { headers })
+    axiosInstances
+        .post(apiUrls.Reporter_Select, {
+         
+        })
         .then((res) => {
           const reporters = res?.data.data.map((item) => {
             return { label: item?.NAME, value: item?.ID };

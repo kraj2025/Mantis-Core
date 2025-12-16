@@ -25,8 +25,8 @@ const PriorityTicketsChart = () => {
   const handleFirstDashboardCount = () => {
       axiosInstances
           .post(apiUrls.DevDashboard_Summary, {
-            title: String("Priority"),
-            developerID: String(memberID || "0"),
+            Title: String("Priority"),
+            DeveloperID: String(memberID || "0"),
           })
         .then((res) => {
           setCountData(res?.data?.dtPriority);
@@ -100,6 +100,9 @@ const PriorityTicketsChart = () => {
           },
           color: "black", // Set font color
         },
+      },
+      datalabels: {
+        display: false, // 👈 disables value labels on bars
       },
     },
     responsive: true,

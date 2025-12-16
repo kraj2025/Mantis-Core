@@ -5,11 +5,10 @@ import ClientDashboard from "../components/Dashboard/ClientDashboard";
 import EmployeeDashboard from "../components/Dashboard/EmployeeDashboard";
 import DatePickerMonth from "../components/formComponent/DatePickerMonth";
 import ReactSelect from "../components/formComponent/ReactSelect";
-import axios from "axios";
 import { apiUrls } from "../networkServices/apiEndpoints";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
-import { headers } from "../utils/apitools";
 import AttendanceHoursDashboard from "../components/Dashboard/AttendanceHoursDashboard";
+import { axiosInstances } from "../networkServices/axiosInstance";
 const getDaysInMonth = (year, month) => {
   return new Array(new Date(year, month, 0).getDate())
     .fill(null)
@@ -99,70 +98,65 @@ const HrDashboard = () => {
     });
   };
   const handleBreakDetail = ({ month, year, week }) => {
-    const form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-    form.append(
-      "LoginName",
-      useCryptoLocalStorage("user_Data", "get", "realname")
-    );
-    form.append(
-      "CrmEmpID",
-      useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-    );
-    form.append("Type", "1");
-    form.append("Month", month);
-    form.append("Year", year);
-    form.append("Week", week); // now always defined ✅
+    // const form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
+    // form.append(
+    //   "LoginName",
+    //   useCryptoLocalStorage("user_Data", "get", "realname")
+    // );
+    // form.append(
+    //   "CrmEmpID",
+    //   useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+    // );
+    // form.append("Type", "1");
+    // form.append("Month", month);
+    // form.append("Year", year);
+    // form.append("Week", week); // now always defined ✅
 
-    axios
-      .post(apiUrls.WeaklyMonthlyBreakCount, form, { headers })
+    // axios
+    //   .post(apiUrls.WeaklyMonthlyBreakCount, form, { headers })
+    axiosInstances
+      .post(apiUrls?.WeaklyMonthlyBreakCount, {
+        CrmEmpID: Number(
+          useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+        ),
+        Type: Number(1),
+        Year: Number(year),
+        Month: Number(month),
+        Week: Number(week),
+      })
       .then((res) => setTableData(res.data.data))
       .catch(console.error);
   };
 
-  //   const handleBreakDetail = (details) => {
-  //     let form = new FormData();
-  //     form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-  //       form.append(
-  //         "LoginName",
-  //         useCryptoLocalStorage("user_Data", "get", "realname")
-  //       ),
-  //       form.append(
-  //         "CrmEmpID",
-  //         useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-  //       ),
-  //       form.append("Type", "1"),
-  //       form.append("Month", details ? details?.month : currentMonth),
-  //       form.append("Year", details ? details?.year : currentYear),
-  //       form.append("Week", formData?.WeekDays),
-  //       axios
-  //         .post(apiUrls?.WeaklyMonthlyBreakCount, form, { headers })
-  //         .then((res) => {
-  //           setTableData(res?.data?.data);
-  //         })
-  //         .catch((err) => {
-  //           console.log(err);
-  //         });
-  //   };
-
   const handleHourDetail = ({ month, year, week }) => {
-    const form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-    form.append(
-      "LoginName",
-      useCryptoLocalStorage("user_Data", "get", "realname")
-    );
-    form.append(
-      "CrmEmpID",
-      useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-    );
-    form.append("Type", "1");
-    form.append("Month", month);
-    form.append("Year", year);
-    form.append("Week", week); // now always defined ✅
+    // const form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
+    // form.append(
+    //   "LoginName",
+    //   useCryptoLocalStorage("user_Data", "get", "realname")
+    // );
+    // form.append(
+    //   "CrmEmpID",
+    //   useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+    // );
+    // form.append("Type", "1");
+    // form.append("Month", month);
+    // form.append("Year", year);
+    // form.append("Week", week); // now always defined ✅
 
-    axios
-      .post(apiUrls.WeaklyMonthlyBreakHours, form, { headers })
+    // axios
+    //   .post(apiUrls.WeaklyMonthlyBreakHours, form, { headers })
+    axiosInstances
+      .post(apiUrls?.WeaklyMonthlyBreakHours, {
+        CrmEmpID: Number(
+          useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+        ),
+        Type: Number(1),
+        Year: Number(year),
+        Month: Number(month),
+        Week: Number(week),
+      })
       .then((res) => setHourData(res.data.data))
       .catch(console.error);
   };

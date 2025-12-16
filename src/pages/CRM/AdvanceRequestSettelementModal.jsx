@@ -93,7 +93,7 @@ const AdvanceRequestSettelementModal = ({
           name="PaymentMode"
           placeholderName="Payment Mode"
           dynamicOptions={[
-            { label: "CASH", value: "CASH" },
+            { label: "Delta", value: "CASH" },
             { label: "KOTAK BANK", value: "KOTAK BANK" },
             { label: "ICICI BANK", value: "ICICI BANK" },
           ]}

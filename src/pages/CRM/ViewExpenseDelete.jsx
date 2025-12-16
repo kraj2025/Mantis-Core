@@ -6,21 +6,27 @@ import { toast } from "react-toastify";
 import { set } from "lodash";
 import Loading from "../../components/loader/Loading";
 import { useCryptoLocalStorage } from "../../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../../networkServices/axiosInstance";
 const ViewExpenseDelete = ({ visible, setVisible ,handleTableSearch }) => {
   console.log(visible);
   const [loading, setLoading] = useState(false);
 
   const handleApprove = () => {
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname") ),
-      form.append("ExpenseReportID", visible?.showData?.expense_report_ID),
-      form.append("ActionType", "Delete"),
-      axios
-        .post(apiUrls?.UpdateStatusCopy, form, { headers })
+    axiosInstances
+      .post(apiUrls.UpdateStatusCopy, {
+  "ActionType": "Delete",
+  "ExpenseReportID": Number(visible?.showData?.expense_report_ID)
+})
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname") ),
+    //   form.append("ExpenseReportID", visible?.showData?.expense_report_ID),
+    //   form.append("ActionType", "Delete"),
+    //   axios
+    //     .post(apiUrls?.UpdateStatusCopy, form, { headers })
         .then((res) => {
-          if (res?.data?.status === true) {
+          if (res?.data?.success === true) {
             toast.success(res?.data?.message);
             setVisible(false);
             handleTableSearch()

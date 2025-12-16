@@ -9,6 +9,7 @@ import Loading from "../components/loader/Loading";
 import { apiUrls } from "../networkServices/apiEndpoints";
 import moment from "moment";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../networkServices/axiosInstance";
 
 const ChangeSubmitDateofTicket = () => {
   const [loading, setLoading] = useState(false);
@@ -30,32 +31,26 @@ const ChangeSubmitDateofTicket = () => {
       toast.error("Please Select Delivery Date.");
     } else {
       setLoading(true);
-      let form = new FormData();
-      form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-        form.append(
-          "LoginName",
-          useCryptoLocalStorage("user_Data", "get", "realname")
-        ),
-        form.append("TicketIDs", formData?.TicketNo),
-        form.append(
-          "dtSubmit",
-          moment(formData?.DeliveryDate).format("YYYY-MM-DD")
-        ),
-        axios
-          .post(apiUrls?.ChangeSubmitDate, form, { headers })
-          .then((res) => {
-         
-            if (res?.data?.status == true) {
-              toast.success(res?.data?.message);
-            } else {
-              toast.success(res?.data?.message);
-            }
-            setLoading(false);
-          })
-          .catch((err) => {
-            console.log(err);
-            setLoading(false);
-          });
+
+      axiosInstances
+        .post(apiUrls.ChangeSubmitDate, {
+          ID: useCryptoLocalStorage("user_Data", "get", "ID"),
+          LoginName: useCryptoLocalStorage("user_Data", "get", "realname"),
+          TicketIDs: formData?.TicketNo,
+          dtSubmit: moment(formData?.DeliveryDate).format("YYYY-MM-DD"),
+        })
+        .then((res) => {
+          if (res?.data?.status == true) {
+            toast.success(res?.data?.message);
+          } else {
+            toast.success(res?.data?.message);
+          }
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.log(err);
+          setLoading(false);
+        });
     }
   };
   return (
@@ -79,7 +74,7 @@ const ChangeSubmitDateofTicket = () => {
             className="custom-calendar"
             id="DeliveryDate"
             name="DeliveryDate"
-            lable="Delivery Date"
+            lable="Submit Date"
             placeholder={VITE_DATE_FORMAT}
             respclass="col-xl-2 col-md-4 col-sm-4 col-12"
             value={formData?.DeliveryDate}

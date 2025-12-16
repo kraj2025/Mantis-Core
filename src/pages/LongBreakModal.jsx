@@ -9,8 +9,9 @@ import { toast } from "react-toastify";
 import { apiUrls } from "../networkServices/apiEndpoints";
 import { headers } from "../utils/apitools";
 import axios from "axios";
+import { axiosInstances } from "../networkServices/axiosInstance";
 const LongBreakModal = ({ visible, setVisible, handleTableSearch }) => {
-  console.log("visible",visible)
+  // console.log("visible",visible)
   const [t] = useTranslation();
   const [loading, setLoading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
@@ -86,23 +87,33 @@ const LongBreakModal = ({ visible, setVisible, handleTableSearch }) => {
 
   const handleSave = () => {
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("Reason", formData?.Reason),
-      form.append("AttType", "LongBreak"),
-      form.append("Image_Base64", formData?.Document_Base64),
-      form.append("FileFormat_Base64", formData?.FileExtension),
-      form.append("AttSummaryID", visible?.showData?.breakSummaryId),
-      form.append("EmployeeID", visible?.showData?.Employee_Id),
-      form.append("EmployeeName", visible?.showData?.Name),
-      axios
-        .post(apiUrls?.ForceFullyShortBreakAttendanceSave, form, { headers })
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append(
+    //     "LoginName",
+    //     useCryptoLocalStorage("user_Data", "get", "realname")
+    //   ),
+    //   form.append("Reason", formData?.Reason),
+    //   form.append("AttType", "LongBreak"),
+    //   form.append("Image_Base64", formData?.Document_Base64),
+    //   form.append("FileFormat_Base64", formData?.FileExtension),
+    //   form.append("AttSummaryID", visible?.showData?.breakSummaryId),
+    //   form.append("EmployeeID", visible?.showData?.Employee_Id),
+    //   form.append("EmployeeName", visible?.showData?.Name),
+    //   axios
+    //     .post(apiUrls?.ForceFullyShortBreakAttendanceSave, form, { headers })
+     axiosInstances
+          .post(apiUrls.ForceFullyShortBreakAttendanceSave, {
+            Reason: String(formData?.Reason),
+            AttType: String("LongBreak"),
+            AttSummaryID: Number(visible?.showData?.breakSummaryId),
+            EmployeeID: Number(visible?.showData?.Employee_Id),
+            EmployeeName: String(visible?.showData?.Name),
+            Image_Base64: String(formData?.Document_Base64),
+            FileFormat_Base64: String(formData?.FileExtension),
+          })
         .then((res) => {
-          if (res?.data?.status === true) {
+          if (res?.data?.success === true) {
             toast.success(res?.data?.message);
             setLoading(false);
             setVisible(false);

@@ -19,21 +19,7 @@ const SearchLotusFilter = ({ columnConfig, setColumnConfig, PageName }) => {
 
   const getFilterResultOption = async () => {
     try {
-      // const form = new FormData();
-      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-      // form.append(
-      //   "CrmEmpID",
-      //   useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-      // );
-      // form.append(
-      //   "LoginName",
-      //   useCryptoLocalStorage("user_Data", "get", "realname")
-      // );
-      // form.append("PageName", PageName);
-
-      // const res = await axios.post(apiUrls?.GetFilterTableReprintData, form, {
-      //   headers,
-      // });
+     
 
       const res = await axiosInstances.post(apiUrls?.GetFilterTableReprintData, {
         PageName: String(PageName),
@@ -50,33 +36,10 @@ const SearchLotusFilter = ({ columnConfig, setColumnConfig, PageName }) => {
   };
 
   const toggleColumnVisibility = async (column, index) => {
-    // const updatedColumn =
-    //   column?.header === "S.No"
-    //     ? columnConfig.map((ele) => ({
-    //         ...ele,
-    //         visible: !column?.visible,
-    //       }))
-    //     : columnConfig.map((ele, i) =>
-    //         i === index ? { ...ele, visible: !ele.visible } : ele
-    //       );
+  
     setLoad(true);
     try {
-      // const form = new FormData();
-      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-      // form.append(
-      //   "CrmEmpID",
-      //   useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-      // );
-      // form.append(
-      //   "LoginName",
-      //   useCryptoLocalStorage("user_Data", "get", "realname")
-      // );
-      // form.append("PageName", PageName);
-      // form.append("FilterData", JSON.stringify(updatedColumn));
-
-      // const res = await axios.post(apiUrls?.SaveFilterTableReprintData, form, {
-      //   headers,
-      // });
+    
 
       const updatedColumn =
         column?.header === "S.No"

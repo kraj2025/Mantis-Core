@@ -3,16 +3,14 @@ import Heading from "../components/UI/Heading";
 import Input from "../components/formComponent/Input";
 import Loading from "../components/loader/Loading";
 import { apiUrls } from "../networkServices/apiEndpoints";
-import { headers } from "../utils/apitools";
-import axios from "axios";
 import * as XLSX from "xlsx";
 import { toast } from "react-toastify";
 import BrowseButton from "../components/formComponent/BrowseButton";
 import { useTranslation } from "react-i18next";
 import Tables from "../components/UI/customTable";
-import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
 import TableSelect from "../components/formComponent/TableSelect";
 import ReactSelect from "../components/formComponent/ReactSelect";
+import { axiosInstances } from "../networkServices/axiosInstance";
 const AMCSalesBooking = () => {
   const [loading, setLoading] = useState(false);
   const [tableData, setTableData] = useState([]);
@@ -42,39 +40,30 @@ const AMCSalesBooking = () => {
   });
 
   const handleGetItemSearch = (value) => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "RoleID",
-        useCryptoLocalStorage("user_Data", "get", "RoleID")
-      ),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("ProjectID", value),
-      form.append("ItemID", ""),
-      form.append("ItemName", ""),
-      form.append("SearchType", "GetItem"),
-      axios
-        .post(apiUrls?.Payement_Installment_Select, form, { headers })
-        .then((res) => {
-          const poc3s = res?.data.data.map((item) => {
-            return { label: item?.ItemNameGroup, value: item?.ItemIDGroup };
-          });
-          setItems(poc3s);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.Payement_Installment_Select, {
+        ProjectID: String(value),
+        SearchType: "GetItem",
+        ItemName: "",
+        ItemID: "",
+      })
+      .then((res) => {
+        const poc3s = res?.data.data.map((item) => {
+          return { label: item?.ItemNameGroup, value: item?.ItemIDGroup };
         });
+        setItems(poc3s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   function getlabel(id, dropdownData) {
     const ele = dropdownData?.filter((item) => item?.value === id);
     return ele?.length > 0 ? ele[0].label : undefined;
   }
   const transformData = (data) => {
-    const headers = data[0]; // First array is the header
-    const rows = data.slice(1); // Remaining arrays are the data rows
+    const headers = data[0];
+    const rows = data.slice(1);
 
     return rows.map((row) => {
       let obj = {};
@@ -86,7 +75,6 @@ const AMCSalesBooking = () => {
   };
 
   const fetchemptyexcel = () => {
-    // Define the columns for your Excel sheet
     const data = [
       [
         t("Project"),
@@ -228,38 +216,45 @@ const AMCSalesBooking = () => {
       let transformPayload = [];
       tableData.map((item, index) => {
         transformPayload.push({
-          ProjectID: item.Project.value,
-          Project: item?.Project.label,
-          April: item?.April,
-          May: item?.May,
-          June: item?.June,
-          July: item?.July,
-          August: item?.August,
-          September: item?.September,
-          October: item?.October,
-          November: item?.November,
-          December: item?.December,
-          January: item?.January,
-          February: item?.February,
-          March: item?.March,
+          ProjectID: Number(item.Project.value),
+          Project: String(item?.Project.label),
+          April: String(item?.April),
+          May: String(item?.May),
+          June: String(item?.June),
+          July: String(item?.July),
+          August: String(item?.August),
+          September: String(item?.September),
+          October: String(item?.October),
+          November: String(item?.November),
+          December: String(item?.December),
+          January: String(item?.January),
+          February: String(item?.February),
+          March: String(item?.March),
+
           // TotalAmount: item?.TotalAmount,
         });
       });
       setLoading(true);
       setIsSubmitting(true);
-      const form = new FormData();
-      form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      );
-      form.append("ItemID", formData?.Items);
-      form.append("ItemsName", getlabel(formData?.Items, items));
-      form.append("AmcData", JSON.stringify(transformPayload));
-      axios
-        .post(apiUrls?.AMC_Payment_Installment_Insert, form, { headers })
+      axiosInstances
+        .post(apiUrls.AMC_Payment_Installment_Insert, {
+          ItemID: Number(formData?.Items),
+          ItemsName: String(getlabel(formData?.Items, items)),
+          AmcData: transformPayload,
+        })
+        // const form = new FormData();
+        // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
+        // form.append(
+        //   "LoginName",
+        //   useCryptoLocalStorage("user_Data", "get", "realname")
+        // );
+        // form.append("ItemID", formData?.Items);
+        // form.append("ItemsName", getlabel(formData?.Items, items));
+        // form.append("AmcData", JSON.stringify(transformPayload));
+        // axios
+        //   .post(apiUrls?.AMC_Payment_Installment_Insert, form, { headers })
         .then((res) => {
-          if (res?.data?.status === true) {
+          if (res?.data?.success === true) {
             toast.success(res?.data?.message);
             setLoading(false);
             setFormData({ ...formData, Items: "" });
@@ -336,23 +331,25 @@ const AMCSalesBooking = () => {
     );
   };
   const getProject = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      axios
-        .post(apiUrls?.ProjectSelect, form, { headers })
-        .then((res) => {
-          const poc3s = res?.data.data.map((item) => {
-            return { label: item?.Project, value: item?.ProjectId };
-          });
-          setProject(poc3s);
-        })
-        .catch((err) => {
-          console.log(err);
+    const payload = {
+      ProjectID: 0,
+      IsMaster: "0",
+      VerticalID: 0,
+      TeamID: 0,
+      WingID: 0,
+    };
+    axiosInstances
+      .post(apiUrls.ProjectSelect, payload)
+
+      .then((res) => {
+        const poc3s = res?.data.data.map((item) => {
+          return { label: item?.Project, value: item?.ProjectId };
         });
+        setProject(poc3s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const handleInputChange = (index, field, selectedOption) => {

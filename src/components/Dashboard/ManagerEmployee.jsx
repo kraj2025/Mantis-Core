@@ -10,8 +10,6 @@ import {
   Legend,
 } from "chart.js";
 import { apiUrls } from "../../networkServices/apiEndpoints";
-import { headers } from "../../utils/apitools";
-import axios from "axios";
 import { useSelector } from "react-redux";
 import { useCryptoLocalStorage } from "../../utils/hooks/useCryptoLocalStorage";
 import { axiosInstances } from "../../networkServices/axiosInstance";
@@ -29,17 +27,11 @@ const ManagerEmployee = () => {
   const { memberID } = useSelector((state) => state?.loadingSlice);
   const [countData, setCountData] = useState([]);
   const handleFirstDashboardCount = () => {
-    // let form = new FormData();
-    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-    //   form.append("DeveloperID", memberID || 0),
-    //   axios
-    //     .post(apiUrls?.DevDashboard_Welcome_Category, form, { headers })
     axiosInstances
       .post(apiUrls.DevDashboard_Welcome_Category, {
         developerID: String(memberID || "0"),
       })
       .then((res) => {
-        // console.log("check lotus Category", res);
         setCountData(res?.data?.dtPriority);
       })
       .catch((err) => {
@@ -129,6 +121,9 @@ const ManagerEmployee = () => {
       title: {
         display: false,
         text: "Manager/Employee",
+      },
+      datalabels: {
+        display: false, // 👈 disables value labels on bars
       },
       legend: {
         display: true, // Display the legend

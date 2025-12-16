@@ -6,8 +6,8 @@ import ReactSelect from "../components/formComponent/ReactSelect";
 import Loading from "../components/loader/Loading";
 import { toast } from "react-toastify";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../networkServices/axiosInstance";
 const EscalationModal = ({ data }) => {
-
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     AllowSecEmail: "",
@@ -30,19 +30,24 @@ const EscalationModal = ({ data }) => {
     });
   };
   const getReporter = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Reporter_Select, form, { headers })
-        .then((res) => {
-          const reporters = res?.data.data.map((item) => {
-            return { label: item?.NAME, value: item?.ID };
-          });
-          setUser(reporters);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls?.Reporter_Select, {
+        CrmID: Number(
+          useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+        ),
+        IsMaster: 0,
+        RoleID: 0,
+        OnlyItdose: 0,
+      })
+      .then((res) => {
+        const reporters = res?.data.data.map((item) => {
+          return { label: item?.NAME, value: item?.ID };
         });
+        setUser(reporters);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const handleDeliveryChange = (name, e) => {
     const { value } = e;
@@ -65,24 +70,23 @@ const EscalationModal = ({ data }) => {
       toast.error("Please Select Level3Employee1.");
     } else {
       setLoading(true);
-      let form = new FormData();
-      form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-        form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname") ),
-        form.append("ProjectID", formData?.ProjectID  || data?.ProjectID);
-      form.append("Allowesclationmatrix", formData?.AllowEscMatrix ?? "");
-      form.append("AllowEngeenermail", formData?.AllowSecEmail ?? "");
-      form.append("Engineer1", formData?.Engineer1 ?? "");
-      form.append("Engineer2", formData?.Engineer2 ?? "");
-      form.append("level1employee_1", formData?.Level1Employee1 ?? "");
-      form.append("level2employee_1", formData?.Level2Employee1 ?? "");
-      form.append("level3employee_1", formData?.Level3Employee1 ?? "");
-      form.append("level1employee_2", formData?.Level1Employee2 ?? "");
-      form.append("level2employee_2", formData?.Level2Employee2 ?? "");
-      form.append("level3employee_2", formData?.Level3Employee2 ?? "");
-      axios
-        .post(apiUrls?.UpdateEscalation, form, { headers })
+
+      axiosInstances
+        .post(apiUrls.UpdateEscalation, {
+          ProjectID: String(formData?.ProjectID || data?.ProjectID),
+          Allowesclationmatrix: String(formData?.AllowEscMatrix ?? ""),
+          AllowEngeenermail: String(formData?.AllowSecEmail ?? ""),
+          Engineer1: String(formData?.Engineer1 ?? ""),
+          Engineer2: String(formData?.Engineer2 ?? ""),
+          level1employee_1: String(formData?.Level1Employee1 ?? ""),
+          level2employee_1: String(formData?.Level2Employee1 ?? ""),
+          level3employee_1: String(formData?.Level3Employee1 ?? ""),
+          level1employee_2: String(formData?.Level1Employee2 ?? ""),
+          level2employee_2: String(formData?.Level2Employee2 ?? ""),
+          level3employee_2: String(formData?.Level3Employee2 ?? ""),
+        })
         .then((res) => {
-          if (res?.data?.status == true) {
+          if (res?.data?.success == true) {
             toast.success(res?.data?.message);
             setLoading(false);
             setFormData({
@@ -136,7 +140,9 @@ const EscalationModal = ({ data }) => {
   return (
     <>
       <div className="card p-2">
-        <span style={{ fontWeight: "bold" }}>Project Name : {data?.NAME || data?.ProjectName}</span>
+        <span style={{ fontWeight: "bold" }}>
+          Project Name : {data?.NAME || data?.ProjectName}
+        </span>
       </div>
       <div className="card border p-2">
         <div className="row">

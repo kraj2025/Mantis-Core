@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { headers } from "../utils/apitools";
-import axios from "axios";
 import { apiUrls } from "../networkServices/apiEndpoints";
 import { toast } from "react-toastify";
 import Input from "../components/formComponent/Input";
 import { inputBoxValidation } from "../utils/utils";
 import { MOBILE_NUMBER_VALIDATION_REGX } from "../utils/constant";
 import Loading from "../components/loader/Loading";
-const SpocUpdateModal = ({data}) => {
-
+import { axiosInstances } from "../networkServices/axiosInstance";
+const SpocUpdateModal = ({ data }) => {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     OwnerName: "",
@@ -45,25 +43,24 @@ const SpocUpdateModal = ({data}) => {
 
   const handleUpdateSPOC = () => {
     setLoading(true);
-    let form = new FormData();
-    form.append("ProjectID", data?.Id  || data?.ProjectID);
-    form.append("Owner_Name", formData?.OwnerName);
-    form.append("Owner_Mobile", formData?.OwnerMobile);
-    form.append("Owner_Email", formData?.OwnerEmail);
-    form.append("SPOC_Name", formData?.SpocName);
-    form.append("SPOC_Mobile", formData?.SpocMobile);
-    form.append("SPOC_EmailID", formData?.SpocEmail);
-    form.append("ItPersonName", formData?.ItPersonName);
-    form.append("ItPersonMobile", formData?.ItPersonMobile);
-    form.append("ItPersonEmail", formData?.ItPersonEmail);
-
-    axios
-      .post(apiUrls?.SPOC_Update, form, { headers })
+    axiosInstances
+      .post(apiUrls?.SPOC_Update, {
+        ProjectID: Number(data?.Id  || data?.ProjectID),
+        SPOC_Name: String(formData?.SpocName),
+        SPOC_Mobile: String(formData?.SpocMobile),
+        SPOC_EmailID: String(formData?.SpocEmail),
+        Owner_Name: String(formData?.OwnerName),
+        Owner_Mobile: String(formData?.SpocMobile),
+        Owner_Email: String(formData?.OwnerEmail),
+        ItPersonName: String(formData?.ItPersonName),
+        ItPersonMobile: String(formData?.ItPersonMobile),
+        ItPersonEmail: String(formData?.ItPersonEmail),
+      })
       .then((res) => {
-        if(res?.data?.status==true){
+        if (res?.data?.success == true) {
           toast.success(res?.data?.message);
           setLoading(false);
-        }else{
+        } else {
           toast.error(res?.data?.message);
         }
       })
@@ -89,9 +86,11 @@ const SpocUpdateModal = ({data}) => {
   }, []);
   return (
     <>
-     <div className="card p-2">
-    <span style={{fontWeight:"bold"}}>Project Name : {data?.NAME || data?.ProjectName}</span>
-   </div>
+      <div className="card p-2">
+        <span style={{ fontWeight: "bold" }}>
+          Project Name : {data?.NAME || data?.ProjectName}
+        </span>
+      </div>
       <div className="card LocalityCard border p-2">
         <div className="row">
           <Input

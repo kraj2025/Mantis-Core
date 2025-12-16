@@ -6,18 +6,18 @@ import { headers } from "../utils/apitools";
 import { toast } from "react-toastify";
 import Tables from "../components/UI/customTable";
 import NoRecordFound from "../components/formComponent/NoRecordFound";
+import { axiosInstances } from "../networkServices/axiosInstance";
 const CircularCountModal = ({ visible }) => {
   const [tableData, setTableData] = useState([]);
 
   const getHandle = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("CircularID", visible?.showData?.ID),
-      form.append("Type", "Read"),
-      axios
-        .post(apiUrls?.GetFeaturesStatus, form, { headers })
+    axiosInstances
+        .post(apiUrls?.GetFeaturesStatus, {
+          CircularID: String(visible?.showData?.ID),
+          Type:  String("Read"),
+        })
         .then((res) => {
-          if (res.data.status === true) {
+          if (res.data.success === true) {
             setTableData(res.data.data);
           } else {
             toast.error("No record found.");

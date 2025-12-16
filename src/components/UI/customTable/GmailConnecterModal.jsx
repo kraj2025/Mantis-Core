@@ -10,9 +10,10 @@ import moment from "moment";
 import Loading from "../../loader/Loading";
 import { useTranslation } from "react-i18next";
 import { useCryptoLocalStorage } from "../../../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../../../networkServices/axiosInstance";
 
 const GmailConnecterModal = (visible) => {
-const [t]=useTranslation()
+  const [t] = useTranslation();
   const [tableData, setTableData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [projectEmail, setProjectEmail] = useState([]);
@@ -26,20 +27,19 @@ const [t]=useTranslation()
   };
 
   const handleQuotation_Email_Log = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("DocumentType", "Connecter"),
-      form.append("DocumentID", visible?.visible?.showData?.EncryptID),
-      axios
-        .post(apiUrls?.Quotation_Email_Log, form, { headers })
-        .then((res) => {
-          console.log("email log", res);
-          setTableData(res?.data?.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls.Quotation_Email_Log, {
+        DocumentID: String(visible?.visible?.showData?.EncryptID),
+        DocumentType: "Connecter",
+      })
+
+      .then((res) => {
+        console.log("email log", res);
+        setTableData(res?.data?.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const handleQuotation_Email = () => {
     if (formData?.EmailTo == "") {
@@ -48,68 +48,57 @@ const [t]=useTranslation()
       toast.error("Please Enter EmailCC.");
     } else {
       setLoading(true);
-      let form = new FormData();
-      form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-        form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-        form.append("DocumentType", "Connecter"),
-        form.append("DocumentID", visible?.visible?.showData?.EncryptID),
-        form.append("EmailTo", formData?.EmailTo),
-        form.append("EmailCC", formData?.EmailCC),
-        axios
-          .post(apiUrls?.Quotation_Email, form, { headers })
-          .then((res) => {
-            toast.success(res?.data?.messsage);
-            handleQuotation_Email_Log();
-            setFormData({
-              EmailTo: "",
-              EmailCC: "",
-            })
-            setLoading(false);
-          })
-          .catch((err) => {
-            console.log(err);
-            setLoading(false);
-          });
-    }
-  };
-  const getProjectEmail = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("ProjectID", visible?.visible?.showData?.ProjectID),
-      axios
-        .post(apiUrls?.ProjectSelect, form, { headers })
+      const payloadData = {
+        DocumentID: visible?.visible?.showData?.EncryptID || "",
+        EmailTo: formData?.EmailTo || "",
+        EmailCC: formData?.EmailCC || "",
+        DocumentType: "Connecter", // fixed value from your code
+        ActionType: "", // not in FormData, so you can fill as needed
+      };
+
+      axiosInstances
+        .post(apiUrls.Quotation_Email, payloadData)
+    
         .then((res) => {
-          console.log("res lotus", res);
-          setProjectEmail(res?.data?.data[0]);
+          toast.success(res?.data?.messsage);
+          handleQuotation_Email_Log();
+          setFormData({
+            EmailTo: "",
+            EmailCC: "",
+          });
+          setLoading(false);
         })
         .catch((err) => {
           console.log(err);
+          setLoading(false);
         });
+    }
   };
+ 
 
   useEffect(() => {
     handleQuotation_Email_Log();
-    // getProjectEmail();
+ 
   }, []);
 
   const gmailQuotationTHEAD = [
-    { name: t("S.No.") , width: "7%"},
+    { name: t("S.No."), width: "7%" },
     t("EmailTo"),
     t("EmailCC"),
     t("Email Status"),
     t("Entry Date"),
-    t("Send Date")
-  ]
+    t("Send Date"),
+  ];
   return (
     <>
       <div className="card p-2">
         <div className="d-flex">
           <span style={{ fontWeight: "bold" }}>
-            {t("Project Name")}:- &nbsp;{visible?.visible?.showData?.ProjectName}
+            {t("Project Name")}:- &nbsp;
+            {visible?.visible?.showData?.ProjectName}
           </span>
           <span style={{ fontWeight: "bold", marginLeft: "20px" }}>
-          {t("Issue No.")}:- &nbsp;{visible?.visible?.showData?.ActualIssueNo}
+            {t("Issue No.")}:- &nbsp;{visible?.visible?.showData?.ActualIssueNo}
           </span>
         </div>
       </div>

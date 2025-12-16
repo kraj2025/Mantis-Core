@@ -10,6 +10,7 @@ import {
 } from "chart.js";
 import { useTranslation } from "react-i18next";
 
+
 // Register chart components globally
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip);
 

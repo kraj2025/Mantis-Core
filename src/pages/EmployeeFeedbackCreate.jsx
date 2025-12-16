@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import Loading from "../components/loader/Loading";
 import { useTranslation } from "react-i18next";
 import Input from "../components/formComponent/Input";
+import { axiosInstances } from "../networkServices/axiosInstance";
 const EmployeeFeedbackCreate = (showData) => {
   //   console.log("showData", showData);
   const ReportingManager = useCryptoLocalStorage(
@@ -26,47 +27,35 @@ const EmployeeFeedbackCreate = (showData) => {
   const [t] = useTranslation();
 
   const getEmployee = () => {
-    let form = new FormData();
-    form.append(
-      "CrmEmployeeID",
-      useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-    ),
-      form.append(
-        "RoleID",
-        useCryptoLocalStorage("user_Data", "get", "RoleID")
-      ),
-      axios
-        // .post(apiUrls?.AssignTo_Select, form, { headers })
-        .post(apiUrls?.EmployeeFeebackBind, form, { headers })
-        .then((res) => {
-          const assigntos = res?.data.data.map((item) => {
-            return { label: item?.EmployeeName, value: item?.Employee_ID };
-          });
-          setAssignedto(assigntos);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.EmployeeFeebackBind, {
+        CrmEmployeeID: Number(
+          useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+        ),
+        RoleID: Number(useCryptoLocalStorage("user_Data", "get", "RoleID")),
+      })
+
+      .then((res) => {
+        const assigntos = res?.data.data.map((item) => {
+          return { label: item?.EmployeeName, value: item?.Employee_ID };
         });
+        setAssignedto(assigntos);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const handleFeedback = () => {
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("CrmEmployeeID", formData.Employee);
-    axios
-      .post(apiUrls?.CreateEmployeeFeedback, form, { headers })
+    axiosInstances
+      .post(apiUrls.CreateEmployeeFeedback, {
+        CrmEmployeeID: Number(formData.Employee),
+      })
+
       .then((res) => {
-        if (res?.data?.status === true) {
+        if (res?.data?.success === true) {
           toast.success(res?.data?.message);
-          // setFormData({
-          //   Employee: "",
-          //   QuestionID: "",
-          //   Question: "",
-          // });
+
           showData?.setVisible(false);
           showData?.handleSearchList();
 

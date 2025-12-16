@@ -23,10 +23,8 @@ import Input from "../components/formComponent/Input";
 import EmployeeFeedbackDetails from "./EmployeeFeedbackDetails";
 import excelimg from "../../src/assets/image/excel.png";
 import { ExportToExcel } from "../networkServices/Tools";
-import {
-  FaStar,
-  FaRegStar
-} from "react-icons/fa";
+import { FaStar, FaRegStar } from "react-icons/fa";
+import { axiosInstances } from "../networkServices/axiosInstance";
 const EmployeeFeedback = ({ data }) => {
   const ReportingManager = useCryptoLocalStorage(
     "user_Data",
@@ -60,98 +58,114 @@ const EmployeeFeedback = ({ data }) => {
   };
 
   const getAssignTo = () => {
-    let form = new FormData();
-    form.append(
-      "CrmEmployeeID",
-      useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-    ),
-      form.append(
-        "RoleID",
-        useCryptoLocalStorage("user_Data", "get", "RoleID")
-      ),
-      axios
-        // .post(apiUrls?.AssignTo_Select, form, { headers })
-        .post(apiUrls?.EmployeeFeebackBind, form, { headers })
-        .then((res) => {
-          const assigntos = res?.data.data.map((item) => {
-            return { label: item?.EmployeeName, value: item?.Employee_ID };
-          });
-          setAssignedto(assigntos);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.EmployeeFeebackBind, {
+        CrmEmployeeID: Number(
+          useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+        ),
+        RoleID: Number(useCryptoLocalStorage("user_Data", "get", "RoleID")),
+      })
+
+      .then((res) => {
+        const assigntos = res?.data.data.map((item) => {
+          return { label: item?.EmployeeName, value: item?.Employee_ID };
         });
+        setAssignedto(assigntos);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const handleSearchList = (code) => {
     setLoading(true);
-    const form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("RoleID", useCryptoLocalStorage("user_Data", "get", "RoleID")),
-      form.append(
-        "CrmEmployeeID",
-        useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-      ),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append(
-        "EmployeeID",
-        formData?.AssignedTo ? formData.AssignedTo : "0"
-      );
-    form.append("RowColor", code ? code : "0"),
-      axios
-        .post(apiUrls?.EmployeeFeedbackSearch, form, { headers })
-        .then((res) => {
-          if (res?.data?.status === true) {
-            setTableData(res?.data?.data);
-            setLoading(false);
-          } else {
-            toast.error("No Record Found.");
-            setLoading(false);
-            setTableData([]);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.EmployeeFeedbackSearch, {
+        CrmEmployeeID: Number(
+          useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+        ),
+        EmployeeID: formData?.AssignedTo ? Number(formData.AssignedTo) : 0,
+        RoleID: Number(useCryptoLocalStorage("user_Data", "get", "RoleID")),
+        RowColor: code ? Number(code) : 0,
+      })
+      // const form = new FormData();
+      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+      //   form.append("RoleID", useCryptoLocalStorage("user_Data", "get", "RoleID")),
+      //   form.append(
+      //     "CrmEmployeeID",
+      //     useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+      //   ),
+      //   form.append(
+      //     "LoginName",
+      //     useCryptoLocalStorage("user_Data", "get", "realname")
+      //   ),
+      //   form.append(
+      //     "EmployeeID",
+      //     formData?.AssignedTo ? formData.AssignedTo : "0"
+      //   );
+      // form.append("RowColor", code ? code : "0"),
+      // axios
+      //   .post(apiUrls?.EmployeeFeedbackSearch, form, { headers })
+      .then((res) => {
+        if (res?.data?.success === true) {
+          setTableData(res?.data?.data);
           setLoading(false);
-        });
+        } else {
+          toast.error("No Record Found.");
+          setLoading(false);
+          setTableData([]);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
   };
   const handleSearchEmployee = (code) => {
     setLoading(true);
-    const form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("RoleID", useCryptoLocalStorage("user_Data", "get", "RoleID")),
-      form.append(
-        "CrmEmployeeID",
-        useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-      ),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append(
-        "EmployeeID",
-        useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-      );
-    form.append("RowColor", code ? code : "0"),
-      axios
-        .post(apiUrls?.EmployeeFeedbackSearch, form, { headers })
-        .then((res) => {
-          if (res?.data?.status === true) {
-            setTableData(res?.data?.data);
-            setLoading(false);
-          } else {
-            toast.error("No Record Found.");
-            setLoading(false);
-            setTableData([]);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.EmployeeFeedbackSearch, {
+        CrmEmployeeID: Number(
+          useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+        ),
+        EmployeeID: Number(
+          useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+        ),
+        RoleID: Number(useCryptoLocalStorage("user_Data", "get", "RoleID")),
+        RowColor: code ? Number(code) : 0,
+      })
+      // const form = new FormData();
+      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+      //   form.append("RoleID", useCryptoLocalStorage("user_Data", "get", "RoleID")),
+      //   form.append(
+      //     "CrmEmployeeID",
+      //     useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+      //   ),
+      //   form.append(
+      //     "LoginName",
+      //     useCryptoLocalStorage("user_Data", "get", "realname")
+      //   ),
+      //   form.append(
+      //     "EmployeeID",
+      //     useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+      //   );
+      // form.append("RowColor", code ? code : "0"),
+      //   axios
+      //     .post(apiUrls?.EmployeeFeedbackSearch, form, { headers })
+      .then((res) => {
+        if (res?.data?.status === true) {
+          setTableData(res?.data?.data);
           setLoading(false);
-        });
+        } else {
+          toast.error("No Record Found.");
+          setLoading(false);
+          setTableData([]);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
   };
 
   const [visible, setVisible] = useState({
@@ -193,55 +207,54 @@ const EmployeeFeedback = ({ data }) => {
     getAssignTo();
   }, []);
 
-  
-const renderStars = (count, size = 15) => {
-  const getColor = (count) => {
-    switch (count) {
-      case 1:
-        return "red"; // Very Bad
-      case 2:
-        return "orange"; // Bad
-      case 3:
-        return "yellow"; // Okay
-      case 4:
-        return "pink"; // Good
-      case 5:
-        return "green"; // Excellent
-      default:
-        return "gray";
+  const renderStars = (count, size = 15) => {
+    const getColor = (count) => {
+      switch (count) {
+        case 1:
+          return "red"; // Very Bad
+        case 2:
+          return "orange"; // Bad
+        case 3:
+          return "yellow"; // Okay
+        case 4:
+          return "pink"; // Good
+        case 5:
+          return "green"; // Excellent
+        default:
+          return "gray";
+      }
+    };
+
+    const color = getColor(Number(count)); // Convert to number
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      stars.push(
+        i <= Number(count) ? (
+          <FaStar key={i} color={color} size={size} />
+        ) : (
+          <FaRegStar key={i} color="gray" size={size} />
+        )
+      );
     }
+    return stars;
   };
 
-  const color = getColor(Number(count)); // Convert to number
-  const stars = [];
-  for (let i = 1; i <= 5; i++) {
-    stars.push(
-      i <= Number(count) ? (
-        <FaStar key={i} color={color} size={size} />
-      ) : (
-        <FaRegStar key={i} color="gray" size={size} />
-      )
-    );
-  }
-  return stars;
-};
-
-const getLabel = (count) => {
-  switch (Number(count)) {
-    case 1:
-      return "Very Bad";
-    case 2:
-      return "Bad";
-    case 3:
-      return "Okay";
-    case 4:
-      return "Good";
-    case 5:
-      return "Excellent";
-    default:
-      return "No Rating";
-  }
-};
+  const getLabel = (count) => {
+    switch (Number(count)) {
+      case 1:
+        return "Very Bad";
+      case 2:
+        return "Bad";
+      case 3:
+        return "Okay";
+      case 4:
+        return "Good";
+      case 5:
+        return "Excellent";
+      default:
+        return "No Rating";
+    }
+  };
   return (
     <>
       {visible?.ShowFeedback && (
@@ -531,7 +544,7 @@ const getLabel = (count) => {
               ),
               "Feedback Rating": (
                 // <Rating size={20} initialValue={ele?.Result} readonly />
-                  <>
+                <>
                   <div style={{ display: "flex" }}>
                     {renderStars(ele?.Result)}
                     <span className="ml-4" style={{ fontWeight: "bold" }}>

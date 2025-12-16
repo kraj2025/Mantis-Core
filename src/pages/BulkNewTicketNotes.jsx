@@ -12,6 +12,7 @@ import BrowseButton from "../components/formComponent/BrowseButton";
 import { useTranslation } from "react-i18next";
 import Tables from "../components/UI/customTable";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../networkServices/axiosInstance";
 const BulkNewTicketNotes = () => {
   const [loading, setLoading] = useState(false);
   const [tableData, setTableData] = useState([]);
@@ -44,40 +45,8 @@ const BulkNewTicketNotes = () => {
     }
   };
 
-  const searchHandleChange = (e) => {
-    const { name, value } = e?.target;
-    setFormData({ ...formData, [name]: value });
-  };
+ 
 
-  const handleAddNote = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("RoleID", useCryptoLocalStorage("user_Data", "get", "RoleID")),
-      axios
-        .post(apiUrls?.Category_Select, form, { headers })
-        .then((res) => {
-          if (res?.data?.status === true) {
-            toast.success(res?.data?.message);
-          } else {
-            toast.error(res?.data?.message);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-  };
-  const transformData = (data) => {
-    const headers = data[0]; // First array is the header
-    const rows = data.slice(1); // Remaining arrays are the data rows
-
-    return rows.map((row) => {
-      let obj = {};
-      row.forEach((value, index) => {
-        obj[headers[index]] = value;
-      });
-      return obj;
-    });
-  };
 
   const fetchemptyexcel = () => {
     // Define the columns for your Excel sheet
@@ -155,18 +124,23 @@ const BulkNewTicketNotes = () => {
     tableData.map((item, index) => {
       transformPayload.push({
         // Index: index + 1,
-        _Bug_ID: item?.TicketNo,
-        _notes: item?.Notes,
+        BugId: Number(item?.TicketNo),
+        NoteText: String(item?.Notes),
       });
     });
     setIsSubmitting(true);
-    const form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-    form.append("TicketData", JSON.stringify(transformPayload));
-    axios
-      .post(apiUrls?.BulkNoteInsert, form, { headers })
+
+    axiosInstances
+      .post(apiUrls.BulkNoteInsert, {
+        TicketData : transformPayload,
+      })
+    // const form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
+    // form.append("TicketData", JSON.stringify(transformPayload));
+    // axios
+    //   .post(apiUrls?.BulkNoteInsert, form, { headers })
       .then((res) => {
-        if (res?.data?.status === true) {
+        if (res?.data?.success === true) {
           toast.success(res?.data?.message);
         } else {
           toast.error(res?.data?.message);

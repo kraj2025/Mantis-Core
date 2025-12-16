@@ -4,14 +4,12 @@ import { useCryptoLocalStorage } from "../../utils/hooks/useCryptoLocalStorage";
 import DatePicker from "../../components/formComponent/DatePicker";
 import { useTranslation } from "react-i18next";
 import { apiUrls } from "../../networkServices/apiEndpoints";
-import { headers } from "../../utils/apitools";
-import axios from "axios";
-import moment from "moment";
 import { toast } from "react-toastify";
 import Loading from "../../components/loader/Loading";
 import Heading from "../../components/UI/Heading";
 import ReactSelect from "../../components/formComponent/ReactSelect";
 import Input from "../../components/formComponent/Input";
+import { axiosInstances } from "../../networkServices/axiosInstance";
 const LoginDetailModal = () => {
   const ReportingManager = useCryptoLocalStorage(
     "user_Data",
@@ -25,12 +23,7 @@ const LoginDetailModal = () => {
   const [tableData, setTableData] = useState([]);
   const [breakData, setBreakData] = useState([]);
   const [loading, setLoading] = useState(false);
-  const loginTHEAD = [
-    "S.No.",
-    "BreakIn",
-    "BreakOut",
-    "BreakDuration",
-  ];
+  const loginTHEAD = ["S.No.", "BreakIn", "BreakOut", "BreakDuration"];
   const transTHEAD = ["S.No.", "Date", "IN", "OUT", "Time Difference"];
   const [formData, setFormData] = useState({
     FromDate: new Date(),
@@ -44,27 +37,22 @@ const LoginDetailModal = () => {
     setFormData({ ...formData, [name]: value });
   };
   const getAssignTo = () => {
-    let form = new FormData();
-    form.append(
-      "CrmEmployeeID",
-      useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-    ),
-      form.append(
-        "RoleID",
-        useCryptoLocalStorage("user_Data", "get", "RoleID")
-      ),
-      axios
-
-        .post(apiUrls?.EmployeeBind, form, { headers })
-        .then((res) => {
-          const assigntos = res?.data.data.map((item) => {
-            return { label: item?.EmployeeName, value: item?.Employee_ID };
-          });
-          setAssignedto(assigntos);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.EmployeeBind, {
+        CrmEmployeeID: Number(
+          useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+        ),
+        RoleID: Number(useCryptoLocalStorage("user_Data", "get", "RoleID")),
+      })
+      .then((res) => {
+        const assigntos = res?.data.data.map((item) => {
+          return { label: item?.EmployeeName, value: item?.Employee_ID };
         });
+        setAssignedto(assigntos);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const handleDeliveryChange = (name, e) => {
     const { value } = e;
@@ -75,92 +63,77 @@ const LoginDetailModal = () => {
   };
 
   const handleEmployeeAverage = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append(
-        "CrmEmpID",
-        useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-      ),
-      form.append("Date", moment(formData?.FromDate).format("YYYY/MM/DD")),
-      axios
-        .post(apiUrls?.GetEmployeeTransactions, form, { headers })
-        .then((res) => {
-          if (res?.data?.status === true) {
-            setTableData(res?.data?.transactions);
-            setBreakData(res?.data?.breaks);
-            setLoading(false);
-          } else {
-            setTableData([]);
-            setBreakData([]);
-            setLoading(false);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls.GetEmployeeTransactions, {
+        CrmEmpID: Number(
+          useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+        ),
+        Date: String(new Date(formData?.FromDate).toISOString()),
+      })
+      .then((res) => {
+        if (res?.data?.success === true) {
+          setTableData(res?.data?.transactions);
+          setBreakData(res?.data?.breaks);
+          setLoading(false);
+        } else {
+          setTableData([]);
+          setBreakData([]);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const handleSearch = () => {
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("CrmEmpID", formData?.AssignedTo ? formData.AssignedTo : "0"),
-      form.append("Date", moment(formData?.FromDate).format("YYYY/MM/DD")),
-      axios
-        .post(apiUrls?.GetEmployeeTransactions, form, { headers })
-        .then((res) => {
-          if (res?.data?.status === true) {
-            setTableData(res?.data?.transactions);
-            setBreakData(res?.data?.breaks);
-            setLoading(false);
-          } else {
-            toast.error(res?.data?.message);
-            setTableData([]);
-            setBreakData([]);
-            setLoading(false);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls.GetEmployeeTransactions, {
+        CrmEmpID: Number(
+          useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+        ),
+        Date: String(new Date(formData?.FromDate).toISOString()),
+      })
+      .then((res) => {
+        if (res?.data?.success === true) {
+          setTableData(res?.data?.transactions);
+          setBreakData(res?.data?.breaks);
+          setLoading(false);
+        } else {
+          toast.error(res?.data?.message);
+          setTableData([]);
+          setBreakData([]);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const handleEmployee = () => {
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append(
-        "CrmEmpID",
-        useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-      ),
-      form.append("Date", moment(formData?.FromDate).format("YYYY/MM/DD")),
-      axios
-        .post(apiUrls?.GetEmployeeTransactions, form, { headers })
-        .then((res) => {
-          if (res?.data?.status === true) {
-            setTableData(res?.data?.transactions);
-            setBreakData(res?.data?.breaks);
-            setLoading(false);
-          } else {
-            toast.error(res?.data?.message);
-            setTableData([]);
-            setBreakData([]);
-            setLoading(false);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls.GetEmployeeTransactions, {
+        CrmEmpID: Number(
+          useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+        ),
+        Date: String(new Date(formData?.FromDate).toISOString()),
+      })
+      .then((res) => {
+        if (res?.data?.success === true) {
+          setTableData(res?.data?.transactions);
+          setBreakData(res?.data?.breaks);
+          setLoading(false);
+        } else {
+          toast.error(res?.data?.message);
+          setTableData([]);
+          setBreakData([]);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   // Function to convert HH:mm:ss to seconds
@@ -208,7 +181,7 @@ const LoginDetailModal = () => {
 
       const login = new Date(`${ele.LogDate}T${ele.LoginTime}`);
       const logout = new Date(`${ele.LogDate}T${ele.LogoutTime}`);
-    
+
       const diff = logout - login; // ms
 
       return acc + (isNaN(diff) ? 0 : diff); // guard against bad dates
@@ -226,14 +199,13 @@ const LoginDetailModal = () => {
 
   const totalWorkingTime = `${totalHrs}:${totalMin}:${totalSec}`;
 
-
   useEffect(() => {
     handleEmployeeAverage();
     getAssignTo();
   }, []);
   return (
     <>
-     {tableData?.length > 0 && (
+      {tableData?.length > 0 && (
         <div className="card">
           <div className="row p-2">
             <span style={{ fontWeight: "bold", marginLeft: "10px" }}>

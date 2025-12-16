@@ -13,18 +13,18 @@ import client from "../..//assets/image/client.png";
 import other from "../../assets/image/other.png";
 import Tables from "../../components/UI/customTable";
 import { apiUrls } from "../../networkServices/apiEndpoints";
-import { headers } from "../../utils/apitools";
-import axios from "axios";
 import { toast } from "react-toastify";
 import { Link, useLocation } from "react-router-dom";
 import moment from "moment";
 import BrowseInput from "../../components/formComponent/BrowseInput";
 import { useCryptoLocalStorage } from "../../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../../networkServices/axiosInstance";
+const currentDate = new Date();
+const currentMonth = currentDate.getMonth() + 1; // Months are 0-indexed, so add 1
+const currentYear = currentDate.getFullYear();
 const ExpenseSubmission = () => {
   const location = useLocation();
   const { state } = location;
-
-  console.log("state?.edit ", state);
 
   const { VITE_DATE_FORMAT } = import.meta.env;
   const [states, setState] = useState([]);
@@ -78,6 +78,8 @@ const ExpenseSubmission = () => {
     TripName: "",
     Locality: "",
     OtherTeammate: "",
+    currentMonth: currentMonth,
+    currentYear: currentYear,
   });
   // console.log("update", formData);
   // useEffect(() => {
@@ -120,19 +122,23 @@ const ExpenseSubmission = () => {
   };
 
   const getState = (value) => {
-    let form = new FormData();
-    form.append("CountryID", "14"),
-      axios
-        .post(apiUrls?.GetState, form, { headers })
-        .then((res) => {
-          const states = res?.data.data.map((item) => {
-            return { label: item?.StateName, value: item?.StateID };
-          });
-          setState(states);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.GetState, {
+        CountryID: "14",
+      })
+      // let form = new FormData();
+      // form.append("CountryID", "14"),
+      //   axios
+      //     .post(apiUrls?.GetState, form, { headers })
+      .then((res) => {
+        const states = res?.data.data.map((item) => {
+          return { label: item?.StateName, value: item?.StateID };
         });
+        setState(states);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const handleDeliveryChange = (name, e) => {
@@ -309,12 +315,8 @@ const ExpenseSubmission = () => {
       toast.error("Please Select Expense Type");
       return;
     }
-    // if (!formData?.SelectFile) {
-    //   toast.error("Please Choose File");
-    //   return;
-    // }
 
-    const GeneralDetailsJson = JSON.stringify([
+    const GeneralDetailsJson = [
       {
         Date: moment(formData?.FromDate).format("YYYY-MM-DD"),
         TripName: formData?.TripName,
@@ -339,7 +341,7 @@ const ExpenseSubmission = () => {
         amount: formData?.OtherAmount || "0",
         Other_Desc: formData?.OtherDescription,
       },
-    ]);
+    ];
     let LocalTravelpayload = [];
     rows?.map((val, index) => {
       LocalTravelpayload.push({
@@ -361,47 +363,56 @@ const ExpenseSubmission = () => {
       });
     });
     setLoading(true);
-    let form = new FormData();
-    form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID"));
-    form.append(
-      "EmpID",
-      useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-    );
-    form.append(
-      "LoginName",
-      useCryptoLocalStorage("user_Data", "get", "realname")
-    );
-    form.append("GeneralDetails", GeneralDetailsJson);
-    form.append("LocalTravelExp", JSON.stringify(LocalTravelpayload));
-    form.append("InterCityTravelExp", JSON.stringify(InterCityTravelpayload));
-    form.append("ActionType", "Insert");
-    form.append("Document_Base64", formData?.Document_Base64);
-    form.append("Document_FormatType", formData?.FileExtension);
-    axios
-      .post(apiUrls?.ManageExpense_Insert, form, { headers })
+
+    const payload = {
+      EmpID: Number(useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")),
+      GeneralDetails: [
+        {
+          Date: moment(formData?.FromDate).format("YYYY-MM-DD"),
+          TripName: formData?.TripName,
+          expenseDate: 0,
+          expenseMonth: 0,
+          expenseYear: 0,
+          expenceDay: moment(formData?.FromDate).format("dddd"),
+          // State: getlabel(formData?.State, states),
+          stateID: formData?.State,
+          City: formData?.City,
+          Locality: formData?.Locality,
+          ClientName: formData?.ClientName,
+          other_employees: formData?.OtherTeammate,
+          ExpenseType: formData?.ExpenseType,
+          HotelAmount: formData?.HotelAmount || "0",
+          HotelName: formData?.HotelName,
+          HotelDesc: formData?.HotelDescription,
+          BreakfastAmount: formData?.BreakfastAmount || "0",
+          LunchAmount: formData?.LunchAmount || "0",
+          DinnerAmount: formData?.DinnerAmount || "0",
+          mealsDesc: formData?.MealDescription,
+          PhoneAmount: formData?.PhoneAmount || "0",
+          phoneDesc: formData?.PhoneDescription,
+          Client_Enterment_Amount: formData?.EntertainmentAmount || "0",
+          Client_Enterment_Desc: formData?.EntertainmentDescription,
+          amount: formData?.OtherAmount || "0",
+          Other_Desc: formData?.OtherDescription,
+          expenseMonthName: moment(formData?.FromDate).format("MMMM"),
+          ExpenseHeadName: "",
+        },
+      ],
+      Document_Base64: String(formData?.Document_Base64),
+      Document_FormatType: String(formData?.FileExtension),
+      ActionType: "Insert",
+      ExpenseTransID: 0,
+      LocalTravelExp: LocalTravelpayload,
+      InterCityTravelExp: InterCityTravelpayload,
+    };
+    axiosInstances
+      .post(apiUrls.ManageExpense_Insert, payload)
       .then((res) => {
-        if (res?.data?.status === true) {
+        if (res?.data?.success === true) {
           toast.success(res?.data?.message);
           setLoading(false);
           setFormData((prev) => ({
             ...prev,
-            // ExpenseType: "",
-            // HotelAmount: "",
-            // HotelName: "",
-            // HotelDescription: "",
-            // BreakfastAmount: "",
-            // LunchAmount: "",
-            // DinnerAmount: "",
-            // MealDescription: "",
-            // PhoneAmount: "",
-            // PhoneDescription: "",
-            // EntertainmentAmount: "",
-            // EntertainmentDescription: "",
-            // OtherAmount: "",
-            // OtherDescription: "",
-            // SelectFile: "",
-            // Document_Base64: "",
-            // FileExtension: "",
             ExpenseType: "",
             EmployeeName: "",
             VerticalID: [],
@@ -566,28 +577,44 @@ const ExpenseSubmission = () => {
       });
     });
     setLoading(true);
-    let form = new FormData();
-    form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID"));
-    form.append(
-      "EmpID",
-      useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-    );
-    form.append(
-      "LoginName",
-      useCryptoLocalStorage("user_Data", "get", "realname")
-    );
-    form.append("GeneralDetails", GeneralDetailsJson);
-    form.append("LocalTravelExp", JSON.stringify(LocalTravelpayload));
-    form.append("InterCityTravelExp", JSON.stringify(InterCityTravelpayload));
-    form.append("ActionType", "Update");
-    form.append(
-      "ExpenseTransID",
-      state?.givenData?.expense_report_ID || reportidd
-    );
-    form.append("Document_Base64", formData?.Document_Base64);
-    form.append("Document_FormatType", formData?.FileExtension);
-    axios
-      .post(apiUrls?.ManageExpense_Insert, form, { headers })
+    const payload = {
+      EmpID: Number(useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")),
+      GeneralDetails: [
+        {
+          Date: moment(formData?.FromDate).format("YYYY-MM-DD"),
+          TripName: formData?.TripName,
+          // State: getlabel(formData?.State, states),
+          stateID: formData?.State,
+          City: formData?.City,
+          Locality: formData?.Locality,
+          ClientName: formData?.ClientName,
+          other_employees: formData?.OtherTeammate,
+          ExpenseType: formData?.ExpenseType,
+          HotelAmount: formData?.HotelAmount || "0",
+          HotelName: formData?.HotelName,
+          HotelDesc: formData?.HotelDescription,
+          BreakfastAmount: formData?.BreakfastAmount || "0",
+          LunchAmount: formData?.LunchAmount || "0",
+          DinnerAmount: formData?.DinnerAmount || "0",
+          mealsDesc: formData?.MealDescription,
+          PhoneAmount: formData?.PhoneAmount || "0",
+          phoneDesc: formData?.PhoneDescription,
+          Client_Enterment_Amount: formData?.EntertainmentAmount || "0",
+          Client_Enterment_Desc: formData?.EntertainmentDescription,
+          amount: formData?.OtherAmount || "0",
+          Other_Desc: formData?.OtherDescription,
+        },
+      ],
+      Document_Base64: String(formData?.Document_Base64),
+      Document_FormatType: String(formData?.FileExtension),
+      ActionType: "Update",
+      ExpenseTransID:
+        Number(state?.givenData?.expense_report_ID) || Number(reportidd),
+      LocalTravelExp: LocalTravelpayload,
+      InterCityTravelExp: InterCityTravelpayload,
+    };
+    axiosInstances
+      .post(apiUrls.ManageExpense_Insert, payload)
       .then((res) => {
         if (res?.data?.status === true) {
           toast.success(res?.data?.message);
@@ -595,23 +622,6 @@ const ExpenseSubmission = () => {
 
           setFormData((prev) => ({
             ...prev,
-            // ExpenseType: "",
-            // HotelAmount: "",
-            // HotelName: "",
-            // HotelDescription: "",
-            // BreakfastAmount: "",
-            // LunchAmount: "",
-            // DinnerAmount: "",
-            // MealDescription: "",
-            // PhoneAmount: "",
-            // PhoneDescription: "",
-            // EntertainmentAmount: "",
-            // EntertainmentDescription: "",
-            // OtherAmount: "",
-            // OtherDescription: "",
-            // SelectFile: "",
-            // Document_Base64: "",
-            // FileExtension: "",
             ExpenseType: "",
             EmployeeName: "",
             VerticalID: [],
@@ -681,10 +691,6 @@ const ExpenseSubmission = () => {
           ]);
 
           setRowHandler(rowConst);
-
-          // setTimeout(() => {
-          //   window.location.reload();
-          // }, 1000);
         } else {
           toast.error(res?.data?.message);
           setLoading(false);
@@ -722,29 +728,24 @@ const ExpenseSubmission = () => {
   const [reportidd, setreportid] = useState("");
 
   const handleIsExpenseExists = (check) => {
-    // console.log("check", check);
     const formatDateToLocal = (date) => {
-      const d = new Date(date);
+      const d = new Date(date?.Value);
       const year = d.getFullYear();
       const month = String(d.getMonth() + 1).padStart(2, "0");
       const day = String(d.getDate()).padStart(2, "0");
       return `${year}-${month}-${day}`;
     };
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-    form.append(
-      "LoginName",
-      useCryptoLocalStorage("user_Data", "get", "realname")
-    );
-    form.append(
-      "ExpenseEmployeeID",
-      state?.length > 0
-        ? state.givenData?.EmpID
-        : useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-    );
-    form.append("ExpenseDate", formatDateToLocal(check));
-    axios
-      .post(apiUrls?.IsExpenseExists, form, { headers })
+
+    axiosInstances
+      .post(apiUrls.IsExpenseExists, {
+        ExpenseEmployeeID:
+          state?.length > 0
+            ? Number(state.givenData?.EmpID)
+            : Number(
+                useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+              ),
+        ExpenseDate: String(formatDateToLocal(check)),
+      })
       .then((res) => {
         const response = res?.data?.data?.data?.dt[0];
         const datecheck = response?.Date;
@@ -887,15 +888,7 @@ const ExpenseSubmission = () => {
   };
 
   const hasCalledRef = useRef(false);
-  // useEffect(() => {
-  //   if (!hasCalledRef.current) {
-  //     const dateToCheck = state?.edit ? state?.data : formData?.FromDate;
-  //     if (dateToCheck) {
-  //       hasCalledRef.current = true;
-  //       handleIsExpenseExists(dateToCheck);
-  //     }
-  //   }
-  // }, [state, formData?.FromDate]);
+
   useEffect(() => {
     if (state?.edit && !hasCalledRef.current) {
       hasCalledRef.current = true;
@@ -910,6 +903,32 @@ const ExpenseSubmission = () => {
     }
   }, [formData?.FromDate]);
 
+   const isCurrentMonthSelected = () => {
+    const today = new Date();
+    const currentMonth = today.getMonth() + 1; // months are 0-based
+    const currentYear = today.getFullYear();
+    // Previous month and year logic
+    const prevMonth = currentMonth === 1 ? 12 : currentMonth - 1;
+    const prevMonthYear = currentMonth === 1 ? currentYear - 1 : currentYear;
+    const isCurrentMonth =
+      formData.currentMonth === currentMonth &&
+      formData.currentYear === currentYear;
+
+    const isPreviousMonth =
+      formData.currentMonth === prevMonth &&
+      formData.currentYear === prevMonthYear;
+
+    // Check if today is within the first 5 days of the month
+    const isWithinFirst5Days = today.getDate() <= 5;
+    // Allow previous month only for first 5 days
+    if (isPreviousMonth && isWithinFirst5Days) {
+      return true; // enabled
+    } else if (isPreviousMonth && !isWithinFirst5Days) {
+      return false; // disabled
+    }
+
+    return isCurrentMonth; // normal current month behavior
+  };
   return (
     <>
       <div className="card">
@@ -2038,6 +2057,8 @@ const ExpenseSubmission = () => {
       <div className="card">
         <div className="row m-2 d-flex">
           <BrowseInput handleImageChange={handleImageChange} />
+<<<<<<< HEAD
+
 
           {/* {state?.edit && state?.givenData?.FileURLs ? (
             <div className="mr-4">
@@ -2079,6 +2100,8 @@ const ExpenseSubmission = () => {
             </div>
           ) : null} */}
 
+=======
+>>>>>>> b95a713ced8b902a14804c7aa0167443b0315e94
           {state?.edit || checkdataa ? (
             <button
               className="btn btn-sm btn-info ml-2"
@@ -2087,8 +2110,18 @@ const ExpenseSubmission = () => {
             >
               Update
             </button>
+            
           ) : (
-            <button className="btn btn-sm btn-info ml-2" onClick={handleSave}>
+            <button
+              className="btn btn-sm btn-info ml-2"
+              onClick={handleSave}
+              disabled={isCurrentMonthSelected() === false}
+              title={
+                isCurrentMonthSelected() === false
+                  ? "Expenses can be submitted only on the 5th of the previous month"
+                  : "Click to Submit Expense"
+              }
+            >
               Save
             </button>
           )}

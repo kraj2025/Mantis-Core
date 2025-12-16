@@ -14,6 +14,7 @@ import { apiUrls } from "../networkServices/apiEndpoints";
 import { headers } from "../utils/apitools";
 import { useSelector } from "react-redux";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../networkServices/axiosInstance";
 
 const ManagerNewsSales = () => {
   const { t } = useTranslation();
@@ -23,12 +24,11 @@ const ManagerNewsSales = () => {
   const [chartData, setChartData] = useState([]);
 
   const handleFetchSalesData = (developerId, searchType) => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-    // form.append("DeveloperID", developerId);
-    // form.append("SearchType", searchType == "" ? "0" : searchType);
-    axios
-      .post(apiUrls?.ManagerDashboard_New_Sales, form, { headers })
+    axiosInstances
+      .post(apiUrls?.ManagerDashboard_New_Sales, {
+        DeveloperID: String(developerId),
+        SearchType: String(searchType == "" ? "0" : searchType),
+      })
       .then((res) => {
         setChartData(res?.data?.data || []);
       })
@@ -37,19 +37,22 @@ const ManagerNewsSales = () => {
       });
   };
 
+  // useEffect(() => {
+  //   handleFetchSalesData();
+  // }, []);
   useEffect(() => {
-    handleFetchSalesData();
-  }, []);
+      handleFetchSalesData(memberID, developerSearchType);
+    }, [memberID, developerSearchType]);
 
   ChartJS.register(CategoryScale, LinearScale, Title, BarElement, Tooltip);
-
+console.log("chartData11",chartData)
   const data = {
-    labels: chartData.map((item) => item.RecoveryMonth),
+    labels: chartData.map((item) => item.SalesAmount),
     datasets: [
       {
         label: t("Total Sales"),
         borderRadius: 0,
-        data: chartData.map((item) => item.RecoveryAmount),
+        data: chartData.map((item) => item.SalesAmount),
         backgroundColor: "#86c3d9",
         borderColor: "#86c3d9",
         borderWidth: 1,
@@ -66,6 +69,9 @@ const ManagerNewsSales = () => {
       },
       legend: {
         display: false,
+      },
+      datalabels: {
+        display: false, // 👈 disables value labels on bars
       },
     },
     scales: {

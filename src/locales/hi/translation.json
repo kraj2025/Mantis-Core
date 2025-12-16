@@ -3,6 +3,7 @@
   "Sign in to continue": "जारी रखने के लिए साइन इन करें",
   "Good Morning": "सुप्रभात",
   "Mantis": "मैंटिस",
+  "CRM": "सीआरएम",
   "Assign Without Delivery Date": "डिलीवरी तिथि के बिना असाइन",
   "Not Assigned": "असाइन नहीं किया गया",
   "Project": "परियोजना",
@@ -227,6 +228,7 @@
   "Back to List": "सूची पर वापस जाएं",
   "Amount Submission Details": "राशि प्रस्तुति विवरण",
   "Cash": "नकद",
+  "Delta": "नकद",
   "Online": "ऑनलाइन",
   "Total Amount": "कुल राशि",
   "Excel": "एक्सेल",
@@ -419,5 +421,12 @@
 "Notes": "नोट्स",
 "Total ManMinutes": "कुल आदमी मिनट",
 "Total Records": "कुल अभिलेख",
-"Module Name": "मॉड्यूल का नाम"
+"Module Name": "मॉड्यूल का नाम",
+  "Dashboard":"डैशबोर्ड",
+  "ClientDashboard":"डैशबोर्ड",
+  "Developer Dashboard":"डेवलपर डैशबोर्ड",
+   "View Ticket Client":"टिकट क्लाइंट देखें",
+  "New Ticket Client":"नया टिकट ग्राहक",
+  "New Client": "नए ग्राहक",
+  "Client Ticket": "ग्राहक टिकट"
 }

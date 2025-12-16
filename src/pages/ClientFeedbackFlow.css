@@ -123,7 +123,7 @@
 .Newfeedback55 {
   font-weight: bold;
   /* margin-top: 7px; */
-  font-size: 16px !important;
+  font-size: 15px !important;
 }
 
 .textfontSize {
@@ -137,7 +137,7 @@
 }
 
 .keyFeedbackTopics {
-  font-size: 16px !important;
+  font-size: 13px !important;
   font-weight: bold;
 }
 
@@ -157,4 +157,8 @@
   text-align: left;
   font-size: 16px;
   font-weight: bold !important;
+}
+
+.cursorpointer{
+  cursor: pointer;
 }

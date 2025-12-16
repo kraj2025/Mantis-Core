@@ -1,15 +1,13 @@
 import React, { useEffect, useState } from "react";
 import Tables from "../UI/customTable";
 import Heading from "../UI/Heading";
-import AmountSubmissionSeeMoreList from "../../networkServices/AmountSubmissionSeeMoreList";
 import { useSelector } from "react-redux";
 import SlideScreen from "../../pages/SlideScreen";
 import SeeMoreSlideScreen from "../SearchableTable/SeeMoreSlideScreen";
 import { useTranslation } from "react-i18next";
 import { apiUrls } from "../../networkServices/apiEndpoints";
-import { headers } from "../../utils/apitools";
-import axios from "axios";
 import { useCryptoLocalStorage } from "../../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../../networkServices/axiosInstance";
 const DeveloperTask = () => {
   const [t] = useTranslation();
   const [listVisible, setListVisible] = useState(false);
@@ -53,12 +51,12 @@ const DeveloperTask = () => {
   };
 
   const handleFirstDashboardCount = (developerId, searchType) => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-    form.append("DeveloperID", developerId);
-    form.append("SearchType", searchType == "" ? "0" : searchType);
-    axios
-      .post(apiUrls?.CoorDashboard_Developer_Availability, form, { headers })
+      axiosInstances
+      .post(apiUrls.CoorDashboard_Developer_Availability, {
+        CoordinatorID: Number(useCryptoLocalStorage("user_Data", "get", "ID")),
+        DeveloperID: Number(developerId),
+        SearchType: Number(searchType == "" ? "0" : searchType),
+      })
       .then((res) => {
         setTableData(res?.data?.data);
       })
@@ -77,34 +75,6 @@ const DeveloperTask = () => {
         <div className="card">
           <Heading
             title={t("Developer Avaibility Next 10 Days Planning")}
-            // secondTitle={
-            //   <>
-            //     <span style={{ height: "20px" }}>
-            //       <AmountSubmissionSeeMoreList
-            //         ModalComponent={ModalComponent}
-            //         isShowDropDown={false}
-            //         setSeeMore={setSeeMore}
-            //         data={{
-            //           ...tableData,
-            //           type: "Reopen",
-            //           LotusAssign: memberID,
-            //         }}
-            //         setVisible={() => {
-            //           setListVisible(false);
-            //         }}
-            //         handleBindFrameMenu={[
-            //           {
-            //             FileName: "View Issues",
-            //             URL: "ViewIssues",
-            //             FrameName: "ViewIssues",
-            //             Description: "ViewIssues",
-            //           },
-            //         ]}
-            //         isShowPatient={true}
-            //       />
-            //     </span>
-            //   </>
-            // }
           />
           <Tables
             thead={newFileTHEAD}

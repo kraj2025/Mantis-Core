@@ -14,6 +14,7 @@ import { apiUrls } from "../networkServices/apiEndpoints";
 import { headers } from "../utils/apitools";
 import { useSelector } from "react-redux";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../networkServices/axiosInstance";
 
 const NewSalesChart = () => {
   const { t } = useTranslation();
@@ -23,12 +24,12 @@ const NewSalesChart = () => {
   const [chartData, setChartData] = useState([]);
 
   const handleFetchSalesData = (developerId, searchType) => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-    form.append("DeveloperID", developerId);
-    form.append("SearchType", searchType == "" ? "0" : searchType);
-    axios
-      .post(apiUrls?.CoorDashboard_NewSales, form, { headers })
+     axiosInstances
+          .post(apiUrls.CoorDashboard_NewSales, {
+            CoordinatorID: Number(useCryptoLocalStorage("user_Data", "get", "ID")),
+            DeveloperID: Number(developerId),
+            SearchType: Number(searchType == "" ? "0" : searchType),
+          })
       .then((res) => {
         setChartData(res?.data?.data || []);
       })
@@ -67,6 +68,9 @@ const NewSalesChart = () => {
       },
       legend: {
         display: false,
+      },
+      datalabels: {
+        display: false, // 👈 disables value labels on bars
       },
     },
     scales: {

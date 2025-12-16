@@ -67,7 +67,8 @@
 // export default PendingRequestModal;
 
 const PendingRequestModal = ({ visible, selectedDate, calendarData }) => {
-  console.log("CalendarData",calendarData);
+  
+  
   return (
     <div className="card">
       <div className="row m-2">

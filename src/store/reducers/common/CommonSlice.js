@@ -41,10 +41,10 @@ const initialState = {
           breadcrumb: "Tickets / My View",
         },
         {
-          childrenName: "View Issues",
+          childrenName: "View Ticket",
           url: "/viewissues",
           childrenOrder: "2",
-          breadcrumb: "Tickets / View Issues",
+          breadcrumb: "Tickets / View Ticket",
         },
         {
           childrenName: "Summary",
@@ -96,10 +96,10 @@ const initialState = {
           breadcrumb: "Tickets / Developer Calendar",
         },
         {
-          childrenName: "TicketView",
+          childrenName: "Employee Task Tracker",
           url: "/TicketView",
           childrenOrder: "8",
-          breadcrumb: "Tickets / TicketView",
+          breadcrumb: "Tickets / Employee Task Tracker",
         },
       
       ],

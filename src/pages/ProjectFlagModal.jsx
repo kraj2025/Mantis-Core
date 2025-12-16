@@ -4,19 +4,19 @@ import { apiUrls } from "../networkServices/apiEndpoints";
 import { headers } from "../utils/apitools";
 import { toast } from "react-toastify";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../networkServices/axiosInstance";
 
-const ProjectFlagModal = ({ data ,handleViewProject}) => {
- 
+const ProjectFlagModal = ({ data, handleViewProject }) => {
   const [flagdata, setFlagdata] = useState([]);
-//   console.log("flagdata", flagdata);
+  //   console.log("flagdata", flagdata);
   const [formData, setFormData] = useState({
     IsActive: "0",
     IsMailSent: "0",
     IsAutoDeliveryDate: "0",
     AutobackupNotification: "0",
     ClientFeedbackDisplay: "0",
-    IsWeeklyMailSend:"0",
-    IsClientCredentialMailSend:"0"
+    IsWeeklyMailSend: "0",
+    IsClientCredentialMailSend: "0",
   });
 
   useEffect(() => {
@@ -29,8 +29,7 @@ const ProjectFlagModal = ({ data ,handleViewProject}) => {
           flagdata[0]?.AllowAutobackupNotification == "1" ? "1" : "0",
         ClientFeedbackDisplay:
           flagdata[0]?.ClientFeedbackDisplay == "1" ? "1" : "0",
-        IsWeeklyMailSend:
-          flagdata[0]?.IsWeeklyMailSend == "1" ? "1" : "0",
+        IsWeeklyMailSend: flagdata[0]?.IsWeeklyMailSend == "1" ? "1" : "0",
         IsClientCredentialMailSend:
           flagdata[0]?.IsClientCredentialMailSend == "1" ? "1" : "0",
       });
@@ -50,40 +49,26 @@ const ProjectFlagModal = ({ data ,handleViewProject}) => {
   };
 
   const getNotfication = (updatedFormData) => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-    // form.append("RoleID", useCryptoLocalStorage("user_Data", "get", "RoleID"));
-    form.append(
-      "LoginName",
-      useCryptoLocalStorage("user_Data", "get", "realname")
-    );
-    form.append("ProjectID", data?.Id || data?.ProjectID),
-      form.append("enabled", updatedFormData?.IsActive);
-    form.append("IsAutoDeliveryDate", updatedFormData?.IsAutoDeliveryDate);
-    form.append("IsMailSent", updatedFormData?.IsMailSent);
-    form.append(
-      "AllowAutobackupNotification",
-      updatedFormData?.AutobackupNotification
-    );
-    form.append(
-      "ClientFeedbackDisplay",
-      updatedFormData?.ClientFeedbackDisplay
-    );
-    form.append(
-      "IsWeeklyMailSend",
-      updatedFormData?.IsWeeklyMailSend
-    );
-    form.append(
-      "IsClientCredentialMailSend",
-      updatedFormData?.IsClientCredentialMailSend
-    );
 
-    axios
-      .post(apiUrls?.UpdateFlagProject, form, { headers })
+    const payload = {
+      ProjectID: data?.Id || data?.ProjectID || 0,
+      enabled: updatedFormData?.IsActive || "0",
+      IsAutoDeliveryDate: updatedFormData?.IsAutoDeliveryDate || "0",
+      IsMailSent: updatedFormData?.IsMailSent || "0",
+      AllowAutobackupNotification:
+        updatedFormData?.AutobackupNotification || "0",
+      ClientFeedbackDisplay: updatedFormData?.ClientFeedbackDisplay || "0",
+      IsWeeklyMailSend: updatedFormData?.IsWeeklyMailSend || "0",
+      IsClientCredentialMailSend:
+        updatedFormData?.IsClientCredentialMailSend || "0",
+    };
+
+    axiosInstances
+      .post(apiUrls?.UpdateFlagProject, payload)
       .then((res) => {
-        if (res?.data?.status === true) {
+        if (res?.data?.success === true) {
           toast.success(res?.data?.message);
-          handleViewProject()
+          handleViewProject();
         } else {
           toast.error(res?.data?.message);
         }
@@ -94,22 +79,15 @@ const ProjectFlagModal = ({ data ,handleViewProject}) => {
   };
 
   const getFlagData = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-    // form.append("RoleID", useCryptoLocalStorage("user_Data", "get", "RoleID"));
-    form.append(
-      "LoginName",
-      useCryptoLocalStorage("user_Data", "get", "realname")
-    );
-    form.append("ProjectID", data?.Id || data?.ProjectID),
-      axios
-        .post(apiUrls?.GetFlagProject, form, { headers })
-        .then((res) => {
-          setFlagdata(res?.data?.data);
-        })
-        .catch((err) => {
-          console.error(err);
-        });
+
+    axiosInstances
+      .post(apiUrls?.GetFlagProject, { ProjectID: data?.Id || data?.ProjectID })
+      .then((res) => {
+        setFlagdata(res?.data?.data);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
   };
   useEffect(() => {
     getFlagData();

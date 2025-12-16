@@ -8,8 +8,9 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import Loading from "../components/loader/Loading";
 import { headers } from "../utils/apitools";
-const ShortBreakModal = ({ visible, setVisible ,handleTableSearch}) => {
-  // console.log("Vissible", visible);
+import { axiosInstances } from "../networkServices/axiosInstance";
+const ShortBreakModal = ({ visible, setVisible, handleTableSearch }) => {
+  console.log("Vissible", visible);
   const [loading, setLoading] = useState(false);
   const [t] = useTranslation();
   const [dragActive, setDragActive] = useState(false);
@@ -85,35 +86,45 @@ const ShortBreakModal = ({ visible, setVisible ,handleTableSearch}) => {
 
   const handleSave = () => {
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("Reason", formData?.Reason),
-      form.append("AttType", "ShortAtt"),
-      form.append("Image_Base64", formData?.Document_Base64),
-      form.append("FileFormat_Base64", formData?.FileExtension),
-      form.append("AttSummaryID", visible?.showData?.shortSummaryId),
-      form.append("EmployeeID", visible?.showData?.Employee_Id),
-      form.append("EmployeeName", visible?.showData?.Name),
-      axios
-        .post(apiUrls?.ForceFullyShortBreakAttendanceSave, form, { headers })
-        .then((res) => {
-          if (res?.data?.status === true) {
-            toast.success(res?.data?.message);
-            setLoading(false);
-            setVisible(false);
-            handleTableSearch();
-          } else {
-            toast.error(res?.data?.message);
-            setLoading(false);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append(
+    //     "LoginName",
+    //     useCryptoLocalStorage("user_Data", "get", "realname")
+    //   ),
+    //   form.append("Reason", formData?.Reason),
+    //   form.append("AttType", "ShortAtt"),
+    //   form.append("Image_Base64", formData?.Document_Base64),
+    //   form.append("FileFormat_Base64", formData?.FileExtension),
+    //   form.append("AttSummaryID", visible?.showData?.shortSummaryId),
+    //   form.append("EmployeeID", visible?.showData?.Employee_Id),
+    //   form.append("EmployeeName", visible?.showData?.Name),
+    //   axios
+    //     .post(apiUrls?.ForceFullyShortBreakAttendanceSave, form, { headers })
+    axiosInstances
+      .post(apiUrls.ForceFullyShortBreakAttendanceSave, {
+        Reason: String(formData?.Reason),
+        AttType: String("ShortAtt"),
+        AttSummaryID: Number(visible?.showData?.shortSummaryId),
+        EmployeeID: Number(visible?.showData?.Employee_Id),
+        EmployeeName: String(visible?.showData?.Name),
+        Image_Base64: String(formData?.Document_Base64),
+        FileFormat_Base64: String(formData?.FileExtension),
+      })
+      .then((res) => {
+        if (res?.data?.success === true) {
+          toast.success(res?.data?.message);
+          setLoading(false);
+          setVisible(false);
+          handleTableSearch();
+        } else {
+          toast.error(res?.data?.message);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   return (
     <>

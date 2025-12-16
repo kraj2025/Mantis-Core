@@ -7,6 +7,8 @@ import Heading from "../components/UI/Heading";
 import Tables from "../components/UI/customTable";
 import Loading from "../components/loader/Loading";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../networkServices/axiosInstance";
+import { toast } from "react-toastify";
 const AddWingModal = (ele) => {
   const [tableData, setTableData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -24,74 +26,66 @@ const AddWingModal = (ele) => {
   const newRoleTHEAD = ["S.No.", "Wing Name", "Remove"];
 
   const getWing = () => {
-    let form = new FormData();
-    form.append("ID",  useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Wing_Select, form, { headers })
-        .then((res) => {
-          const wings = res?.data.data.map((item) => {
-            return { label: item?.Wing, value: item?.WingID };
-          });
-          setWing(wings);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls?.Wing_Select, {})
+      .then((res) => {
+        const wings = res?.data.data.map((item) => {
+          return { label: item?.Wing, value: item?.WingID };
         });
+        setWing(wings);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const handleSearch = () => {
-    let form = new FormData();
-    form.append("Id",  useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("UserID", ele?.visible?.showData?.id),
-      axios
-        .post(apiUrls?.UserVsWing_Select, form, { headers })
-        .then((res) => {
-          setTableData(res?.data?.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls?.UserVsWing_Select, {
+        EmployeeId: Number(ele?.visible?.showData?.id),
+      })
+      .then((res) => {
+        setTableData(res?.data?.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const handleADD = () => {
     setLoading(true);
-    let form = new FormData();
-    form.append("Id",  useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("UserID", ele?.visible?.showData?.id),
-      form.append("Status", "Add"),
-      form.append("WingID", formData?.Wing),
-      axios
-        .post(apiUrls?.UserVsWingMapping, form, { headers })
-        .then((res) => {
-          toast.success(res?.data?.message);
-          handleSearch();
-          setLoading(false);
-        })
-        .catch((err) => {
-          console.log(err);
-          setLoading(false);
-        });
+    axiosInstances
+      .post(apiUrls?.UserVsWingMapping, {
+        EmployeeId: Number(ele?.visible?.showData?.id),
+        Status: String("Add"),
+        WingID: Number(formData?.Wing),
+      })
+      .then((res) => {
+        toast.success(res?.data?.message);
+        handleSearch();
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
   };
   const handleRemove = (item) => {
-    console.log("item", item);
     setLoading(true);
-    let form = new FormData();
-    form.append("Id",  useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("UserID", ele?.visible?.showData?.id),
-      form.append("Status", "Remove"),
-      form.append("WingID", item?.WingID),
-      axios
-        .post(apiUrls?.UserVsWingMapping, form, { headers })
-        .then((res) => {
-          toast.success(res?.data?.message);
-          handleSearch();
-          setLoading(false);
-        })
-        .catch((err) => {
-          console.log(err);
-          setLoading(false);
-        });
+    axiosInstances
+      .post(apiUrls?.UserVsWingMapping, {
+        EmployeeId: Number(ele?.visible?.showData?.id),
+        Status: String("Remove"),
+        WingID: Number(item?.WingID),
+      })
+      .then((res) => {
+        toast.success(res?.data?.message);
+        handleSearch();
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
   };
 
   useEffect(() => {

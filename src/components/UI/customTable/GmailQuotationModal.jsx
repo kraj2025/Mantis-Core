@@ -12,6 +12,7 @@ import ReactSelect from "../../formComponent/ReactSelect";
 import Loading from "../../loader/Loading";
 import { useCryptoLocalStorage } from "../../../utils/hooks/useCryptoLocalStorage";
 import NoRecordFound from "../../formComponent/NoRecordFound";
+import { axiosInstances } from "../../../networkServices/axiosInstance";
 
 const GmailQuotationModal = ({ visible, setVisible }) => {
   const [tableData, setTableData] = useState([]);
@@ -43,22 +44,18 @@ const GmailQuotationModal = ({ visible, setVisible }) => {
   };
 
   const handleQuotation_Email_Log = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("DocumentType", "Quotation"),
-      form.append("DocumentID", visible?.showData?.EncryptID),
-      axios
-        .post(apiUrls?.Quotation_Email_Log, form, { headers })
-        .then((res) => {
-          setTableData(res?.data?.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+   
+    axiosInstances
+      .post(apiUrls.Quotation_Email_Log, {
+        DocumentID: String(visible?.showData?.EncryptID),
+        DocumentType: String("Quotation"),
+      })
+      .then((res) => {
+        setTableData(res?.data?.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const handleQuotation_Email = () => {
     if (formData?.EmailTo == "") {
@@ -67,55 +64,52 @@ const GmailQuotationModal = ({ visible, setVisible }) => {
       toast.error("Please Enter EmailCC.");
     } else {
       setLoading(true);
-      let form = new FormData();
-      form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-        form.append(
-          "LoginName",
-          useCryptoLocalStorage("user_Data", "get", "realname")
-        ),
-        form.append("DocumentType", "Quotation"),
-        form.append("DocumentID", visible?.showData?.EncryptID),
-        form.append("EmailTo", formData?.EmailTo),
-        form.append("EmailCC", formData?.EmailCC),
-        axios
-          .post(apiUrls?.Quotation_Email, form, { headers })
-          .then((res) => {
-            if (res?.data?.status === true) {
-              toast.success(res?.data?.message);
-              handleQuotation_Email_Log();
-              setFormData({
-                EmailTo: "",
-                EmailCC: "",
-              });
-              setLoading(false);
-              setVisible(false);
-            } else {
-              toast.error(res?.data?.message);
-              setLoading(false);
-            }
-          })
-          .catch((err) => {
-            console.log(err);
-            setLoading(false);
-          });
-    }
-  };
-  const getProjectEmail = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("ProjectID", visible?.showData?.ProjectID),
-      axios
-        .post(apiUrls?.ProjectSelect, form, { headers })
+ 
+      axiosInstances
+        .post(apiUrls.Quotation_Email, {
+          DocumentID: String(visible?.showData?.EncryptID),
+          EmailTo: String(formData?.EmailTo),
+          EmailCC: String(formData?.EmailCC),
+          DocumentType: String("Quotation"),
+          ActionType: String(""),
+        })
         .then((res) => {
-          setProjectEmail(res?.data?.data[0]);
+          if (res?.data?.success === true) {
+            toast.success(res?.data?.message);
+            handleQuotation_Email_Log();
+            setFormData({
+              EmailTo: "",
+              EmailCC: "",
+            });
+            setLoading(false);
+            setVisible(false);
+          } else {
+            toast.error(res?.data?.message);
+            setLoading(false);
+          }
         })
         .catch((err) => {
           console.log(err);
+          setLoading(false);
         });
+    }
+  };
+  const getProjectEmail = () => {
+   
+    axiosInstances
+      .post(apiUrls.ProjectSelect, {
+        ProjectID: Number(visible?.showData?.ProjectID),
+        IsMaster: String("0"),
+        WingID: Number("0"),
+        TeamID: Number("0"),
+        VerticalID: Number("0"),
+      })
+      .then((res) => {
+        setProjectEmail(res?.data?.data[0]);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   useEffect(() => {
     handleQuotation_Email_Log();

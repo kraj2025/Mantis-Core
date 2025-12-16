@@ -8,6 +8,7 @@ import Loading from "../components/loader/Loading";
 import Tables from "../components/UI/customTable";
 import { toast } from "react-toastify";
 import Heading from "../components/UI/Heading";
+import { axiosInstances } from "../networkServices/axiosInstance";
 
 const SalesLeadLog = (showData) => {
   console.log("showData", showData);
@@ -30,57 +31,68 @@ const SalesLeadLog = (showData) => {
       toast.error("Please Enter EmailTo.");
     } else {
       setLoading(true);
-      let form = new FormData();
-      form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-        form.append(
-          "LoginName",
-          useCryptoLocalStorage("user_Data", "get", "realname")
-        ),
-        form.append("LeadID", showData?.visible?.showData?.ID),
-        form.append("ToEmail", formData?.EmailTo),
-        form.append("CcEmail", formData?.EmailCC),
-        axios
-          .post(apiUrls?.ResendEmail, form, { headers })
-          .then((res) => {
-            if (res?.data?.status === true) {
-              toast.success(res?.data?.messsage);
-              setFormData({
-                EmailTo: "",
-                EmailCC: "",
-              });
-              setLoading(false);
-              showData?.setVisible(false);
-              showData.handleSearch()
-            } else {
-              toast.error(res?.data?.messsage);
-            }
-          })
-          .catch((err) => {
-            console.log(err);
+      // let form = new FormData();
+      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+      //   form.append(
+      //     "LoginName",
+      //     useCryptoLocalStorage("user_Data", "get", "realname")
+      //   ),
+      //   form.append("LeadID", showData?.visible?.showData?.ID),
+      //   form.append("ToEmail", formData?.EmailTo),
+      //   form.append("CcEmail", formData?.EmailCC),
+      //   axios
+      //     .post(apiUrls?.ResendEmail, form, { headers })
+      const payload = {
+        LeadID: Number(showData?.visible?.showData?.ID || 0),
+        ToEmail: String(formData?.EmailTo || ""),
+        CcEmail: String(formData?.EmailCC || ""),
+      };
+
+      axiosInstances
+        .post(apiUrls?.ResendEmail, payload)
+        .then((res) => {
+          if (res?.data?.success === true) {
+            toast.success(res?.data?.message);
+            setFormData({
+              EmailTo: "",
+              EmailCC: "",
+            });
             setLoading(false);
-          });
+            showData?.setVisible(false);
+            showData.handleSearch();
+          } else {
+            toast.error(res?.data?.message);
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+          setLoading(false);
+        });
     }
   };
   const Lead_Email_Log = () => {
-    
-      let form = new FormData();
-      form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-        form.append(
-          "LoginName",
-          useCryptoLocalStorage("user_Data", "get", "realname")
-        ),
-        form.append("LeadID", showData?.visible?.showData?.ID),
-        axios
-          .post(apiUrls?.Lead_Email_Log, form, { headers })
-          .then((res) => {
-           setTableData(res?.data?.data)
-          })
-          .catch((err) => {
-            console.log(err);
-          
-          });
-    }
-  
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append(
+    //     "LoginName",
+    //     useCryptoLocalStorage("user_Data", "get", "realname")
+    //   ),
+    //   form.append("LeadID", showData?.visible?.showData?.ID),
+    //   axios
+    //     .post(apiUrls?.Lead_Email_Log, form, { headers })
+
+    axiosInstances
+      .post(apiUrls?.Lead_Email_Log, {
+        LeadID: Number(showData?.visible?.showData?.ID),
+      })
+      .then((res) => {
+        setTableData(res?.data?.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  };
+
   const gmailQuotationTHEAD = [
     "S.No.",
     "CreatedBy",
@@ -90,9 +102,9 @@ const SalesLeadLog = (showData) => {
     "Send Date",
   ];
 
-  useEffect(()=>{
-    Lead_Email_Log()
-  },[])
+  useEffect(() => {
+    Lead_Email_Log();
+  }, []);
   return (
     <>
       <div className="card  p-2">
@@ -101,14 +113,13 @@ const SalesLeadLog = (showData) => {
           &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Created By :{" "}
           {showData?.visible?.showData?.CreatedBy} &nbsp; &nbsp; &nbsp; &nbsp;
           &nbsp; Created Date :{" "}
-          {new Date(showData?.visible?.showData?.dtEntry).toLocaleDateString(
-            "en-GB",
-            {
-              day: "2-digit",
-              month: "short",
-              year: "numeric",
-            }
-          )}
+          {new Date(
+            showData?.visible?.showData?.dtEntry?.Value
+          ).toLocaleDateString("en-GB", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric",
+          })}
         </span>
       </div>
       <div className="card p-1">
@@ -151,12 +162,12 @@ const SalesLeadLog = (showData) => {
       </div>
       {tableData?.length > 0 && (
         <div className="card ">
-          <Heading title={"Search Details"}/>
+          <Heading title={"Search Details"} />
           <Tables
             thead={gmailQuotationTHEAD}
             tbody={tableData?.map((ele, index) => ({
               "S.No.": index + 1,
-              CreatedBy:ele?.CreatedBy,
+              CreatedBy: ele?.CreatedBy,
               EmailTo: ele?.ToEmail,
               EmailCC: ele?.ToCC,
               "Email Status": "Send",

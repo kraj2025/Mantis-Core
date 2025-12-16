@@ -11,6 +11,7 @@ import Heading from "../components/UI/Heading";
 import excelimg from "../../src/assets/image/excel.png";
 import excelimgOrange from "../../src/assets/image/orangeExcel.png";
 import { ExportToExcel } from "../networkServices/Tools";
+import { axiosInstances } from "../networkServices/axiosInstance";
 const SpeedometerTable = () => {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
@@ -28,20 +29,19 @@ const SpeedometerTable = () => {
   const { memberID } = useSelector((state) => state?.loadingSlice);
   const handleFirstDashboardCount = () => {
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("Title", "DeveloperPerformance");
-    form.append("DeveloperID", memberID || 0),
-      axios
-        .post(apiUrls?.DevDashboard_Summary, form, { headers })
-        .then((res) => {
-          setTableData(res?.data?.dtCal);
-          setLoading(false);
-        })
-        .catch((err) => {
-          console.log(err);
-          setLoading(false);
-        });
+    axiosInstances
+      .post(apiUrls?.DevDashboard_Summary, {
+        Title: String("DeveloperPerformance"),
+        DeveloperID: String(memberID || 0),
+      })
+      .then((res) => {
+        setTableData(res?.data?.dtCal);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
   };
   useEffect(() => {
     handleFirstDashboardCount();
@@ -112,17 +112,19 @@ const SpeedometerTable = () => {
                   Weights: ele?.Weights,
                   Factors: ele?.Factors,
                   Multi: ele?.Multi,
-                  Log:   <img
-                    src={excelimg}
-                    className=" ml-2"
-                    style={{
-                      width: "20px",
-                      height: "15px",
-                      cursor: "pointer",
-                      marginRight: "5px",
-                    }}
-                    // onClick={() => ExportToExcel(tableData)}
-                  ></img>
+                  Log: (
+                    <img
+                      src={excelimg}
+                      className=" ml-2"
+                      style={{
+                        width: "20px",
+                        height: "15px",
+                        cursor: "pointer",
+                        marginRight: "5px",
+                      }}
+                      // onClick={() => ExportToExcel(tableData)}
+                    ></img>
+                  ),
                 })),
                 {
                   Modules: "",
@@ -131,7 +133,7 @@ const SpeedometerTable = () => {
                   ss: "",
                   dd: "",
                   aa: "",
-                
+
                   Factors: <strong>{t("Total Records")}</strong>,
                   Modules: "",
                   Amount: <strong>{valueId}</strong>,
@@ -139,7 +141,7 @@ const SpeedometerTable = () => {
                   //   (acc, ele) => acc + Number(ele?.Amount || 0),
                   //   0
                   // ),
-                    gg:"",
+                  gg: "",
                 },
                 {
                   Modules: "",
@@ -148,7 +150,7 @@ const SpeedometerTable = () => {
                   ss: "",
                   dd: "",
                   aa: "",
-                 
+
                   Factors: <strong>{t("Performance")}</strong>,
                   Modules: "",
                   Amount: <strong>{TotalRecords}</strong>,
@@ -156,10 +158,8 @@ const SpeedometerTable = () => {
                   //   (acc, ele) => acc + Number(ele?.Amount || 0),
                   //   0
                   // ),
-                   gg:"",
+                  gg: "",
                 },
-                
-                
               ]}
               tableHeight={"tableHeight"}
             />

@@ -14,6 +14,7 @@ import { apiUrls } from "../networkServices/apiEndpoints";
 import { headers } from "../utils/apitools";
 import { useSelector } from "react-redux";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../networkServices/axiosInstance";
 
 ChartJS.register(CategoryScale, LinearScale, Title, BarElement, Tooltip);
 
@@ -25,10 +26,14 @@ const MnagerNewQuarterSalesChart = () => {
   const [chartData, setChartData] = useState([]);
 
   const handleFetchSalesData = (developerId, searchType) => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-    axios
-      .post(apiUrls?.ManagerDashboard_New_Quarter_Sales, form, { headers })
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
+    // axios
+    //   .post(apiUrls?.ManagerDashboard_New_Quarter_Sales, form, { headers })
+    axiosInstances
+      .post(apiUrls?.ManagerDashboard_New_Quarter_Sales, {
+        EmployeeId: Number(useCryptoLocalStorage("user_Data", "get", "ID")),
+      })
       .then((res) => {
         // Assuming the new format: [{ DataType: "Q1", Amount: 123 }, ...]
         setChartData(res?.data?.data || []);
@@ -65,6 +70,9 @@ const MnagerNewQuarterSalesChart = () => {
       },
       legend: {
         display: false,
+      },
+      datalabels: {
+        display: false, // 👈 disables value labels on bars
       },
     },
     scales: {

@@ -7,18 +7,23 @@ import { toast } from "react-toastify";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
 import { headers } from "../utils/apitools";
 import Heading from "../components/UI/Heading";
+import { axiosInstances } from "../networkServices/axiosInstance";
 const ViewIssueCloseModal = ({ visible }) => {
   // console.log("visible", visible);
   const [tableData1, setTableData1] = useState([]);
 
   const handleSearchHistory = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("TicketID", visible?.showData?.TicketID);
-    axios
-      .post(apiUrls?.ViewHistory, form, {
-        headers,
-      })
+    axiosInstances
+      .post(apiUrls.ViewHistory, {
+  "TicketID": visible?.showData?.TicketID
+})
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append("TicketID", visible?.showData?.TicketID);
+    // axios
+    //   .post(apiUrls?.ViewHistory, form, {
+    //     headers,
+    //   })
       .then((res) => {
         setTableData1(res?.data?.data);
       })

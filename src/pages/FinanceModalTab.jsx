@@ -8,6 +8,7 @@ import ReactSelect from "../components/formComponent/ReactSelect";
 import moment from "moment";
 import DatePicker from "../components/formComponent/DatePicker";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../networkServices/axiosInstance";
 
 const FinanceModalTab = ({ data }) => {
   const { VITE_DATE_FORMAT } = import.meta.env;
@@ -83,53 +84,43 @@ const FinanceModalTab = ({ data }) => {
   };
 
   const getTax = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname") ),
-      axios
-        .post(apiUrls?.GetGstTaxAndOldLisID, form, { headers })
-        .then((res) => {
-          const taxes = res?.data?.Tax?.map((item) => {
-            return { label: item?.NAME, value: item?.ID };
-          });
-          setTax(taxes);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.GetGstTaxAndOldLisID, {})
+      .then((res) => {
+        const taxes = res?.data?.Tax?.map((item) => {
+          return { label: item?.NAME, value: item?.ID };
         });
+        setTax(taxes);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getAmcStatus = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname") ),
-      axios
-        .post(apiUrls?.AMCType_Select, form, { headers })
-        .then((res) => {
-          console.log("amca check",res)
-          const taxes = res?.data?.data?.map((item) => {
-            return { label: item?.NAME, value: item?.ID };
-          });
-          setAmcStatus(taxes);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.AMCType_Select, {})
+      .then((res) => {
+        const taxes = res?.data?.data?.map((item) => {
+          return { label: item?.NAME, value: item?.ID };
         });
+        setAmcStatus(taxes);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getOLDLIS = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname") ),
-      axios
-        .post(apiUrls?.GetGstTaxAndOldLisID, form, { headers })
-        .then((res) => {
-          const taxes = res?.data?.LIS?.map((item) => {
-            return { label: item?.NAME, value: item?.ID };
-          });
-          setOldLis(taxes);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.GetGstTaxAndOldLisID, {})
+      .then((res) => {
+        const taxes = res?.data?.LIS?.map((item) => {
+          return { label: item?.NAME, value: item?.ID };
         });
+        setOldLis(taxes);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const filldetails = () => {
     setFormData({
@@ -182,32 +173,28 @@ const FinanceModalTab = ({ data }) => {
     return ele.length > 0 ? ele[0].label : "";
   }
   const handleUpdate = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname") ),
-      form.append("ProjectID", formData?.ProjectID),
-      form.append("PoCashAmt", formData?.CashAmount),
-      form.append("PoChequeAmt", formData?.ChequeAmount),
-      form.append("NetPoAmt", formData?.NetPoAmount),
-      form.append("CurrentStatus", formData?.CurrentStatus),
-      form.append("startdate", formatDate(formData?.StartDate)),
-      form.append("Livedate", formatDate(formData?.LiveDate)),
-      form.append("OnsiteSupportDate", formatDate(formData?.OnSupportDate)),
-      form.append("AMCStartDate", formatDate(formData?.AmcDate)),
-      form.append("AMCAmount", formData?.AmcAmount),
-      form.append("AMCStartmonth", formData?.AmcStMonth),
-      form.append("AMC",  getlabel(formData?.AmcStatus, amcstatus)),
-      form.append("Amcid", formData?.AmcStatus),
-      form.append("AMCper", formData?.AmcTo),
-      form.append("OLDLISID", formData?.OldLis),
-      form.append("PODate", formatDate(formData?.PoDate)),
-      form.append("GstpercentId", formData?.Tax),
-      form.append("Gstpercent",  getlabel(formData?.Tax, tax));
-    axios
-      .post(apiUrls?.UpdateFinancialInfo, form, { headers })
+    axiosInstances
+      .post(apiUrls.UpdateFinancialInfo, {
+        ProjectID: String(formData?.ProjectID),
+        PoCashAmt: String(formData?.CashAmount),
+        PoChequeAmt: String(formData?.ChequeAmount),
+        NetPoAmt: String(formData?.NetPoAmount),
+        CurrentStatus: String(formData?.CurrentStatus),
+        startdate: String(formData?.StartDate),
+        Livedate: String(formData?.LiveDate),
+        OnsiteSupportDate: String(formatDate(formData?.OnSupportDate)),
+        AMCStartDate: String(formatDate(formData?.AmcDate)),
+        AMC: String(getlabel(formData?.AmcStatus, amcstatus)),
+        Amcid: String(formData?.AmcStatus),
+        AMCper: String(formData?.AmcTo),
+        OLDLISID: String(formData?.OldLis),
+        GstpercentId: String(formData?.Tax),
+        Gstpercent: String(getlabel(formData?.Tax, tax)),
+        PODate: String(formatDate(formData?.PoDate)),
+      })
       .then((res) => {
         toast.success(res?.data?.message);
-        setFormData({})
+        setFormData({});
       })
       .catch((err) => {
         console.log(err);
@@ -226,7 +213,9 @@ const FinanceModalTab = ({ data }) => {
   return (
     <>
       <div className="card  p-2">
-        <span style={{ fontWeight: "bold" }}>Project Name : {data?.NAME || data?.ProjectName}</span>
+        <span style={{ fontWeight: "bold" }}>
+          Project Name : {data?.NAME || data?.ProjectName}
+        </span>
       </div>
       <div className="card">
         <div className="row m-2">

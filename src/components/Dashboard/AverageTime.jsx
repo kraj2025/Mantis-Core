@@ -10,11 +10,8 @@ import {
   Legend,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
-import axios from "axios";
 import { apiUrls } from "../../networkServices/apiEndpoints";
-import { headers } from "../../utils/apitools";
 import { useSelector } from "react-redux";
-import { useCryptoLocalStorage } from "../../utils/hooks/useCryptoLocalStorage";
 import { axiosInstances } from "../../networkServices/axiosInstance";
 
 ChartJS.register(
@@ -35,18 +32,13 @@ const AverageTime = () => {
 
   const fetchDashboardData = async () => {
     try {
-      // const form = new FormData();
-      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-      // form.append("DeveloperID", memberID || 0);
-
-      // const response = await axios.post(
-      //   apiUrls?.DevDashboard_Welcome_AvgTime_Category,
-      //   form,
-      //   { headers }
-      // );
-  const response = await axiosInstances.post(apiUrls.DevDashboard_Welcome_AvgTime_Category, {
-        developerID: String(memberID || "0"),
-      });
+    
+      const response = await axiosInstances.post(
+        apiUrls.DevDashboard_Welcome_AvgTime_Category,
+        {
+          DeveloperID: String(memberID || "0"),
+        }
+      );
       setCountData(response?.data?.dtPriority || []);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -71,8 +63,18 @@ const AverageTime = () => {
       };
 
       const months = [
-        "Apr", "May", "Jun", "Jul", "Aug", "Sep",
-        "Oct", "Nov", "Dec", "Jan", "Feb", "Mar"
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+        "Jan",
+        "Feb",
+        "Mar",
       ];
 
       const ticketTotals = months.map(() => 0);
@@ -135,6 +137,9 @@ const AverageTime = () => {
           usePointStyle: true,
           pointStyle: "circle",
         },
+      },
+      datalabels: {
+        display: false, // 👈 disables value labels on bars
       },
       title: {
         display: false,

@@ -34,7 +34,6 @@ function Tables({
 
   useEffect(() => {
     if (tbody?.length > 0) {
-        debugger
       let data = thead?.map((val, index) => {
         if (typeof val === "object") {
           if (typeof Object?.values(tbody[0])[index] === "object") {
@@ -55,12 +54,6 @@ function Tables({
     }
   }, [tbody, handleLanguageStatus]);
 
-  // i18next.on("languageChanged", (lng) => {
-  //   console.log("Asdasd",lag)
-  //   setHandleLanguageStatus(!handleLanguageStatus)
-  // });
-
-  // Handle Sort Functionality
 
   const handleSortTable = (index, type) => {
     let typeName = Object?.keys(bodyData[0])[index];

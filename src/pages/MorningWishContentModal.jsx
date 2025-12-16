@@ -1,7 +1,6 @@
 import React from "react";
 
 const MorningWishContentModal = (visible, showData) => {
-  console.log(visible, showData);
   return (
     <>
       <div className="card">

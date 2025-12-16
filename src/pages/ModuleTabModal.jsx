@@ -15,6 +15,7 @@ import Modal from "../components/modalComponent/Modal";
 import ModuleDeleteModal from "./ModuleDeleteModal";
 import ProjectCreateModule from "./ProjectCreateModule";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../networkServices/axiosInstance";
 
 const ModuleTabModal = ({ data }) => {
   const { VITE_DATE_FORMAT } = import.meta.env;
@@ -121,26 +122,33 @@ const ModuleTabModal = ({ data }) => {
   //       });
   // };
   const getModuleList = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "RoleID",
-        useCryptoLocalStorage("user_Data", "get", "RoleID")
-      ),
-      form.append("ProjectID", "0"),
-      form.append("IsActive", "1"),
-      form.append("IsMaster", "2"),
-      axios
-        .post(apiUrls?.Module_Select, form, { headers })
-        .then((res) => {
-          const poc3s = res?.data.data.map((item) => {
-            return { label: item?.ModuleName, value: item?.ModuleID };
-          });
-          setModule(poc3s);
-        })
-        .catch((err) => {
-          console.log(err);
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append(
+    //     "RoleID",
+    //     useCryptoLocalStorage("user_Data", "get", "RoleID")
+    //   ),
+    //   form.append("ProjectID", "0"),
+    //   form.append("IsActive", "1"),
+    //   form.append("IsMaster", "2"),
+    //   axios
+    //     .post(apiUrls?.Module_Select, form, { headers })
+    axiosInstances
+      .post(apiUrls?.Module_Select, {
+        RoleID: Number(useCryptoLocalStorage("user_Data", "get", "RoleID")),
+        ProjectID: Number("0"),
+        IsActive: Number("1"),
+        IsMaster: Number("2"),
+      })
+      .then((res) => {
+        const poc3s = res?.data.data.map((item) => {
+          return { label: item?.ModuleName, value: item?.ModuleID };
         });
+        setModule(poc3s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   // const getPhase = (value) => {
@@ -194,46 +202,77 @@ const ModuleTabModal = ({ data }) => {
     if (formData?.Modules == "") {
       toast.error("Please Select Module.");
     } else {
-      let form = new FormData();
-      form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-        form.append("RoleID", useCryptoLocalStorage("user_Data", "get", "RoleID")),
-        form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname") ),
-        form.append("ProjectID", data?.Id || data?.ProjectID),
-        form.append("ActionType", "InsertModule"),
-        form.append("ProjectData", formDataJson),
-        axios
-          .post(apiUrls?.ProjectMasterUpdate, form, { headers })
-          .then((res) => {
-            if (res?.data?.status == true) {
-              toast.success(res?.data?.message);
-              handleSearch();
-              setFormData({
-                ...formData,
-                MachineName: "",
-                Modules: "",
-                ModuleName: "",
-                LiveDate: "",
-                Phase: "",
-                DeliveryStatus: "",
-                LiveStatus: "",
-                AfterLiveStatus: "",
-                DocumentType: "",
-                SelectFile: "",
-                Document_Base64: "",
-                FileExtension: "",
-                ModulePrimaryID: "",
-                PhaseDays: "",
-                ModuleID: "",
-                PhaseID: "",
-                Pic_Details: "",
-              });
-            } else {
-              toast.error(res?.data?.message);
-            }
-          })
-          .catch((err) => {
-            console.log(err);
-          });
+      // let form = new FormData();
+      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+      //   form.append(
+      //     "RoleID",
+      //     useCryptoLocalStorage("user_Data", "get", "RoleID")
+      //   ),
+      //   form.append(
+      //     "LoginName",
+      //     useCryptoLocalStorage("user_Data", "get", "realname")
+      //   ),
+      //   form.append("ProjectID", data?.Id || data?.ProjectID),
+      //   form.append("ActionType", "InsertModule"),
+      //   form.append("ProjectData", formDataJson),
+      // axios
+      //   .post(apiUrls?.ProjectMasterUpdate, form, { headers })
+
+      const payload = 
+        {
+          ProjectID: data?.Id ? Number(data.Id) : Number(data?.ProjectID) || 0,
+          ActionType: "InsertModule",
+          ModuleID: formData?.Modules ? Number(formData.Modules) : 0,
+          ModuleName: getlabel(formData?.Modules, module) || "",
+          AfterLiveStatus: formData?.AfterLiveStatus
+            ? String(formData.AfterLiveStatus)
+            : "0",
+          DeliveryStatus: formData?.DeliveryStatus
+            ? String(formData.DeliveryStatus)
+            : "0",
+          LiveStatus: formData?.LiveStatus ? String(formData.LiveStatus) : "0",
+          IsSale: 0, // always number
+          PhaseID: formData?.Phase ? Number(formData.Phase) : 0,
+          PhaseDays: getlabel(formData?.Phase, phase) || "",
+          Pic_Details: "", // always string
+          LiveDate: formData?.LiveDate
+            ? formatDate(formData.LiveDate)
+            : "1970-01-01",
+        }
+
+      axiosInstances
+        .post(apiUrls?.ProjectMasterUpdate, payload)
+        .then((res) => {
+          if (res?.data?.success == true) {
+            toast.success(res?.data?.message);
+            handleSearch();
+            setFormData({
+              ...formData,
+              MachineName: "",
+              Modules: "",
+              ModuleName: "",
+              LiveDate: "",
+              Phase: "",
+              DeliveryStatus: "",
+              LiveStatus: "",
+              AfterLiveStatus: "",
+              DocumentType: "",
+              SelectFile: "",
+              Document_Base64: "",
+              FileExtension: "",
+              ModulePrimaryID: "",
+              PhaseDays: "",
+              ModuleID: "",
+              PhaseID: "",
+              Pic_Details: "",
+            });
+          } else {
+            toast.error(res?.data?.message);
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     }
   };
 
@@ -257,8 +296,14 @@ const ModuleTabModal = ({ data }) => {
     ]);
     let form = new FormData();
     form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("RoleID", useCryptoLocalStorage("user_Data", "get", "RoleID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname") ),
+      form.append(
+        "RoleID",
+        useCryptoLocalStorage("user_Data", "get", "RoleID")
+      ),
+      form.append(
+        "LoginName",
+        useCryptoLocalStorage("user_Data", "get", "realname")
+      ),
       form.append("ProjectID", data?.Id || data?.ProjectID),
       form.append("ActionType", "UpdateModule"),
       form.append("ProjectData", formDataJson),
@@ -302,14 +347,20 @@ const ModuleTabModal = ({ data }) => {
   // }, []);
 
   const handleSearch = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname") ),
-      form.append("ProjectName", data?.NAME || data?.ProjectName);
-    form.append("ProjectID", data?.Id || data?.ProjectID);
-    form.append("Title", "Module");
-    axios
-      .post(apiUrls?.getViewProject, form, { headers })
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname") ),
+    //   form.append("ProjectName", data?.NAME || data?.ProjectName);
+    // form.append("ProjectID", data?.Id || data?.ProjectID);
+    // form.append("Title", "Module");
+    // axios
+    //   .post(apiUrls?.getViewProject, form, { headers })
+    axiosInstances
+      .post(apiUrls?.getViewProject, {
+        RoleID: 0,
+        ProjectID: Number(data?.Id || data?.ProjectID),
+        Title: "Module",
+      })
       .then((res) => {
         setTableData(res?.data?.data);
         setFilteredData(res?.data?.data);
@@ -393,12 +444,17 @@ const ModuleTabModal = ({ data }) => {
     const form = new FormData();
 
     form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname") ),
+      form.append(
+        "LoginName",
+        useCryptoLocalStorage("user_Data", "get", "realname")
+      ),
       form.append("ProjectID", data?.Id),
       form.append("ModulePrimaryID", selectedIds.join(",")),
       form.append("ActionType", "DeleteModule"),
-      axios
-        .post(apiUrls?.ProjectMasterUpdate, form, { headers })
+      // axios
+      //   .post(apiUrls?.ProjectMasterUpdate, form, { headers })
+         axiosInstances
+      .post(apiUrls?.ProjectMasterUpdate, {})
         .then((res) => {
           if (res?.data?.status === true) {
             toast.success(res?.data?.message);

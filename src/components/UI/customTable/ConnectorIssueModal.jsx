@@ -6,6 +6,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useTranslation } from "react-i18next";
 import { useCryptoLocalStorage } from "../../../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../../../networkServices/axiosInstance";
 
 const ConnectorIssueModal = (visible) => {
   const [t] = useTranslation();
@@ -13,25 +14,24 @@ const ConnectorIssueModal = (visible) => {
     IssueReason: "",
   });
   const handleSave = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("ConnectorID", visible?.visible?.connectdata?.ID),
-      form.append("Status", "Issue"),
-      axios
-        .post(apiUrls?.Connector_Status_Update, form, { headers })
-        .then((res) => {
-          toast.success(res?.data?.message);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls.Connector_Status_Update, {
+        ConnectorID: visible?.visible?.connectdata?.ID || 0,
+        Status: "Approve",
+      })
+      .then((res) => {
+        toast.success(res?.data?.message);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   return (
     <>
       <div className="row g-4 m-2">
         <label>
-          {t("Do you want to submit this Issue")} :- {visible?.visible?.connectdata?.IssueNo}
+          {t("Do you want to submit this Issue")} :-{" "}
+          {visible?.visible?.connectdata?.IssueNo}
         </label>
         <div className="col-2">
           <button className="btn btn-sm btn-success ml-2" onClick={handleSave}>

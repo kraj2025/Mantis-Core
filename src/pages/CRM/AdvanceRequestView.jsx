@@ -21,6 +21,7 @@ import AdvanceRequestApprove from "./AdvanceRequestApprove";
 import AdvanceRequestFinalApprove from "./AdvanceRequestFinalApprove";
 import { useCryptoLocalStorage } from "../../utils/hooks/useCryptoLocalStorage";
 import { Link } from "react-router-dom";
+import { axiosInstances } from "../../networkServices/axiosInstance";
 
 const currentDate = new Date();
 const currentMonth = currentDate.getMonth() + 1; // Months are 0-indexed, so add 1
@@ -103,64 +104,73 @@ const AdvanceRequestView = () => {
     });
   };
   const getReporter = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Reporter_Select, form, { headers })
-        .then((res) => {
-          const reporters = res?.data.data.map((item) => {
-            return { label: item?.NAME, value: item?.ID };
-          });
-          setEmployee(reporters);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.Reporter_Select, {
+        IsMaster: 0,
+        RoleID: 0,
+        OnlyItdose: 0,
+      })
+    
+      .then((res) => {
+        const reporters = res?.data.data.map((item) => {
+          return { label: item?.Name, value: item?.ID };
         });
+        setEmployee(reporters);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getVertical = () => {
-    let form = new FormData();
-    form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Vertical_Select, form, { headers })
-        .then((res) => {
-          const verticals = res?.data.data.map((item) => {
-            return { name: item?.Vertical, code: item?.VerticalID };
-          });
-          setVertical(verticals);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.Vertical_Select, {})
+      // let form = new FormData();
+      // form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
+      //   axios
+      //     .post(apiUrls?.Vertical_Select, form, { headers })
+      .then((res) => {
+        const verticals = res?.data.data.map((item) => {
+          return { name: item?.Vertical, code: item?.VerticalID };
         });
+        setVertical(verticals);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getTeam = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Team_Select, form, { headers })
-        .then((res) => {
-          const teams = res?.data.data.map((item) => {
-            return { name: item?.Team, code: item?.TeamID };
-          });
-          setTeam(teams);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.Team_Select, {})
+      // let form = new FormData();
+      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+      //   axios
+      //     .post(apiUrls?.Team_Select, form, { headers })
+      .then((res) => {
+        const teams = res?.data.data.map((item) => {
+          return { name: item?.Team, code: item?.TeamID };
         });
+        setTeam(teams);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getWing = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Wing_Select, form, { headers })
-        .then((res) => {
-          const wings = res?.data.data.map((item) => {
-            return { name: item?.Wing, code: item?.WingID };
-          });
-          setWing(wings);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.Wing_Select, {})
+      // let form = new FormData();
+      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+      //   axios
+      //     .post(apiUrls?.Wing_Select, form, { headers })
+      .then((res) => {
+        const wings = res?.data.data.map((item) => {
+          return { name: item?.Wing, code: item?.WingID };
         });
+        setWing(wings);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const searchHandleChange = (e) => {
     const { name, value, checked, type } = e?.target;
@@ -215,26 +225,36 @@ const AdvanceRequestView = () => {
   }
   const handleSearchAdvance = () => {
     setLoading(true);
-    let form = new FormData();
-    form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID"));
-    form.append(
-      "LoginName",
-      useCryptoLocalStorage("user_Data", "get", "realname")
-    );
-    form.append(
-      "CrmID",
-      useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-    );
-    form.append("Month", formData?.currentMonth),
-      form.append("Year", formData?.currentYear),
-      form.append("RequestedBy", formData?.Employee || "0");
-    form.append("SearchType", "");
-    form.append("VerticalID", formData?.VerticalID);
-    form.append("TeamID", formData?.TeamID);
-    form.append("WingID", formData?.WingID);
+    axiosInstances
+      .post(apiUrls.AdvanceRequest_Search, {
+        Month: String(formData?.currentMonth),
+        Year: String(formData?.currentYear),
+        RequestedBy: Number(formData?.Employee),
+        SearchType: Number(0),
+        VerticalID: Number(formData?.VerticalID),
+        TeamID: Number(formData?.TeamID),
+        WingID: Number(formData?.WingID),
+      })
+      // let form = new FormData();
+      // form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID"));
+      // form.append(
+      //   "LoginName",
+      //   useCryptoLocalStorage("user_Data", "get", "realname")
+      // );
+      // form.append(
+      //   "CrmID",
+      //   useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+      // );
+      // form.append("Month", formData?.currentMonth),
+      //   form.append("Year", formData?.currentYear),
+      //   form.append("RequestedBy", formData?.Employee || "0");
+      // form.append("SearchType", "");
+      // form.append("VerticalID", formData?.VerticalID);
+      // form.append("TeamID", formData?.TeamID);
+      // form.append("WingID", formData?.WingID);
 
-    axios
-      .post(apiUrls?.AdvanceRequest_Search, form, { headers })
+      // axios
+      //   .post(apiUrls?.AdvanceRequest_Search, form, { headers })
       .then((res) => {
         setTableData(res?.data?.data);
         setFilteredData(res?.data?.data);
@@ -247,29 +267,42 @@ const AdvanceRequestView = () => {
   };
   const handleSearchAdvanceEmployee = () => {
     setLoading(true);
-    let form = new FormData();
-    form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID"));
-    form.append(
-      "LoginName",
-      useCryptoLocalStorage("user_Data", "get", "realname")
-    );
-    form.append(
-      "CrmID",
-      useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-    );
-    form.append("Month", formData?.currentMonth),
-      form.append("Year", formData?.currentYear),
-      form.append(
-        "RequestedBy",
-        IsCEO == "1" ? "0" : useCryptoLocalStorage("user_Data", "get", "ID")
-      );
-    form.append("SearchType", "");
-    form.append("VerticalID", formData?.VerticalID);
-    form.append("TeamID", formData?.TeamID);
-    form.append("WingID", formData?.WingID);
+    axiosInstances
+      .post(apiUrls.AdvanceRequest_Search, {
+        Month: String(formData?.currentMonth),
+        Year: String(formData?.currentYear),
+        RequestedBy:
+          IsCEO == "1"
+            ? Number("0")
+            : Number(useCryptoLocalStorage("user_Data", "get", "ID")),
+        SearchType: Number(0),
+        VerticalID: Number(formData?.VerticalID),
+        TeamID: Number(formData?.TeamID),
+        WingID: Number(formData?.WingID),
+      })
+      // let form = new FormData();
+      // form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID"));
+      // form.append(
+      //   "LoginName",
+      //   useCryptoLocalStorage("user_Data", "get", "realname")
+      // );
+      // form.append(
+      //   "CrmID",
+      //   useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+      // );
+      // form.append("Month", formData?.currentMonth),
+      //   form.append("Year", formData?.currentYear),
+      //   form.append(
+      //     "RequestedBy",
+      //     IsCEO == "1" ? "0" : useCryptoLocalStorage("user_Data", "get", "ID")
+      //   );
+      // form.append("SearchType", "");
+      // form.append("VerticalID", formData?.VerticalID);
+      // form.append("TeamID", formData?.TeamID);
+      // form.append("WingID", formData?.WingID);
 
-    axios
-      .post(apiUrls?.AdvanceRequest_Search, form, { headers })
+      // axios
+      //   .post(apiUrls?.AdvanceRequest_Search, form, { headers })
       .then((res) => {
         if (res?.data?.status === true) {
           setTableData(res?.data?.data);

@@ -1,25 +1,23 @@
 import React, { useEffect, useState } from "react";
 import { apiUrls } from "../networkServices/apiEndpoints";
-import { headers } from "../utils/apitools";
 import NoRecordFound from "../components/formComponent/NoRecordFound";
 import Tables from "../components/UI/customTable";
 import { todaysDeliveryTHEAD } from "../components/modalComponent/Utils/HealperThead";
-import axios from "axios";
-import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../networkServices/axiosInstance";
 const DoneOnUatList = () => {
   const [todaysdeliverylist, settodaysdeliverylist] = useState([]);
+
   const handleTodaysDeliveryList = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("SearchType", "DoneOnUAT"),
-      axios
-        .post(apiUrls?.DevDashboard_Detailed, form, { headers })
-        .then((res) => {
-          settodaysdeliverylist(res?.data?.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls.DevDashboard_Detailed, {
+        SearchType: String("DoneOnUAT"),
+      })
+      .then((res) => {
+        settodaysdeliverylist(res?.data?.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const shortenName1 = (name) => {
     return name.length > 30 ? name.substring(0, 25) + "..." : name;
@@ -31,18 +29,18 @@ const DoneOnUatList = () => {
     handleTodaysDeliveryList();
   }, []);
 
-    const [currentPage, setCurrentPage] = useState(1);
-    const rowsPerPage = 10;
-    const totalPages = Math.ceil(todaysdeliverylist?.length / rowsPerPage);
-    const currentData = todaysdeliverylist?.slice(
-      (currentPage - 1) * rowsPerPage,
-      currentPage * rowsPerPage
-    );
-    const handlePageChange = (newPage) => {
-      if (newPage > 0 && newPage <= totalPages) {
-        setCurrentPage(newPage);
-      }
-    };
+  const [currentPage, setCurrentPage] = useState(1);
+  const rowsPerPage = 10;
+  const totalPages = Math.ceil(todaysdeliverylist?.length / rowsPerPage);
+  const currentData = todaysdeliverylist?.slice(
+    (currentPage - 1) * rowsPerPage,
+    currentPage * rowsPerPage
+  );
+  const handlePageChange = (newPage) => {
+    if (newPage > 0 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
   return (
     <>
       <div className="card">
@@ -82,7 +80,7 @@ const DoneOnUatList = () => {
               }))}
               tableHeight={"tableHeight"}
             />
-             <div className="pagination ml-auto">
+            <div className="pagination ml-auto">
               <div>
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}

@@ -9,6 +9,7 @@ import { headers } from "../../../utils/apitools";
 import { toast } from "react-toastify";
 import BrowseButton from "../../formComponent/BrowseButton";
 import { useCryptoLocalStorage } from "../../../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../../../networkServices/axiosInstance";
 
 const SaveQueryMasterModal = () => {
   const [editMode, setEditMode] = useState(false);
@@ -34,80 +35,68 @@ const SaveQueryMasterModal = () => {
   };
 
   const handleGet = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      // form.append("IsActive", formData?.IsActive),
-      // form.append("ProductID", ""),
-      // form.append("ModuleID", ""),
-      // form.append("ModuleID", ""),
-      // form.append("QueryID", ""),
-      form.append("SearchType", "Query_Select"),
-      axios
-        .post(apiUrls?.QueryVsResult_Select, form, { headers })
-        .then((res) => {
-          setTableData(res?.data?.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls.QueryVsResult_Select, {
+        SearchType: String(formData.DocumentType),
+      })
+      .then((res) => {
+        setTableData(res?.data?.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   function getlabel(id, dropdownData) {
     const ele = dropdownData.filter((item) => item.value === id);
     return ele.length > 0 ? ele[0].label : "";
   }
   const handleSave = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("Query", formData?.QueryName),
-      form.append("ProductID", formData?.Product),
-      form.append("ProductName", getlabel(formData?.Product, product)),
-      form.append("ModuleID", formData?.Module),
-      form.append("ModuleName", getlabel(formData?.Module, modules)),
-      form.append("Document_Base64", formData?.Document_Base64),
-      form.append("Document_FormatType", formData?.FileExtension),
-      axios
-        .post(apiUrls?.Query_Insert, form, { headers })
-        .then((res) => {
-          toast.success(res?.data?.message);
-          setFormData({
-            QueryName: "",
-            IsActive: "",
-            Product: "",
-            Module: "",
-            DocumentType: "",
-            SelectFile: "",
-            Document_Base64: "",
-            FileExtension: "",
-          });
-        })
-        .catch((err) => {
-          console.log(err);
+    const payload = {
+      Query: formData?.QueryName || "",
+      ProductID: Number(formData?.Product) || 0,
+      ProductName: getlabel(formData?.Product, product) || "",
+      ModuleID: Number(formData?.Module) || 0,
+      ModuleName: getlabel(formData?.Module, modules) || "",
+      Document_Base64: formData?.Document_Base64 || "",
+      Document_FormatType: formData?.FileExtension || "",
+    };
+    axiosInstances
+      .post(apiUrls.Query_Insert, payload)
+      .then((res) => {
+        toast.success(res?.data?.message);
+        setFormData({
+          QueryName: "",
+          IsActive: "",
+          Product: "",
+          Module: "",
+          DocumentType: "",
+          SelectFile: "",
+          Document_Base64: "",
+          FileExtension: "",
         });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const handleUpdate = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("Query", formData?.QueryName),
-      form.append("QueryID", formData?.ID),
-      form.append("ProductID", formData?.Product),
-      form.append("ProductName", getlabel(formData?.Product, product)),
-      form.append("ModuleID", formData?.Module),
-      form.append("ModuleName", getlabel(formData?.Module, modules)),
-      form.append("IsActive", formData?.IsActive),
-      // form.append("Document_Base64", formData?.Document_Base64),
-      // form.append("Document_FormatType", formData?.FileExtension),
-      axios
-        .post(apiUrls?.Query_Update, form, { headers })
-        .then((res) => {
-          toast.success(res?.data?.message);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls.Query_Update, {
+        Query: String(formData?.QueryName),
+        QueryID: String(formData?.ID),
+        ProductID: String(formData?.Product),
+        ProductName: String(getlabel(formData?.Product, product)),
+        ModuleID: String(formData?.Module),
+        ModuleName: String(getlabel(formData?.Module, modules)),
+        IsActive: formData?.IsActive,
+      })
+      .then((res) => {
+        toast.success(res?.data?.message);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const handleDeliveryChange = (name, e) => {
     const { value } = e;
@@ -119,36 +108,30 @@ const SaveQueryMasterModal = () => {
   };
 
   const getProduct = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      axios
-        .post(apiUrls?.GetProductVersion, form, { headers })
-        .then((res) => {
-          const assigntos = res?.data.data.map((item) => {
-            return { label: item?.NAME, value: item?.id };
-          });
-          setProduct(assigntos);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.GetProductVersion, {})
+      .then((res) => {
+        const assigntos = res?.data.data.map((item) => {
+          return { label: item?.NAME, value: item?.id };
         });
+        setProduct(assigntos);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getModules = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      axios
-        .post(apiUrls?.GetClientModuleList, form, { headers })
-        .then((res) => {
-          const assigntos = res?.data.data.map((item) => {
-            return { label: item?.ModuleName, value: item?.ID };
-          });
-          setModules(assigntos);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.GetClientModuleList, {})
+      .then((res) => {
+        const assigntos = res?.data.data.map((item) => {
+          return { label: item?.ModuleName, value: item?.ID };
         });
+        setModules(assigntos);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const handleEdit = (ele) => {

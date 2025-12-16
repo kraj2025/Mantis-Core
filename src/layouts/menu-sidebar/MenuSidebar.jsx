@@ -24,25 +24,25 @@ export const MENU = {
           childrenName: i18n.t("menusidebar.label.dashboard"),
           icon: "fas fa-regular fa-user",
           url: "/dashboard",
-          breadcrumb: "Developer Dashboard",
+          breadcrumb: t("Developer Dashboard"),
         },
         {
           childrenName: i18n.t("menusidebar.label.dashboard"),
           icon: "fas fa-regular fa-user",
           url: "/CoordinatorDashboard",
-          breadcrumb: "Coordinator Dashboard",
+          breadcrumb: t("Coordinator Dashboard"),
         },
         {
           childrenName: i18n.t("menusidebar.label.dashboard"),
           icon: "fas fa-regular fa-user",
           url: "/ManagerDashboard",
-          breadcrumb: "Manager Dashboard",
+          breadcrumb: t("Manager Dashboard"),
         },
         {
           childrenName: i18n.t("menusidebar.label.dashboard"),
           icon: "fas fa-regular fa-user",
           url: "/HrDashboard",
-          breadcrumb: "HR Dashboard",
+          breadcrumb: t("HR Dashboard"),
         },
       ],
     },
@@ -107,10 +107,10 @@ export const MENU = {
           breadcrumb: "Tickets / DeveloperCalendar",
         },
         {
-          name: "TicketView",
+          name: "Employee Task Tracker",
           icon: "fas fa-regular fa-user",
           path: "/TicketView",
-          breadcrumb: "Tickets / TicketView",
+          breadcrumb: "Tickets / Employee Task Tracker",
         },
       ],
     },
@@ -569,7 +569,6 @@ const MenuSidebar = () => {
   // role bind
   const handleChangeRole = async (e) => {
     const { value } = e;
-    // debugger
     // useLocalStorage("userData", "set", { ...localData, defaultRole: value });
     try {
       // setFormData({
@@ -585,7 +584,7 @@ const MenuSidebar = () => {
       //     RoleID: value,
       //   })
       // );
-      // debugger
+  
       navigate("/dashboard");
     } catch (error) {
       console.error("Error occurred:", error);

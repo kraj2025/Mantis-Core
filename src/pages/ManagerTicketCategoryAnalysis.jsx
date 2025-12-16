@@ -15,6 +15,7 @@ import { headers } from "../utils/apitools";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../networkServices/axiosInstance";
 
 ChartJS.register(
   CategoryScale,
@@ -39,14 +40,19 @@ const ManagerTicketCategoryAnalysis = () => {
     // form.append("DeveloperID", developerId);
     // form.append("SearchType", searchType === "" ? "0" : searchType);
 
-    axios
-      .post(apiUrls?.ManagerDashboard_Ticket_Category_Analysis, form, { headers })
+    // axios
+    //   .post(apiUrls?.ManagerDashboard_Ticket_Category_Analysis, form, { headers })
+    axiosInstances
+      .post(apiUrls?.ManagerDashboard_Ticket_Category_Analysis, {
+        DeveloperID:String(developerId),
+        SearchType:String(searchType === "" ? "0" : searchType)
+      })
       .then((res) => {
         const response = res?.data?.data;
 
         if (Array.isArray(response) && response.length > 0) {
           const intervalKeys = ["1-7", ">7-15", ">15-30", ">30"];
-          
+
           const filteredData = response.filter(
             (item) => item.CategoryName !== "Total"
           );
@@ -54,7 +60,9 @@ const ManagerTicketCategoryAnalysis = () => {
           const datasets = filteredData.map((category, idx) => ({
             label: category.CategoryName,
             data: intervalKeys.map((key) => category[key]),
-            backgroundColor: ["#AEB297", "#F4D0D0", "#E1B562", "#B0C4DE"][idx % 4],
+            backgroundColor: ["#AEB297", "#F4D0D0", "#E1B562", "#B0C4DE"][
+              idx % 4
+            ],
             borderColor: "#fff",
             borderWidth: 1,
           }));
@@ -88,13 +96,16 @@ const ManagerTicketCategoryAnalysis = () => {
       legend: {
         position: "top",
         labels: {
-            font: {
-              size: 8,
-            },
-            color: "black",
-            usePointStyle: true,
-            pointStyle: "circle",
+          font: {
+            size: 8,
           },
+          color: "black",
+          usePointStyle: true,
+          pointStyle: "circle",
+        },
+      },
+      datalabels: {
+        display: false, // 👈 disables value labels on bars
       },
     },
     scales: {

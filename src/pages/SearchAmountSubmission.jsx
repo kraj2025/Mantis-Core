@@ -3,8 +3,6 @@ import { Link } from "react-router-dom";
 import Heading from "../components/UI/Heading";
 import MultiSelectComp from "../components/formComponent/MultiSelectComp";
 import { useState } from "react";
-import { headers } from "../utils/apitools";
-import axios from "axios";
 import ReactSelect from "../components/formComponent/ReactSelect";
 import DatePicker from "../components/formComponent/DatePicker";
 import Tables from "../components/UI/customTable";
@@ -13,7 +11,6 @@ import Modal from "../components/modalComponent/Modal";
 import { apiUrls } from "../networkServices/apiEndpoints";
 import { toast } from "react-toastify";
 import Loading from "../components/loader/Loading";
-import { ExportToExcel, ExportToPDF } from "../networkServices/Tools";
 import * as XLSX from "xlsx";
 import * as FileSaver from "file-saver";
 import RemoveAmountSubmissionModal from "../components/UI/customTable/RemoveAmountSubmissionModal";
@@ -28,9 +25,10 @@ import GmailAmountSubmissionModal from "../components/UI/customTable/GmailAmount
 import gmaillogo from "../../src/assets/image/Gmail_Logo.png";
 import { useTranslation } from "react-i18next";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
-import Accordion from "./Accordion";
 import SearchLotusFilter from "./SearchLotusFilter";
+import { axiosInstances } from "../networkServices/axiosInstance";
 const SearchAmountSubmission = ({ data }) => {
+
   const [t] = useTranslation();
   const AmountCancel = useCryptoLocalStorage(
     "user_Data",
@@ -39,10 +37,10 @@ const SearchAmountSubmission = ({ data }) => {
   );
   // console.log("amoiunt", AmountCancel);
 
-  useEffect(() => {
-    if (data) {
-    }
-  }, []);
+  // useEffect(() => {
+  //   if (data) {
+  //   }
+  // }, []);
 
   const { VITE_DATE_FORMAT } = import.meta.env;
   const [vertical, setVertical] = useState([]);
@@ -75,9 +73,11 @@ const SearchAmountSubmission = ({ data }) => {
     EntryDate: "",
     PageSize: 50,
     PageNo: "",
-    BankName: "All",
+    BankName: "",
     RecoveryTeam: "",
   });
+
+  console.log("formdata,kamal",formData)
   const handleMultiSelectChange = (name, selectedOptions) => {
     const selectedValues = selectedOptions.map((option) => option.code);
     setFormData((prev) => ({
@@ -95,20 +95,6 @@ const SearchAmountSubmission = ({ data }) => {
   };
 
   const SaveFilter = () => {
-    let form = new FormData();
-
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-    form.append(
-      "CrmEmpID",
-      useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-    );
-    form.append(
-      "LoginName",
-      useCryptoLocalStorage("user_Data", "get", "realname")
-    );
-    form.append("PageName", "SearchAmountSubmission");
-
-    // Example FilterData array
     const filterData = [
       { header: "S.No", visible: true },
       { header: "ProjectID", visible: true },
@@ -125,12 +111,34 @@ const SearchAmountSubmission = ({ data }) => {
       { header: "BankName", visible: true },
       { header: "RecoveryTeam", visible: true },
     ];
+    axiosInstances
+      .post(apiUrls.SaveFilterTableReprintData, {
+        CrmEmpID: String(
+          useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+        ),
+        FilterData: JSON.stringify(filterData),
+        PageName: "SearchAmountSubmission",
+      })
+      // let form = new FormData();
 
-    // Append stringified FilterData
-    form.append("FilterData", JSON.stringify(filterData));
+      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
+      // form.append(
+      //   "CrmEmpID",
+      //   useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+      // );
+      // form.append(
+      //   "LoginName",
+      //   useCryptoLocalStorage("user_Data", "get", "realname")
+      // );
+      // form.append("PageName", "SearchAmountSubmission");
 
-    axios
-      .post(apiUrls?.SaveFilterTableReprintData, form, { headers })
+      // // Example FilterData array
+
+      // // Append stringified FilterData
+      // form.append("FilterData", JSON.stringify(filterData));
+
+      // axios
+      //   .post(apiUrls?.SaveFilterTableReprintData, form, { headers })
       .then((res) => {
         console.log(res.data.message);
       })
@@ -141,20 +149,6 @@ const SearchAmountSubmission = ({ data }) => {
   };
 
   const SaveTableFilter = () => {
-    let form = new FormData();
-
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-    form.append(
-      "CrmEmpID",
-      useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-    );
-    form.append(
-      "LoginName",
-      useCryptoLocalStorage("user_Data", "get", "realname")
-    );
-    form.append("PageName", "SearchAmountSubmissionTable");
-
-    // Example FilterData array
     const filterData = [
       { header: "S.No", visible: true },
       { header: "Project Name", visible: true },
@@ -174,12 +168,34 @@ const SearchAmountSubmission = ({ data }) => {
       { header: "Email", visible: true },
       { header: "Cancel", visible: true },
     ];
+    axiosInstances
+      .post(apiUrls.SaveFilterTableReprintData, {
+        CrmEmpID: String(
+          useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+        ),
+        FilterData: JSON.stringify(filterData),
+        PageName: "SearchAmountSubmissionTable",
+      })
+      // let form = new FormData();
 
-    // Append stringified FilterData
-    form.append("FilterData", JSON.stringify(filterData));
+      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
+      // form.append(
+      //   "CrmEmpID",
+      //   useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+      // );
+      // form.append(
+      //   "LoginName",
+      //   useCryptoLocalStorage("user_Data", "get", "realname")
+      // );
+      // form.append("PageName", "SearchAmountSubmissionTable");
 
-    axios
-      .post(apiUrls?.SaveFilterTableReprintData, form, { headers })
+      // // Example FilterData array
+
+      // // Append stringified FilterData
+      // form.append("FilterData", JSON.stringify(filterData));
+
+      // axios
+      //   .post(apiUrls?.SaveFilterTableReprintData, form, { headers })
       .then((res) => {
         console.log(res.data.message);
       })
@@ -190,60 +206,75 @@ const SearchAmountSubmission = ({ data }) => {
   };
 
   const SearchAmountSubmissionFilter = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "CrmEmpID",
-        useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-      ),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("PageName", "SearchAmountSubmission"),
-      axios
-        .post(apiUrls?.GetFilterTableReprintData, form, { headers })
-        .then((res) => {
-          const data = res.data.data;
-          if (res?.data.status === true) {
-            setDynamicFilter(data);
-          } else {
-            SaveFilter();
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls.GetFilterTableReprintData, {
+        PageName: "SearchAmountSubmission",
+        CrmEmpID: String(
+          useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+        ),
+      })
+      // let form = new FormData();
+      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+      //   form.append(
+      //     "CrmEmpID",
+      //     useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+      //   ),
+      //   form.append(
+      //     "LoginName",
+      //     useCryptoLocalStorage("user_Data", "get", "realname")
+      //   ),
+      //   form.append("PageName", "SearchAmountSubmission"),
+      //   axios
+      //     .post(apiUrls?.GetFilterTableReprintData, form, { headers })
+      .then((res) => {
+        const data = res.data.data;
+        if (res?.data.success === true) {
+          setDynamicFilter(data);
+        } else {
+          SaveFilter();
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const SearchAmountSubmissionTableFilter = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "CrmEmpID",
-        useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-      ),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("PageName", "SearchAmountSubmissionTable"),
-      axios
-        .post(apiUrls?.GetFilterTableReprintData, form, { headers })
-        .then((res) => {
-          const data = res.data.data;
-          if (res?.data.status === true) {
-            setColumnConfig(data);
-          } else {
-            SaveTableFilter();
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls.GetFilterTableReprintData, {
+        PageName: "SearchAmountSubmissionTable",
+        CrmEmpID: String(
+          useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+        ),
+      })
+      // let form = new FormData();
+      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+      //   form.append(
+      //     "CrmEmpID",
+      //     useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+      //   ),
+      //   form.append(
+      //     "LoginName",
+      //     useCryptoLocalStorage("user_Data", "get", "realname")
+      //   ),
+      //   form.append("PageName", "SearchAmountSubmissionTable"),
+      //   axios
+      //     .post(apiUrls?.GetFilterTableReprintData, form, { headers })
+      .then((res) => {
+        const data = res.data.data;
+        if (res?.data.success === true) {
+          setColumnConfig(data);
+        } else {
+          SaveTableFilter();
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const isVisible = (header) =>
     dynamicFilter.find((f) => f?.header === header)?.visible;
+
   const isTableVisible = (header) =>
     columnConfig.find((f) => f?.header === header)?.visible;
 
@@ -254,24 +285,51 @@ const SearchAmountSubmission = ({ data }) => {
     // SaveFilter();
   }, []);
 
+  // const handleDeliveryChange = (name, e, index) => {
+  //   const { value } = e;
+  //   const details = tableData[index];
+
+  //   // setFormData({
+  //   //   ...formData,
+  //   //   [name]: value,
+  //   // });
+  //   console.log("detailsvalue", value);
+  //   // Update tableData for the corresponding row
+  //   const updatedTableData = [...tableData];
+  //   updatedTableData[index] = {
+  //     ...updatedTableData[index],
+  //     PaymentMode: value,
+  //   };
+  //   setTableData(updatedTableData);
+
+  //   if (name == "PaymentMode") {
+  //     updatePaymentMode(details, value);
+  //   }
+  //   if (name == "BankName") {
+  //     updateBankName(details, value);
+  //   }
+  // };
+
   const handleDeliveryChange = (name, e, index) => {
-    const { value } = e;
+    const value = e?.value || e; // Support both controlled and native events
     const details = tableData[index];
 
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+    console.log("detailsvalue", value);
 
-    // Update tableData for the corresponding row
+    // Update the tableData at the specified index
     const updatedTableData = [...tableData];
     updatedTableData[index] = {
       ...updatedTableData[index],
-      PaymentMode: value,
+      [name]: value, // Use dynamic key to handle multiple fields
     };
     setTableData(updatedTableData);
-    updatePaymentMode(details, value);
-    updateBankName(details, value);
+
+    // Call specific update functions based on the name
+    if (name === "PaymentMode") {
+      updatePaymentMode(details, value);
+    } else if (name === "BankName") {
+      updateBankName(details, value);
+    }
   };
 
   const searchHandleChangeTable = (name, value, index) => {
@@ -295,235 +353,228 @@ const SearchAmountSubmission = ({ data }) => {
   };
 
   const updatePaymentMode = (item, value) => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "RoleID",
-        useCryptoLocalStorage("user_Data", "get", "RoleID")
-      ),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("OnAccount_Req_ID", item?.EncryptID),
-      form.append("ActionType", "PaymentMode"),
-      form.append("Remark", ""),
-      form.append("ReceivedDate", ""),
-      form.append("PaymentMode", value),
-      axios
-        .post(apiUrls?.AmountSubmission_ByAccounts_Update, form, { headers })
-        .then((res) => {
-          if (res?.data?.status === true) {
-            toast.success(res?.data?.message);
-            handleSearch();
-          } else {
-            toast.error(res?.data?.message);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls.AmountSubmission_ByAccounts_Update, {
+        OnAccount_Req_ID: String(item?.EncryptID),
+        ActionType: "PaymentMode",
+        Remark: "",
+        ReceivedDate: "",
+        PaymentMode: String(value),
+        VoucherNo: "",
+        BankName: "",
+      })
+      .then((res) => {
+        if (res?.data?.success === true) {
+          toast.success(res?.data?.message);
+          handleSearch();
+        } else {
+          toast.error(res?.data?.message);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
-  const updateRemark = (item) => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "RoleID",
-        useCryptoLocalStorage("user_Data", "get", "RoleID")
-      ),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("OnAccount_Req_ID", item?.EncryptID),
-      form.append("ActionType", "Remark"),
-      form.append("Remark", item?.Remark),
-      form.append("ReceivedDate", ""),
-      form.append("PaymentMode", ""),
-      axios
-        .post(apiUrls?.AmountSubmission_ByAccounts_Update, form, { headers })
-        .then((res) => {
-          if (res?.data?.status === true) {
-            toast.success(res?.data?.message);
-            handleSearch();
-          } else {
-            toast.error(res?.data?.message);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+  const updateRemark = (item, value) => {
+    console.log("remark", item);
+    axiosInstances
+      .post(apiUrls.AmountSubmission_ByAccounts_Update, {
+        OnAccount_Req_ID: String(item?.EncryptID),
+        ActionType: "Remark",
+        Remark: String(item?.Remark),
+        ReceivedDate: "",
+        PaymentMode: "",
+        VoucherNo: "",
+        BankName:""
+      })
+      .then((res) => {
+        if (res?.data?.success === true) {
+          toast.success(res?.data?.message);
+          handleSearch();
+        } else {
+          toast.error(res?.data?.message);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
-  const updateBankName = (item) => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "RoleID",
-        useCryptoLocalStorage("user_Data", "get", "RoleID")
-      ),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("OnAccount_Req_ID", item?.EncryptID),
-      form.append("ActionType", "BankName"),
-      form.append("BankName", item?.BankName),
-      form.append("ReceivedDate", ""),
-      form.append("PaymentMode", ""),
-      axios
-        .post(apiUrls?.AmountSubmission_ByAccounts_Update, form, { headers })
-        .then((res) => {
-          if (res?.data?.status === true) {
-            toast.success(res?.data?.message);
-            handleSearch();
-          } else {
-            toast.error(res?.data?.message);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+  const updateBankName = (item, value) => {
+    axiosInstances
+      .post(apiUrls.AmountSubmission_ByAccounts_Update, {
+        OnAccount_Req_ID: String(item?.EncryptID),
+        ActionType: "BankName",
+        Remark: "",
+        ReceivedDate: "",
+        PaymentMode: "",
+        VoucherNo: "",
+        BankName: String(value),
+      })
+      .then((res) => {
+        if (res?.data?.success === true) {
+          toast.success(res?.data?.message);
+          handleSearch();
+        } else {
+          toast.error(res?.data?.message);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const updateReceivedDate = (item, value) => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "RoleID",
-        useCryptoLocalStorage("user_Data", "get", "RoleID")
-      ),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("OnAccount_Req_ID", item?.EncryptID),
-      form.append("ActionType", "ReceivedDate"),
-      form.append("Remark", ""),
-      form.append("ReceivedDate", moment(value).format("YYYY-MM-DD")),
-      form.append("PaymentMode", ""),
-      axios
-        .post(apiUrls?.AmountSubmission_ByAccounts_Update, form, { headers })
-        .then((res) => {
-          if (res?.data?.status === true) {
-            toast.success(res?.data?.message);
-            handleSearch();
-          } else {
-            toast.error(res?.data?.message);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls.AmountSubmission_ByAccounts_Update, {
+        OnAccount_Req_ID: String(item?.EncryptID),
+        ActionType: "ReceivedDate",
+        Remark: "",
+        ReceivedDate: String(moment(value).format("YYYY-MM-DD")),
+        PaymentMode: "",
+        VoucherNo: "",
+        BankName: "",
+      })
+      .then((res) => {
+        if (res?.data?.success === true) {
+          toast.success(res?.data?.message);
+          handleSearch();
+        } else {
+          toast.error(res?.data?.message);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const getProject = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      axios
-        .post(apiUrls?.ProjectSelect, form, { headers })
-        .then((res) => {
-          const poc3s = res?.data.data.map((item) => {
-            return { name: item?.Project, code: item?.ProjectId };
-          });
-          setProject(poc3s);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.ProjectSelect, {
+        ProjectID: 0,
+        IsMaster: "0",
+        VerticalID: 0,
+        TeamID: 0,
+        WingID: 0,
+      })
+      // let form = new FormData();
+      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+      //   form.append(
+      //     "LoginName",
+      //     useCryptoLocalStorage("user_Data", "get", "realname")
+      //   ),
+      //   axios
+      //     .post(apiUrls?.ProjectSelect, form, { headers })
+      .then((res) => {
+        const poc3s = res?.data.data.map((item) => {
+          return { name: item?.Project, code: item?.ProjectId };
         });
+        setProject(poc3s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getVertical = () => {
-    let form = new FormData();
-    form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Vertical_Select, form, { headers })
-        .then((res) => {
-          const verticals = res?.data.data.map((item) => {
-            return { name: item?.Vertical, code: item?.VerticalID };
-          });
-          setVertical(verticals);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.Vertical_Select, {})
+      // let form = new FormData();
+      // form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
+      //   axios
+      //     .post(apiUrls?.Vertical_Select, form, { headers })
+      .then((res) => {
+        const verticals = res?.data.data.map((item) => {
+          return { name: item?.Vertical, code: item?.VerticalID };
         });
+        setVertical(verticals);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getTeam = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Team_Select, form, { headers })
-        .then((res) => {
-          const teams = res?.data.data.map((item) => {
-            return { name: item?.Team, code: item?.TeamID };
-          });
-          setTeam(teams);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.Team_Select, {})
+      // let form = new FormData();
+      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+      //   axios
+      //     .post(apiUrls?.Team_Select, form, { headers })
+      .then((res) => {
+        const teams = res?.data.data.map((item) => {
+          return { name: item?.Team, code: item?.TeamID };
         });
+        setTeam(teams);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getWing = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Wing_Select, form, { headers })
-        .then((res) => {
-          const wings = res?.data.data.map((item) => {
-            return { name: item?.Wing, code: item?.WingID };
-          });
-          setWing(wings);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.Wing_Select, {})
+      // let form = new FormData();
+      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+      //   axios
+      //     .post(apiUrls?.Wing_Select, form, { headers })
+      .then((res) => {
+        const wings = res?.data.data.map((item) => {
+          return { name: item?.Wing, code: item?.WingID };
         });
+        setWing(wings);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getPOC1 = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.POC_1_Select, form, { headers })
-        .then((res) => {
-          const poc1s = res?.data.data.map((item) => {
-            return { name: item?.POC_1_Name, code: item?.POC_1_ID };
-          });
-          setPoc1(poc1s);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.POC_1_Select, {})
+      // let form = new FormData();
+      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+      //   axios
+      //     .post(apiUrls?.POC_1_Select, form, { headers })
+      .then((res) => {
+        const poc1s = res?.data.data.map((item) => {
+          return { name: item?.POC_1_Name, code: item?.POC_1_ID };
         });
+        setPoc1(poc1s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getPOC2 = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.POC_2_Select, form, { headers })
-        .then((res) => {
-          const poc2s = res?.data.data.map((item) => {
-            return { name: item?.POC_2_Name, code: item?.POC_2_ID };
-          });
-          setPoc2(poc2s);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.POC_2_Select, {})
+      // let form = new FormData();
+      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+      //   axios
+      //     .post(apiUrls?.POC_2_Select, form, { headers })
+      .then((res) => {
+        const poc2s = res?.data.data.map((item) => {
+          return { name: item?.POC_2_Name, code: item?.POC_2_ID };
         });
+        setPoc2(poc2s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getPOC3 = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.POC_3_Select, form, { headers })
-        .then((res) => {
-          const poc3s = res?.data.data.map((item) => {
-            return { name: item?.POC_3_Name, code: item?.POC_3_ID };
-          });
-          setPoc3(poc3s);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.POC_3_Select, {})
+      // let form = new FormData();
+      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+      //   axios
+      //     .post(apiUrls?.POC_3_Select, form, { headers })
+      .then((res) => {
+        const poc3s = res?.data.data.map((item) => {
+          return { name: item?.POC_3_Name, code: item?.POC_3_ID };
         });
+        setPoc3(poc3s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const [visible, setVisible] = useState({
     showVisible: false,
@@ -548,107 +599,175 @@ const SearchAmountSubmission = ({ data }) => {
       toast.error("Please Select Status.");
     } else {
       setLoading(true);
-      let form = new FormData();
-      form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-        form.append(
-          "LoginName",
-          useCryptoLocalStorage("user_Data", "get", "realname")
-        ),
-        form.append("ProjectID", formData?.ProjectID),
-        form.append("VerticalID", formData?.VerticalID),
-        form.append("TeamID", formData?.TeamID),
-        form.append("WingID", formData?.WingID),
-        form.append("POC1", formData?.POC1),
-        form.append("POC2", formData?.POC2),
-        form.append("POC3", formData?.POC3),
-        form.append("Status", formData?.Status),
-        form.append("BankName", formData?.BankName),
-        form.append("DateType", formData?.DateType),
-        form.append(
-          "RecoveryTeam",
-          formData?.RecoveryTeam ? formData?.RecoveryTeam : "All"
-        ),
-        form.append("FromDate", formatDate(formData?.FromDate)),
-        form.append("ToDate", formatDate(formData?.ToDate)),
-        form.append("SearchType", "OnScreen"),
-        form.append("rowColor", code ? code : ""),
-        form.append("PageSize", formData?.PageSize),
-        form.append("PageNo", page ?? currentPage - 1),
-        // form.append("colorcode", code ? String(code) : ""),
-        axios
-          .post(apiUrls?.AmountSubmission_ByAccounts_Search, form, { headers })
-          .then((res) => {
-            const datas = res?.data?.data?.map((val) => {
-              val.isShow = false;
-              val.isDate = false;
-              val.isRemark = false;
-              val.isBankName = false;
-              return val;
-            });
-            setTableData(datas);
-            setLoading(false);
-          })
-          .catch((err) => {
-            console.log(err);
-            setLoading(false);
+      const payload = {
+        DateType: String(formData?.DateType || ""),
+        FromDate: formatDate(formData?.FromDate) || "",
+        ToDate: formatDate(formData?.ToDate) || "",
+        Status: String(formData?.Status || ""),
+        SearchType: "OnScreen",
+        BankName: String(formData?.BankName || ""),
+        PageSize: String(formData?.PageSize || ""),
+        PageNo: String(page ?? currentPage - 1),
+        RowColor: String(code || ""),
+        ProjectID: String(formData?.ProjectID || ""),
+        VerticalID: String(formData?.VerticalID || ""),
+        TeamID: String(formData?.TeamID || ""),
+        WingID: String(formData?.WingID || ""),
+        POC1: String(formData?.POC1 || ""),
+        POC2: String(formData?.POC2 || ""),
+        POC3: String(formData?.POC3 || ""),
+        RecoveryTeam: formData?.RecoveryTeam
+          ? String(formData?.RecoveryTeam)
+          : "All",
+      };
+
+      axiosInstances
+        .post(apiUrls.AmountSubmission_ByAccounts_Search, payload)
+        // let form = new FormData();
+        // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+        //   form.append(
+        //     "LoginName",
+        //     useCryptoLocalStorage("user_Data", "get", "realname")
+        //   ),
+        //   form.append("ProjectID", formData?.ProjectID),
+        //   form.append("VerticalID", formData?.VerticalID),
+        //   form.append("TeamID", formData?.TeamID),
+        //   form.append("WingID", formData?.WingID),
+        //   form.append("POC1", formData?.POC1),
+        //   form.append("POC2", formData?.POC2),
+        //   form.append("POC3", formData?.POC3),
+        //   form.append("Status", formData?.Status),
+        //   form.append("BankName", formData?.BankName),
+        //   form.append("DateType", formData?.DateType),
+        //   form.append(
+        //     "RecoveryTeam",
+        //     formData?.RecoveryTeam ? formData?.RecoveryTeam : "All"
+        //   ),
+        //   form.append("FromDate", formatDate(formData?.FromDate)),
+        //   form.append("ToDate", formatDate(formData?.ToDate)),
+        //   form.append("SearchType", "OnScreen"),
+        //   form.append("rowColor", code ? code : ""),
+        //   form.append("PageSize", formData?.PageSize),
+        //   form.append("PageNo", page ?? currentPage - 1),
+        //   // form.append("colorcode", code ? String(code) : ""),
+        //   axios
+        //     .post(apiUrls?.AmountSubmission_ByAccounts_Search, form, { headers })
+        .then((res) => {
+          const datas = res?.data?.data?.map((val) => {
+            val.isShow = false;
+            val.isDate = false;
+            val.isRemark = false;
+            val.isBankName = false;
+            return val;
           });
+          setTableData(datas);
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.log(err);
+          setLoading(false);
+        });
     }
   };
   const [excelData, setExcelData] = useState([]);
   const handleSearchExcel = (code) => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("ProjectID", formData?.ProjectID),
-      form.append("VerticalID", formData?.VerticalID),
-      form.append("TeamID", formData?.TeamID),
-      form.append("WingID", formData?.WingID),
-      form.append("POC1", formData?.POC1),
-      form.append("POC2", formData?.POC2),
-      form.append("POC3", formData?.POC3),
-      form.append("Status", formData?.Status),
-      form.append("BankName", formData?.BankName),
-      form.append("DateType", formData?.DateType),
-      form.append("FromDate", formatDate(formData?.FromDate)),
-      form.append("ToDate", formatDate(formData?.ToDate)),
-      form.append("SearchType", "Excel"),
-      // form.append("colorcode", code ? String(code) : ""),
-      axios
-        .post(apiUrls?.AmountSubmission_ByAccounts_Search, form, { headers })
-        .then((res) => {
-          setExcelData(res?.data?.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    const payload = {
+      DateType: String(formData?.DateType || ""),
+      FromDate: formatDate(formData?.FromDate) || "",
+      ToDate: formatDate(formData?.ToDate) || "",
+      Status: String(formData?.Status || ""),
+      SearchType: "Excel",
+      BankName: String(formData?.BankName || ""),
+      PageSize: String(""),
+      PageNo: String(""),
+      RowColor: String(""),
+      ProjectID: String(formData?.ProjectID || ""),
+      VerticalID: String(formData?.VerticalID || ""),
+      TeamID: String(formData?.TeamID || ""),
+      WingID: String(formData?.WingID || ""),
+      POC1: String(formData?.POC1 || ""),
+      POC2: String(formData?.POC2 || ""),
+      POC3: String(formData?.POC3 || ""),
+      RecoveryTeam: String(""),
+    };
+
+    axiosInstances
+      .post(apiUrls.AmountSubmission_ByAccounts_Search, payload)
+      // let form = new FormData();
+      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+      //   form.append(
+      //     "LoginName",
+      //     useCryptoLocalStorage("user_Data", "get", "realname")
+      //   ),
+      //   form.append("ProjectID", formData?.ProjectID),
+      //   form.append("VerticalID", formData?.VerticalID),
+      //   form.append("TeamID", formData?.TeamID),
+      //   form.append("WingID", formData?.WingID),
+      //   form.append("POC1", formData?.POC1),
+      //   form.append("POC2", formData?.POC2),
+      //   form.append("POC3", formData?.POC3),
+      //   form.append("Status", formData?.Status),
+      //   form.append("BankName", formData?.BankName),
+      //   form.append("DateType", formData?.DateType),
+      //   form.append("FromDate", formatDate(formData?.FromDate)),
+      //   form.append("ToDate", formatDate(formData?.ToDate)),
+      //   form.append("SearchType", "Excel"),
+      //   // form.append("colorcode", code ? String(code) : ""),
+      //   axios
+      //     .post(apiUrls?.AmountSubmission_ByAccounts_Search, form, { headers })
+      .then((res) => {
+        setExcelData(res?.data?.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const handleExcel = () => {
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-    form.append(
-      "LoginName",
-      useCryptoLocalStorage("user_Data", "get", "realname")
-    );
-    form.append("ProjectID", formData?.ProjectID);
-    form.append("VerticalID", formData?.VerticalID);
-    form.append("TeamID", formData?.TeamID);
-    form.append("WingID", formData?.WingID);
-    form.append("POC1", formData?.POC1);
-    form.append("POC2", formData?.POC2);
-    form.append("POC3", formData?.POC3);
-    form.append("Status", formData?.Status);
-    form.append("BankName", formData?.BankName);
-    form.append("DateType", formData?.DateType);
-    form.append("FromDate", formatDate(formData?.FromDate));
-    form.append("ToDate", formatDate(formData?.ToDate));
-    form.append("SearchType", "Excel");
+    const payload = {
+      DateType: String(formData?.DateType || ""),
+      FromDate: formatDate(formData?.FromDate) || "",
+      ToDate: formatDate(formData?.ToDate) || "",
+      Status: String(formData?.Status || ""),
+      SearchType: "Excel",
+      BankName: String(formData?.BankName || ""),
+      PageSize: String(""),
+      PageNo: String(""),
+      RowColor: String(""),
+      ProjectID: String(formData?.ProjectID || ""),
+      VerticalID: String(formData?.VerticalID || ""),
+      TeamID: String(formData?.TeamID || ""),
+      WingID: String(formData?.WingID || ""),
+      POC1: String(formData?.POC1 || ""),
+      POC2: String(formData?.POC2 || ""),
+      POC3: String(formData?.POC3 || ""),
+      RecoveryTeam: String(""),
+    };
 
-    axios
-      .post(apiUrls?.AmountSubmission_ByAccounts_Search, form, { headers })
+    axiosInstances
+      .post(apiUrls.AmountSubmission_ByAccounts_Search, payload)
+      // let form = new FormData();
+      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
+      // form.append(
+      //   "LoginName",
+      //   useCryptoLocalStorage("user_Data", "get", "realname")
+      // );
+      // form.append("ProjectID", formData?.ProjectID);
+      // form.append("VerticalID", formData?.VerticalID);
+      // form.append("TeamID", formData?.TeamID);
+      // form.append("WingID", formData?.WingID);
+      // form.append("POC1", formData?.POC1);
+      // form.append("POC2", formData?.POC2);
+      // form.append("POC3", formData?.POC3);
+      // form.append("Status", formData?.Status);
+      // form.append("BankName", formData?.BankName);
+      // form.append("DateType", formData?.DateType);
+      // form.append("FromDate", formatDate(formData?.FromDate));
+      // form.append("ToDate", formatDate(formData?.ToDate));
+      // form.append("SearchType", "Excel");
+
+      // axios
+      //   .post(apiUrls?.AmountSubmission_ByAccounts_Search, form, { headers })
       .then((res) => {
         const datas = res?.data?.data;
 
@@ -700,40 +819,63 @@ const SearchAmountSubmission = ({ data }) => {
 
   const handleCancelExcel = () => {
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("ProjectID", formData?.ProjectID),
-      form.append("VerticalID", formData?.VerticalID),
-      form.append("TeamID", formData?.TeamID),
-      form.append("WingID", formData?.WingID),
-      form.append("POC1", formData?.POC1),
-      form.append("POC2", formData?.POC2),
-      form.append("POC3", formData?.POC3),
-      form.append("Status", formData?.Status),
-      form.append("BankName", formData?.BankName),
-      form.append("DateType", formData?.DateType),
-      form.append("FromDate", formatDate(formData?.FromDate)),
-      form.append("ToDate", formatDate(formData?.ToDate)),
-      form.append("SearchType", "CancelExcel"),
-      axios
-        .post(apiUrls?.AmountSubmission_ByAccounts_Search, form, { headers })
-        .then((res) => {
-          const datas = res?.data?.data;
-          toast.success(datas);
-          setLoading(false);
-        })
-        .catch((err) => {
-          console.log(err);
-          setLoading(false);
-        });
+    const payload = {
+      DateType: String(formData?.DateType || ""),
+      FromDate: formatDate(formData?.FromDate) || "",
+      ToDate: formatDate(formData?.ToDate) || "",
+      Status: String(formData?.Status || ""),
+      SearchType: "CancelExcel",
+      BankName: String(formData?.BankName || ""),
+      PageSize: String(""),
+      PageNo: String(""),
+      RowColor: String(""),
+      ProjectID: String(formData?.ProjectID || ""),
+      VerticalID: String(formData?.VerticalID || ""),
+      TeamID: String(formData?.TeamID || ""),
+      WingID: String(formData?.WingID || ""),
+      POC1: String(formData?.POC1 || ""),
+      POC2: String(formData?.POC2 || ""),
+      POC3: String(formData?.POC3 || ""),
+      RecoveryTeam: String(""),
+    };
+
+    axiosInstances
+      .post(apiUrls.AmountSubmission_ByAccounts_Search, payload)
+      // let form = new FormData();
+      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+      //   form.append(
+      //     "LoginName",
+      //     useCryptoLocalStorage("user_Data", "get", "realname")
+      //   ),
+      //   form.append("ProjectID", formData?.ProjectID),
+      //   form.append("VerticalID", formData?.VerticalID),
+      //   form.append("TeamID", formData?.TeamID),
+      //   form.append("WingID", formData?.WingID),
+      //   form.append("POC1", formData?.POC1),
+      //   form.append("POC2", formData?.POC2),
+      //   form.append("POC3", formData?.POC3),
+      //   form.append("Status", formData?.Status),
+      //   form.append("BankName", formData?.BankName),
+      //   form.append("DateType", formData?.DateType),
+      //   form.append("FromDate", formatDate(formData?.FromDate)),
+      //   form.append("ToDate", formatDate(formData?.ToDate)),
+      //   form.append("SearchType", "CancelExcel"),
+      //   axios
+      //     .post(apiUrls?.AmountSubmission_ByAccounts_Search, form, { headers })
+      .then((res) => {
+        const datas = res?.data?.data;
+        toast.success(datas);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
   };
 
   const [currentPage, setCurrentPage] = useState(1);
-  const totalRecords = parseInt(tableData[0]?.TotalRecord);
+  const totalRecords =
+    tableData?.length > 0 && parseInt(tableData[0]?.TotalRecord);
   const totalPages = Math.ceil(totalRecords / formData?.PageSize);
   const currentData = tableData;
   const handlePageChange = (newPage) => {
@@ -856,89 +998,95 @@ const SearchAmountSubmission = ({ data }) => {
     if (savedData) {
       setFormData(JSON.parse(savedData));
     }
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("Type", "AmountSubmission"),
-      form.append("FilterData", savedData),
-      axios
-        .post(apiUrls?.SaveFilterDataSubmission, form, { headers })
-        .then((res) => {
-          toast.success(res?.data?.message);
-          setFormData({
-            ProjectID: [],
-            VerticalID: [],
-            TeamID: [],
-            WingID: [],
-            POC1: [],
-            POC2: [],
-            POC3: [],
-            Status: "All",
-            DateType: "ReceivedDate",
-            FromDate: new Date(
-              new Date().getFullYear(),
-              new Date().getMonth(),
-              1
-            ),
-            ToDate: new Date(),
-            ReceivedDate: "",
-            PaymentMode: "",
-            BankName: "",
-            Remark: "",
-            EntryDate: "",
-            PageSize: 50,
-            PageNo: "",
-          });
-        })
-        .catch((err) => {
-          console.log(err);
+
+    axiosInstances
+      .post(apiUrls.SaveFilterDataSubmission, {
+        Type: "AmountSubmission",
+        FilterData: String(savedData),
+      })
+      // let form = new FormData();
+      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+      //   form.append("Type", "AmountSubmission"),
+      //   form.append("FilterData", savedData),
+      //   axios
+      //     .post(apiUrls?.SaveFilterDataSubmission, form, { headers })
+      .then((res) => {
+        toast.success(res?.data?.message);
+        setFormData({
+          ProjectID: [],
+          VerticalID: [],
+          TeamID: [],
+          WingID: [],
+          POC1: [],
+          POC2: [],
+          POC3: [],
+          Status: "All",
+          DateType: "ReceivedDate",
+          FromDate: new Date(
+            new Date().getFullYear(),
+            new Date().getMonth(),
+            1
+          ),
+          ToDate: new Date(),
+          ReceivedDate: "",
+          PaymentMode: "",
+          BankName: "",
+          Remark: "",
+          EntryDate: "",
+          PageSize: 50,
+          PageNo: "",
         });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
 
     // console.log("save data", formData);
   };
 
-  const handleSearchFilter = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("Type", "AmountSubmission"),
-      // form.append("FilterData", savedData),
-      axios
-        .post(apiUrls?.SearchFilterDataSubmission, form, { headers })
-        .then((res) => {
-          setFormData({
-            ...formData,
-            ProjectID: res?.data?.ProjectID || [],
-            VerticalID: res?.data?.VerticalID || [],
-            TeamID: res?.data?.TeamID || [],
-            WingID: res?.data?.WingID || [],
-            POC1: res?.data?.POC1 || [],
-            POC2: res?.data?.POC2 || [],
-            POC3: res?.data?.POC3 || [],
-            Status: res?.data?.Status || "All",
-            BankName: res?.data?.BankName || "",
-            DateType: res?.data?.DateType || "ReceivedDate",
-            FromDate: new Date(res?.data?.FromDate),
-            ToDate: new Date(res?.data?.ToDate),
-            ReceivedDate: res?.data?.ReceivedDate || "",
-            PaymentMode: res?.data?.PaymentMode || "",
-            BankName: res?.data?.BankName || "",
-            Remark: res?.data?.Remark || "",
-            EntryDate: res?.data?.EntryDate || "",
-            PageSize: res?.data?.PageSize || 50,
-            PageNo: res?.data?.PageNo || "",
-          });
+  // const handleSearchFilter = () => {
+  //   let form = new FormData();
+  //   form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+  //     form.append("Type", "AmountSubmission"),
+  //     // form.append("FilterData", savedData),
+  //     axios
+  //       .post(apiUrls?.SearchFilterDataSubmission, form, { headers })
+  //       .then((res) => {
+  //         setFormData({
+  //           ...formData,
+  //           ProjectID: res?.data?.ProjectID || [],
+  //           VerticalID: res?.data?.VerticalID || [],
+  //           TeamID: res?.data?.TeamID || [],
+  //           WingID: res?.data?.WingID || [],
+  //           POC1: res?.data?.POC1 || [],
+  //           POC2: res?.data?.POC2 || [],
+  //           POC3: res?.data?.POC3 || [],
+  //           Status: res?.data?.Status || "All",
+  //           BankName: res?.data?.BankName || "",
+  //           DateType: res?.data?.DateType || "ReceivedDate",
+  //           FromDate: new Date(res?.data?.FromDate),
+  //           ToDate: new Date(res?.data?.ToDate),
+  //           ReceivedDate: res?.data?.ReceivedDate || "",
+  //           PaymentMode: res?.data?.PaymentMode || "",
+  //           BankName: res?.data?.BankName || "",
+  //           Remark: res?.data?.Remark || "",
+  //           EntryDate: res?.data?.EntryDate || "",
+  //           PageSize: res?.data?.PageSize || 50,
+  //           PageNo: res?.data?.PageNo || "",
+  //         });
 
-          // if (res?.data) {
-          //   console.log("kamaldata:", res?.data);
-          // } else {
-          //   console.error("No data found in the response.");
-          // }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+  //         // if (res?.data) {
+  //         //   console.log("kamaldata:", res?.data);
+  //         // } else {
+  //         //   console.error("No data found in the response.");
+  //         // }
+  //       })
+  //       .catch((err) => {
+  //         console.log(err);
+  //       });
 
-    // console.log("save data", formData);
-  };
+  //   // console.log("save data", formData);
+  // };
   useEffect(() => {
     getProject();
     getVertical();
@@ -1333,7 +1481,7 @@ const SearchAmountSubmission = ({ data }) => {
             defaultValue={true}
           ></Accordion> */}
           <Heading
-           title={
+            title={
               <div className="d-flex">
                 <span style={{ fontWeight: "bold" }}>Search Details</span>{" "}
                 <div className="d-flex">
@@ -1389,7 +1537,7 @@ const SearchAmountSubmission = ({ data }) => {
                           }}
                           onClick={() => handleSearch(undefined, "1")}
                         >
-                          {t("Cash")}
+                          {t("Delta")}
                         </span>
                         <div
                           className="legend-circle"
@@ -1590,7 +1738,7 @@ const SearchAmountSubmission = ({ data }) => {
                           name="PaymentMode"
                           placeholderName="Payment Mode"
                           dynamicOptions={[
-                            { label: "Cash", value: "Cash" },
+                            { label: "Delta", value: "Cash" },
                             { label: "NEFT", value: "NEFT" },
                             { label: "Cheque", value: "Cheque" },
                           ]}

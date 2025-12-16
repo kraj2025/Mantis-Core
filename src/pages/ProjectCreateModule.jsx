@@ -1,20 +1,21 @@
-import axios from "axios";
+
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "react-toastify";
-import { headers } from "../utils/apitools";
 import { apiUrls } from "../networkServices/apiEndpoints";
 import Input from "../components/formComponent/Input";
 import Loading from "../components/loader/Loading";
 import Tables from "../components/UI/customTable";
 import Heading from "../components/UI/Heading";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../networkServices/axiosInstance";
 
 const ProjectCreateModule = ({ tableDatas }) => {
   const [tableData, setTableData] = useState([]);
   const [t] = useTranslation();
   const [loading, setLoading] = useState(false);
   const [editMode, setEditMode] = useState(false);
+  s;
   const [formData, setFormData] = useState({
     ModuleName: "",
     IsActive: "",
@@ -52,43 +53,13 @@ const ProjectCreateModule = ({ tableDatas }) => {
       toast.error("Please Enter Module Name.");
     } else {
       setLoading(true);
-      let form = new FormData();
-      form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-        form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname") ),
-        form.append("ProjectID", tableDatas[0]?.ProjectID),
-        form.append("ModuleName", formData?.ModuleName),
-        axios
-          .post(apiUrls?.CreateModule, form, { headers })
-          .then((res) => {
-            if (res?.data?.status === true) {
-              toast.success(res?.data?.message);
-              getModuleSearch();
-              setLoading(false);
-            } else {
-              toast.error(res?.data?.message);
-
-              setLoading(false);
-            }
-          })
-          .catch((err) => {
-            console.log(err);
-            setLoading(false);
-          });
-    }
-  };
-  const handleUpdate = () => {
-    setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname") ),
-      form.append("ProjectID", tableDatas[0]?.ProjectID),
-      form.append("ModuleID", formData?.ModuleID),
-      form.append("ModuleName", formData?.ModuleName),
-      form.append("IsActive", formData?.IsActive),
-      axios
-        .post(apiUrls?.UpdateModule, form, { headers })
+      axiosInstances
+        .post(apiUrls.CreateModule, {
+          ProjectID: Number(tableDatas[0]?.ProjectID),
+          ModuleName: String(formData?.ModuleName),
+        })
         .then((res) => {
-          if (res?.data?.status === true) {
+          if (res?.data?.success === true) {
             toast.success(res?.data?.message);
             getModuleSearch();
             setLoading(false);
@@ -102,25 +73,49 @@ const ProjectCreateModule = ({ tableDatas }) => {
           console.log(err);
           setLoading(false);
         });
+    }
+  };
+  const handleUpdate = () => {
+    setLoading(true);
+    axiosInstances
+      .post(apiUrls.UpdateModule, {
+        ProjectID: Number(tableDatas[0]?.ProjectID),
+        ModuleID: Number(formData?.ModuleID),
+        ModuleName: String(formData?.ModuleName),
+        IsActive: Number(formData?.IsActive),
+      })
+      .then((res) => {
+        if (res?.data?.success === true) {
+          toast.success(res?.data?.message);
+          getModuleSearch();
+          setLoading(false);
+        } else {
+          toast.error(res?.data?.message);
+
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
   };
   const getModuleSearch = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("RoleID", useCryptoLocalStorage("user_Data", "get", "RoleID")),
-      form.append("ProjectID", tableDatas[0]?.ProjectID),
-      form.append("IsActive", "1"),
-      form.append("IsMaster", "0"),
-      axios
-        .post(apiUrls?.Module_Select, form, { headers })
-        .then((res) => {
-          setTableData(res?.data?.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls.Module_Select, {
+        RoleID: Number(useCryptoLocalStorage("user_Data", "get", "RoleID")),
+        ProjectID: Number(tableDatas[0]?.ProjectID),
+        IsActive: Number(1),
+        IsMaster: Number(0),
+      })
+      .then((res) => {
+        setTableData(res?.data?.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const handleEditModule = (ele) => {
-    console.log("ele chaeck", ele);
 
     setFormData({
       ...formData,

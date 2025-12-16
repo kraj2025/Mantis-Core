@@ -10,6 +10,7 @@ import Tables from ".";
 import { settlementTHAED } from "../../modalComponent/Utils/HealperThead";
 import { useTranslation } from "react-i18next";
 import { useCryptoLocalStorage } from "../../../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../../../networkServices/axiosInstance";
 const ConnectorDiscountModal = (visible) => {
   const [t] = useTranslation();
   const [loading, setLoading] = useState(false);
@@ -40,16 +41,15 @@ const ConnectorDiscountModal = (visible) => {
 
   const handleSave = () => {
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("IssueNo", visible?.visible?.connectdata?.IssueNo),
-      form.append("ReceivedDate", formData?.ReceivedDate.toLocaleDateString()),
-      form.append("DiscountAmount", formData?.DiscountAmount),
-      form.append("DiscountReason", formData?.DiscountReason),
-      form.append("PaymentMode", formData?.PaymentMode),
-      axios
-        .post(apiUrls?.Connector_Discount_Insert, form, { headers })
+
+                 axiosInstances
+      .post(apiUrls.Connector_Discount_Insert,{
+          IssueNo: formData?.IssueNo || "",
+    DiscountAmount: formData?.DiscountAmount || 0,
+    DiscountReason: formData?.DiscountReason || ""
+
+
+       })
         .then((res) => {
           toast.success(res?.data?.message);
           setTableData([...tableData, formData]);
@@ -93,7 +93,7 @@ const ConnectorDiscountModal = (visible) => {
             name="PaymentMode"
             placeholderName="Payment Mode"
             dynamicOptions={[
-              { label: "Cash", value: "Cash" },
+              { label: "Delta", value: "Cash" },
               { label: "NEFT", value: "NEFT" },
               { label: "Cheque", value: "Cheque" },
               { label: "Draft", value: "Draft" },

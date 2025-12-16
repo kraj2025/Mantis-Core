@@ -10,7 +10,7 @@ const isAuthenticated = () => {
   // if (!isLogin) {
   //   localStorage.clear();
   // }
-  console.log("token",token , isLogin);
+
   return token && isLogin;
 };
 

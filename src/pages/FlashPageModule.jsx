@@ -1,28 +1,27 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { apiUrls } from "../networkServices/apiEndpoints";
-import { headers } from "../utils/apitools";
 import { useTranslation } from "react-i18next";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
 import Modal from "../components/modalComponent/Modal";
 import NewsDataDashboardOpen from "./NewsDataDashboardOpen";
+import { axiosInstances } from "../networkServices/axiosInstance";
 
 const FlashPageModule = ({ onCloseInnerModal }) => {
   const [newslist, setNewsList] = useState([]);
   const [t] = useTranslation();
 
   const handleNews = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("IsFlash", "0"),
-      axios
-        .post(apiUrls?.Circular_News, form, { headers })
-        .then((res) => {
-          setNewsList(res?.data?.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls.Circular_News, {
+        // IsFlash: String("0"),
+        // RoleID: Number(useCryptoLocalStorage("user_Data", "get", "RoleID")),
+      })
+      .then((res) => {
+        setNewsList(res?.data?.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const [registerModal, setRegisterModal] = useState({
     isShow: false,
@@ -33,17 +32,6 @@ const FlashPageModule = ({ onCloseInnerModal }) => {
     component: null,
     modalWidth: null,
   });
-
-  // const handleNewsModal = (item) => {
-  //   setRegisterModal((prev) => ({
-  //     ...prev,
-  //     isShow: true,
-  //     Header: <>View Details</>,
-  //     modalWidth: "60vw",
-  //     component: <NewsDataDashboardOpen data={item} closable={false} />,
-  //   }));
-  //   handleCircularRead(item?.CircularUserID);
-  // };
   const handleNewsModal = (item) => {
     setRegisterModal((prev) => ({
       ...prev,
@@ -57,19 +45,18 @@ const FlashPageModule = ({ onCloseInnerModal }) => {
   };
 
   const handleCircularRead = (data) => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("CircularUserID", data),
-      axios
-        .post(apiUrls?.Circular_Read, form, { headers })
-        .then((res) => {
-          //   toast.success(res?.data?.message);
-          console.log(res.data.message);
-          handleNews();
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls.Circular_Read, {
+        ID: Number(useCryptoLocalStorage("user_Data", "get", "ID")),
+        CircularUserID: Number(data),
+      })
+      .then((res) => {
+        console.log(res.data.message);
+        handleNews();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   useEffect(() => {
@@ -114,8 +101,11 @@ const FlashPageModule = ({ onCloseInnerModal }) => {
       <div className="card">
         <div className="row m-2">
           <span style={{ fontWeight: "bold" }}>
-            <i className="fa fa-arrow-down"></i> Module Details (<span className="redIconblink">Click the icon
-            to view or read documents, then exit this page.</span>)
+            <i className="fa fa-arrow-down"></i> Module Details (
+            <span className="redIconblink">
+              Click the icon to view or read documents, then exit this page.
+            </span>
+            )
           </span>
         </div>
       </div>

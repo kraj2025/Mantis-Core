@@ -12,6 +12,7 @@ import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
 import NoRecordFound from "../components/formComponent/NoRecordFound";
 import Tables from "../components/UI/customTable";
 import ReactSelect from "../components/formComponent/ReactSelect";
+import { axiosInstances } from "../networkServices/axiosInstance";
 const EmailerView = () => {
   const [loading, setLoading] = useState(false);
   const { VITE_DATE_FORMAT } = import.meta.env;
@@ -62,65 +63,51 @@ const EmailerView = () => {
       emailID = formData?.Email?.value;
     }
 
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "RoleID",
-        useCryptoLocalStorage("user_Data", "get", "RoleID")
-      ),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("Email", emailID),
-      form.append("FromDate", formatDate(formData?.FromDate)),
-      form.append("ToDate", formatDate(formData?.ToDate)),
-      form.append("RowColor", code ? code : "0"),
-      form.append("IsManual", ""),
-      axios
-        .post(apiUrls?.EmailerSearch, form, {
-          headers,
-        })
-        .then((res) => {
-          if (res?.data?.status === true) {
-            setTableData(res?.data?.data);
-            setLoading(false);
-          } else {
-            toast.error(res?.data?.message);
-            setLoading(false);
-            setTableData([]);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls.EmailerSearch, {
+        RoleID: String(useCryptoLocalStorage("user_Data", "get", "RoleID")),
+        Email: String(emailID),
+        FromDate: String(formatDate(formData?.FromDate)),
+        ToDate: String(formatDate(formData?.ToDate)),
+        RowColor: code ? String(code) : "0",
+        IsManual: 0,
+      })
+
+      .then((res) => {
+        if (res?.data?.success === true) {
+          setTableData(res?.data?.data?.Records);
+          setLoading(false);
+        } else {
+          toast.error(res?.data?.message);
+          setLoading(false);
+          setTableData([]);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const handleRepush = (code) => {
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("RepushID", code),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      axios
-        .post(apiUrls?.RepushMail, form, {
-          headers,
-        })
-        .then((res) => {
-          if (res?.data?.status === true) {
-            toast.success(res?.data?.message);
-            setLoading(false);
-          } else {
-            toast.error(res?.data?.message);
-            setLoading(false);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls.RepushMail, {
+        RepushID: Number(code),
+        RoleID: 0,
+      })
+
+      .then((res) => {
+        if (res?.data?.success === true) {
+          toast.success(res?.data?.message);
+          setLoading(false);
+        } else {
+          toast.error(res?.data?.message);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
@@ -156,21 +143,28 @@ const EmailerView = () => {
   };
 
   const getEmployeeTo = async () => {
-    const form = new FormData();
-    form.append(
-      "CrmEmployeeID",
-      useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-    );
-    form.append(
-      "RoleID",
-      useCryptoLocalStorage("user_Data", "get", "RoleID")
-    );
+    axiosInstances
+      .post(apiUrls.EmployeeEmail, {
+        CrmEmployeeID: Number(
+          useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+        ),
+        RoleID: Number(useCryptoLocalStorage("user_Data", "get", "RoleID")),
+      })
+      // const form = new FormData();
+      // form.append(
+      //   "CrmEmployeeID",
+      //   useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+      // );
+      // form.append(
+      //   "RoleID",
+      //   useCryptoLocalStorage("user_Data", "get", "RoleID")
+      // );
 
-    await axios
-      .post(apiUrls?.EmployeeEmail, form, { headers })
+      // await axios
+      //   .post(apiUrls?.EmployeeEmail, form, { headers })
       .then((res) => {
         const options = res?.data?.data?.map((item) => ({
-          label: item?.companyemail?.toLowerCase(),
+          label: item?.CompanyEmail?.toLowerCase(),
           value: item?.Employee_ID,
         }));
 
@@ -359,7 +353,7 @@ const EmailerView = () => {
                     )
                   </span>
                 </div>
-  <div
+                <div
                   className="d-flex "
                   style={{
                     justifyContent: "flex-start",
@@ -383,10 +377,7 @@ const EmailerView = () => {
                     }}
                   >
                     {t("ReSend")} (
-                    {tableData[0]?.ManualCount
-                      ? tableData[0]?.ManualCount
-                      : 0}
-                    )
+                    {tableData[0]?.ManualCount ? tableData[0]?.ManualCount : 0})
                   </span>
                 </div>
                 <span className="mr-1 ml-5" style={{ fontWeight: "bold" }}>

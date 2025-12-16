@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Line } from "react-chartjs-2";
-import axios from "axios";
-import { headers } from "../../utils/apitools";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -15,7 +13,6 @@ import {
 } from "chart.js";
 import { apiUrls } from "../../networkServices/apiEndpoints";
 import { useSelector } from "react-redux";
-import { useCryptoLocalStorage } from "../../utils/hooks/useCryptoLocalStorage";
 import { axiosInstances } from "../../networkServices/axiosInstance";
 
 ChartJS.register(
@@ -35,16 +32,10 @@ const PerformanceChart = () => {
 
   const fetchPerformanceData = async () => {
     try {
-      // let form = new FormData();
-      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-      // form.append("Title", "MonthlyDeveloperPerformance");
-      // form.append("DeveloperID", memberID || 0);
-      // const response = await axios.post(apiUrls?.DevDashboard_Summary, form, {
-      //   headers,
-      // });
+    
       const response = await axiosInstances.post(apiUrls.DevDashboard_Summary, {
-        title: String("MonthlyDeveloperPerformance"),
-        developerID: String(memberID || "0"),
+        Title: String("MonthlyDeveloperPerformance"),
+        DeveloperID: String(memberID || "0"),
       });
       const rawData = response?.data?.dtOverAllMonthlyPerformance || [];
       // Filter out null values and sort months correctly

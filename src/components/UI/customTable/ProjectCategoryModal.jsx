@@ -8,6 +8,7 @@ import { categoryTHEAD } from "../../modalComponent/Utils/HealperThead";
 import MultiSelectComp from "../../formComponent/MultiSelectComp";
 import { apiUrls } from "../../../networkServices/apiEndpoints";
 import { useCryptoLocalStorage } from "../../../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../../../networkServices/axiosInstance";
 const ProjectCategoryModal = (visible) => {
   console.log(visible);
   const [category, setCategory] = useState([]);
@@ -17,20 +18,17 @@ const ProjectCategoryModal = (visible) => {
   const [tableData, setTableData] = useState([]);
 
   const getProject = () => {
-    let form = new FormData();
-    form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      axios
-        .post(apiUrls?.GetProjectCategory, form, { headers })
-        .then((res) => {
-          const verticals = res?.data.data.map((item) => {
-            return { name: item?.NAME, code: item?.ID };
-          });
-          setCategory(verticals);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.GetProjectCategory, {})
+      .then((res) => {
+        const verticals = res?.data.data.map((item) => {
+          return { name: item?.NAME, code: item?.ID };
         });
+        setCategory(verticals);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   function getlabel(id, dropdownData) {
     console.log(id);
@@ -44,19 +42,18 @@ const ProjectCategoryModal = (visible) => {
   }
 
   const handleProjectCreate = () => {
-    let form = new FormData();
-    form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("ProjectID", visible?.Data?.ProjectID),
-      form.append("Category", getlabel(formData?.ProjectCategory, category)),
-      axios
-        .post(apiUrls?.CreateProjectCategory, form, { headers })
-        .then((res) => {
-          toast.success(res?.data?.message);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+   
+    axiosInstances
+      .post(apiUrls.CreateProjectCategory, {
+        ProjectID: String(visible?.Data?.ProjectID),
+        Category: String(getlabel(formData?.ProjectCategory, category)),
+      })
+      .then((res) => {
+        toast.success(res?.data?.message);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   useEffect(() => {
     setTableData([...tableData, ...visible?.Data?.showData]);

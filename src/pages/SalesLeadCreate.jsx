@@ -19,7 +19,7 @@ const SalesLeadCreate = () => {
   const location = useLocation();
   const { state } = location;
   const navigate = useNavigate();
-   console.log("stateeeeee", state);
+  console.log("stateeeeee", state);
   useEffect(() => {
     if (state?.edit) {
       getFetchDetails(state.data);
@@ -66,7 +66,7 @@ const SalesLeadCreate = () => {
     isMobile: "",
   });
 
-  console.log("city",city)
+  console.log("city", city);
   const handleDeliveryChange = (name, e) => {
     const { value } = e;
     if (name == "Country") {
@@ -109,9 +109,10 @@ const SalesLeadCreate = () => {
     // axios
     //   .post(apiUrls?.EditSalesLead, form, { headers })
     axiosInstances
-      .post(apiUrls?.EditSalesLead, { LeadID: id })
+      .post(apiUrls?.EditSalesLead, { LeadID: Number(id) })
       .then((res) => {
-        const data = res?.data?.data[0];
+        const data = res?.data?.data;
+        console.log("EditSalesLead", data);
 
         setFormData({
           ...formData,
@@ -194,7 +195,7 @@ const SalesLeadCreate = () => {
     //   axios
     //     .post(apiUrls?.GetState, form, { headers })
     axiosInstances
-      .post(apiUrls?.GetState, {CountryID:String(value || "14")})
+      .post(apiUrls?.GetState, { CountryID: String(value || "14") })
       .then((res) => {
         const states = res?.data.data.map((item) => {
           return { label: item?.StateName, value: item?.StateID };
@@ -235,7 +236,7 @@ const SalesLeadCreate = () => {
     // axios
     //   .post(apiUrls?.AllEmployeeSearch, form, { headers })
     axiosInstances
-      .post(apiUrls?.AllEmployeeSearch, { ID: "0" })
+      .post(apiUrls?.AllEmployeeSearch, {})
       .then((res) => {
         const assigntos = res?.data.data.map((item) => {
           return { label: item?.realname, value: item?.id };
@@ -279,8 +280,8 @@ const SalesLeadCreate = () => {
     axiosInstances
       .post(apiUrls?.GetCity, {
         CountryID: String(formData?.Country ? formData?.Country : country),
-        StateID:String(formData?.State ? formData?.State : state),
-        DistrictID:String(district)
+        StateID: String(formData?.State ? formData?.State : state),
+        DistrictID: String(district),
       })
       .then((res) => {
         const states = res?.data.data.map((item) => {
@@ -443,7 +444,7 @@ const SalesLeadCreate = () => {
         State: String(getlabel(formData?.State, states)),
         StateID: Number(formData?.State),
 
-        IsUpcomingCentre:(formData?.Centre===0?true:false),
+        IsUpcomingCentre: formData?.Centre === 0 ? true : false,
 
         SoftwareVertical:
           formData?.SoftwareVertical == "0"
@@ -638,60 +639,62 @@ const SalesLeadCreate = () => {
     //     .post(apiUrls?.UpdateSalesLead, form, {
     //       headers,
     //     })
+
+    const paylode = {
+      LeadID: Number(formData?.LeadID),
+      LeadNum: String(""),
+      Country: String(getlabel(formData?.Country, country)),
+      CountryID: Number(formData?.Country),
+
+      City: String(getlabel(formData?.City, city)),
+      CityID: Number(formData?.City),
+
+      District: String(getlabel(formData?.District, district)),
+      DistrictID: Number(formData?.District),
+
+      OrganizationName: String(formData?.OrganizationName ?? ""),
+
+      State: String(getlabel(formData?.State, states)),
+      StateID: Number(formData?.State),
+
+      IsUpcomingCentre: String(formData?.Centre),
+
+      SoftwareVertical: String(formData?.SoftwareVertical ?? ""),
+
+      SPOC: String(formData?.ContactPersonName ?? ""),
+      SPOC_Mobile: String(formData?.ContactPersonMobile ?? ""),
+      SPOC_EmailID: String(formData?.ContactPersonEmail ?? ""),
+      SPOC_Designation: String(formData?.ContactPersonDesignation ?? ""),
+
+      Website: String(formData?.Website ?? ""),
+      ReferralSource: String(formData?.ReferralSource ?? ""),
+
+      ReferProjectID:
+        formData?.ProjectID == "Other" ? "-1" : String(formData?.ProjectID),
+      ReferProject:
+        getlabel(formData?.ProjectID, project) ||
+        String(formData?.OtherProject ?? ""),
+
+      ReferEmployeeID:
+        formData?.AssignedTo == "Other" ? "-1" : String(formData?.AssignedTo),
+      ReferEmployee:
+        getlabel(formData?.AssignedTo, assignto) ||
+        String(formData?.OtherEmployee ?? ""),
+
+      SoftwareVersionID:
+        formData?.ProductVersion == "Other"
+          ? "-1"
+          : String(formData?.ProductVersion),
+
+      SoftwareVersionName:
+        getlabel(formData?.ProductVersion, productversion) ||
+        String(formData?.ProductVersion ?? ""),
+
+      NoOfCentre: Number(formData?.NoOfCentre),
+      NoOfMachine: Number(formData?.NoOfMachine),
+    };
     axiosInstances
-      .post(apiUrls?.UpdateSalesLead, {
-        LeadID: Number(formData?.LeadID),
-
-        Country: String(getlabel(formData?.Country, country)),
-        CountryID: Number(formData?.Country),
-
-        City: String(getlabel(formData?.City, city)),
-        CityID: Number(formData?.City),
-
-        District: String(getlabel(formData?.District, district)),
-        DistrictID: Number(formData?.District),
-
-        OrganizationName: String(formData?.OrganizationName ?? ""),
-
-        State: String(getlabel(formData?.State, states)),
-        StateID: Number(formData?.State),
-
-        IsUpcomingCentre: Number(formData?.Centre),
-
-        SoftwareVertical: String(formData?.SoftwareVertical ?? ""),
-
-        SPOC: String(formData?.ContactPersonName ?? ""),
-        SPOC_Mobile: String(formData?.ContactPersonMobile ?? ""),
-        SPOC_EmailID: String(formData?.ContactPersonEmail ?? ""),
-        SPOC_Designation: String(formData?.ContactPersonDesignation ?? ""),
-
-        Website: String(formData?.Website ?? ""),
-        ReferralSource: String(formData?.ReferralSource ?? ""),
-
-        ReferProjectID:
-          formData?.ProjectID == "Other" ? "-1" : String(formData?.ProjectID),
-        ReferProject:
-          getlabel(formData?.ProjectID, project) ||
-          String(formData?.OtherProject ?? ""),
-
-        ReferEmployeeID:
-          formData?.AssignedTo == "Other" ? "-1" : String(formData?.AssignedTo),
-        ReferEmployee:
-          getlabel(formData?.AssignedTo, assignto) ||
-          String(formData?.OtherEmployee ?? ""),
-
-        SoftwareVersionID:
-          formData?.ProductVersion == "Other"
-            ? "-1"
-            : String(formData?.ProductVersion),
-
-        SoftwareVersionName:
-          getlabel(formData?.ProductVersion, productversion) ||
-          String(formData?.ProductVersion ?? ""),
-
-        NoOfCentre: Number(formData?.NoOfCentre),
-        NoOfMachine: Number(formData?.NoOfMachine),
-      })
+      .post(apiUrls?.UpdateSalesLead, paylode)
       .then((res) => {
         if (res?.data?.status == true) {
           toast.success(res?.data?.message);
@@ -780,7 +783,7 @@ const SalesLeadCreate = () => {
     }
   };
 
-  console.log("formData",formData)
+  console.log("formData", formData);
   useEffect(() => {
     getCountry();
     getCity();

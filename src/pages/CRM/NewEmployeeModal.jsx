@@ -12,6 +12,7 @@ import Heading from "../../components/UI/Heading";
 import NoRecordFound from "../../components/formComponent/NoRecordFound";
 import { useTranslation } from "react-i18next";
 import { useCryptoLocalStorage } from "../../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../../networkServices/axiosInstance";
 
 const NewEmployeeModal = () => {
   const [loading, setLoading] = useState(false);
@@ -63,45 +64,29 @@ const NewEmployeeModal = () => {
   ];
   const handleNewEmployee = () => {
     setLoading(true);
-    let form = new FormData();
-    form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("UserName", formData?.UserName),
-      form.append("RealName", formData?.RealName),
-      form.append("Email", formData?.Email),
-      form.append("Password", formData?.Password),
-      form.append("MobileNo", formData?.MobileNo),
-      axios
-        .post(apiUrls?.CreateEmployee_Short, form, { headers })
-        .then((res) => {
-          toast.success(res?.data?.message);
-          setLoading(false);
-          setFormData({
-            UserName: "",
-            RealName: "",
-            MobileNo: "",
-            Email: "",
-            Password: "",
-          });
-        })
-        .catch((err) => {
-          console.log(err);
-          setLoading(false);
-        });
-  };
-  const handleUpdateEmployee = () => {
-    setLoading(true);
-    let form = new FormData();
-    form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("UserName", formData?.UserName),
-      form.append("RealName", formData?.RealName),
-      form.append("Email", formData?.Email),
-      form.append("Password", formData?.Password),
-      form.append("MobileNo", formData?.MobileNo),
-      axios
-        .post(apiUrls?.UpdateEmployee_Short, form, { headers })
-        .then((res) => {
+    // let form = new FormData();
+    // form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append(
+    //     "LoginName",
+    //     useCryptoLocalStorage("user_Data", "get", "realname")
+    //   ),
+    //   form.append("UserName", formData?.UserName),
+    //   form.append("RealName", formData?.RealName),
+    //   form.append("Email", formData?.Email),
+    //   form.append("Password", formData?.Password),
+    //   form.append("MobileNo", formData?.MobileNo),
+    //   axios
+    //     .post(apiUrls?.CreateEmployee_Short, form, { headers })
+    axiosInstances
+      .post(apiUrls.CreateEmployee_Short, {
+        UserName: String(formData?.UserName),
+        RealName: String(formData?.RealName),
+        Email: String(formData?.Email),
+        MobileNo: String(formData?.MobileNo),
+        Password: String(formData?.Password),
+      })
+      .then((res) => {
+        if (res.data.success === true) {
           toast.success(res?.data?.message);
           setLoading(false);
           setFormData({
@@ -112,11 +97,48 @@ const NewEmployeeModal = () => {
             Password: "",
           });
           setEditMode(true);
-        })
-        .catch((err) => {
-          console.log(err);
+          handleSearch()
+        } else {
+          toast.error(res?.data?.message);
+             setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
+  };
+  const handleUpdateEmployee = () => {
+    setLoading(true);
+    axiosInstances
+      .post(apiUrls.UpdateEmployee_Short, {
+        UserName: String(formData?.UserName),
+        RealName: String(formData?.RealName),
+        Email: String(formData?.Email),
+        MobileNo: String(formData?.MobileNo),
+        Password: String(formData?.Password),
+      })
+      .then((res) => {
+        if (res.data.success === true) {
+          toast.success(res?.data?.message);
           setLoading(false);
-        });
+          setFormData({
+            UserName: "",
+            RealName: "",
+            MobileNo: "",
+            Email: "",
+            Password: "",
+          });
+          setEditMode(true);
+          handleSearch()
+        } else {
+          toast.error(res?.data?.message);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
   };
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
@@ -131,23 +153,19 @@ const NewEmployeeModal = () => {
     }
   };
   const handleSearch = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-    form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname"));
-    form.append("EmployeeName", "");
-    form.append("IsActive", "2");
-    form.append("MobileNo", "");
-    form.append("EmailID", "");
-    form.append("RoleID", "");
-    form.append("CategoryID", "");
-    form.append("ProjectID", "");
-    form.append("TeamID", "");
-    form.append("WingID", "");
-    form.append("VerticalID", "");
-
-    axios
-      .post(apiUrls?.SearchEmployee_Name, form, {
-        headers,
+    axiosInstances
+      .post(apiUrls.SearchEmployee_Name, {
+        EmployeeName: "",
+        IsActive: String("2"),
+        rowColor: "",
+        MobileNo: "",
+        EmailID: "",
+        RoleID: "",
+        CategoryID: "",
+        ProjectID: "",
+        VerticalID: "",
+        TeamID: "",
+        WingID: "",
       })
       .then((res) => {
         const data = res?.data?.data;
@@ -175,58 +193,28 @@ const NewEmployeeModal = () => {
     setEditMode(true);
   };
 
-  const handleCentreRemove = (ele) => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("UserName", ele?.UserName),
-      form.append("RealName", ele?.RealName),
-      form.append("Email", ele?.Email),
-      form.append("MobileNo", ele?.MobileNo),
-      axios
-        .post(apiUrls?.CreateEmployee_Short, form, { headers })
-        .then((res) => {
-          toast.success(res?.data?.message);
-          // setLoading(false);
-          setFormData({
-            UserName: "",
-            RealName: "",
-            MobileNo: "",
-            Email: "",
-          });
-        })
-        .catch((err) => {
-          console.log(err);
-          // setLoading(false);
-        });
-  };
   const normalizeString = (str) => str.toLowerCase().replace(/\s+/g, "").trim();
 
   const handleSearchTable = (event) => {
     const rawQuery = event.target.value;
     const query = normalizeString(rawQuery);
-
     setSearchQuery(rawQuery);
-
     if (query === "") {
       setTableData(filteredData);
       setCurrentPage(1);
       return;
     }
-
     const filtered = filteredData?.filter((item) =>
       Object.keys(item).some(
         (key) => item[key] && normalizeString(String(item[key])).includes(query)
       )
     );
-
     if (filtered.length === 0) {
       setSearchQuery("");
       setTableData(filteredData);
     } else {
       setTableData(filtered);
     }
-
     setCurrentPage(1);
   };
 
@@ -288,17 +276,7 @@ const NewEmployeeModal = () => {
             value={formData?.Email}
             respclass="col-xl-4 col-md-4 col-12 col-sm-12"
           />
-          {/*     
-          <Input
-            type="text"
-            className="form-control mt-2"
-            id="Password"
-            name="Password"
-            lable="Password"
-            onChange={handleSelectChange}
-            value={formData?.Password}
-            respclass="col-xl-4 col-md-4 col-12 col-sm-12"
-          /> */}
+
           <div className="col-sm-4 d-flex mt-2">
             <div className="maindiv">
               <Input
@@ -378,8 +356,7 @@ const NewEmployeeModal = () => {
               "S.No.": (currentPage - 1) * rowsPerPage + index + 1,
               RealName: ele?.realname,
               UserName: ele?.username,
-
-              " MobileNo.": ele?.mobileno,
+              "MobileNo.": ele?.mobileno,
               Email: ele?.email,
               Action: (
                 <i

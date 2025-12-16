@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 const NewsDataDashboardOpen = ({ data }) => {
-  console.log(data, "open");
   const handleDownload = (item) => {
     const link = document.createElement("a");
     link.href = item?.Attachment;

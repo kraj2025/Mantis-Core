@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from "react";
 import Heading from "../components/UI/Heading";
 import { useTranslation } from "react-i18next";
-import { headers } from "../utils/apitools";
-import axios from "axios";
 import Tables from "../components/UI/customTable";
 import ViewIssueDetailsTableModal from "../components/UI/customTable/ViewIssueDetailsTableModal";
 import Modal from "../components/modalComponent/Modal";
 import { apiUrls } from "../networkServices/apiEndpoints";
 import ReactSelect from "../components/formComponent/ReactSelect";
-import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../networkServices/axiosInstance";
 
 const MyView = () => {
   const [t] = useTranslation();
@@ -48,20 +46,17 @@ const MyView = () => {
   };
 
   const getProject = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      axios
-        .post(apiUrls?.ProjectSelect, form, { headers })
-        .then((res) => {
-          const poc3s = res?.data.data.map((item) => {
-            return { label: item?.Project, value: item?.ProjectId };
-          });
-          setProject(poc3s);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.ProjectSelect, {})
+      .then((res) => {
+        const poc3s = res?.data.data.map((item) => {
+          return { label: item?.Project, value: item?.ProjectId };
         });
+        setProject(poc3s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   useEffect(() => {
     getProject();
@@ -176,19 +171,33 @@ const MyView = () => {
   };
   const handleSearch = (code, value) => {
     // setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("RoleID", useCryptoLocalStorage("user_Data", "get", "RoleID")),
-      form.append("ProjectID", value ?? ""),
-      form.append("VerticalID", ""),
-      form.append("TeamID", ""),
-      form.append("WingID", ""),
-      form.append("POC1", ""),
-      form.append("POC2", ""),
-      form.append("POC3", ""),
-      form.append("StatusCode", code ? code : "");
-    axios
-      .post(apiUrls?.AutobackupSearch, form, { headers })
+    axiosInstances
+      .post(apiUrls.AutobackupSearch, {
+        StatusCode: String(code ? code : ""),
+        ProjectID: String(value ?? ""),
+        VerticalID: String(""),
+        TeamID: String(""),
+        WingID: String(""),
+        POC1: String(""),
+        POC2: String(""),
+        POC3: String(""),
+      })
+      // let form = new FormData();
+      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+      //   form.append(
+      //     "RoleID",
+      //     useCryptoLocalStorage("user_Data", "get", "RoleID")
+      //   ),
+      //   form.append("ProjectID", value ?? ""),
+      //   form.append("VerticalID", ""),
+      //   form.append("TeamID", ""),
+      //   form.append("WingID", ""),
+      //   form.append("POC1", ""),
+      //   form.append("POC2", ""),
+      //   form.append("POC3", ""),
+      //   form.append("StatusCode", code ? code : "");
+      // axios
+      //   .post(apiUrls?.AutobackupSearch, form, { headers })
       .then((res) => {
         let arr = [];
         if (res?.data?.data?.length > 0) {
@@ -220,50 +229,52 @@ const MyView = () => {
   });
 
   const getAssignewdToMe = (url, type, ProjectID) => {
-    let form = new FormData();
-    // form.append("ID", 12),
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("ProjectID", ProjectID ?? projectId),
-      form.append("RoleID", useCryptoLocalStorage("user_Data", "get", "RoleID")),
-      axios
-        .post(url, form, { headers })
-        .then((res) => {
-          if (type == "assign") {
-            setData({ ...data, assignedtome: res?.data?.data });
-            setTypeData((val) => ({ ...val, [type]: res?.data?.data }));
-          }
-          if (type == "newMachine") {
-            setData({ ...data, assignedtome: res?.data?.data });
-            setTypeData((val) => ({ ...val, [type]: res?.data?.data }));
-          }
-          if (type == "patientCount") {
-            setData({ ...data, assignedtome: res?.data?.data });
-            setTypeData((val) => ({ ...val, [type]: res?.data?.data }));
-          }
-          if (type == "machineCount") {
-            setData({ ...data, assignedtome: res?.data?.data });
-            setTypeData((val) => ({ ...val, [type]: res?.data?.data }));
-          }
-          if (type == "unassign") {
-            setData({ ...data, unassigned: res?.data?.data });
-            setTypeData((val) => ({ ...val, [type]: res?.data?.data }));
-          }
-          if (type == "reportedbyme") {
-            setData({ ...data, reportedbyme: res?.data?.data });
-            setTypeData((val) => ({ ...val, [type]: res?.data?.data }));
-          }
-          if (type == "autoquery75days") {
-            setData({ ...data, autoquery75days: res?.data?.data });
-            setTypeData((val) => ({ ...val, [type]: res?.data?.data }));
-          }
-          if (type == "autoquery90days") {
-            setData({ ...data, autoquery90days: res?.data?.data });
-            setTypeData((val) => ({ ...val, [type]: res?.data?.data }));
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(url, {
+        // EmployeeID: Number(formData?.AssignedTo),
+        // SearchType: String(code ? code : "0"),
+        // Date: String(formatDate(formData?.FromDate)),
+        // ManagerID: Number(formData?.ReportingTo),
+        ProjectID: Number(ProjectID ? ProjectID : "0"),
+        // StatusCode: String(code ? code : "0"),
+      })
+      .then((res) => {
+        if (type == "assign") {
+          setData({ ...data, assignedtome: res?.data?.data });
+          setTypeData((val) => ({ ...val, [type]: res?.data?.data }));
+        }
+        if (type == "newMachine") {
+          setData({ ...data, assignedtome: res?.data?.data });
+          setTypeData((val) => ({ ...val, [type]: res?.data?.data }));
+        }
+        if (type == "patientCount") {
+          setData({ ...data, assignedtome: res?.data?.data });
+          setTypeData((val) => ({ ...val, [type]: res?.data?.data }));
+        }
+        if (type == "machineCount") {
+          setData({ ...data, assignedtome: res?.data?.data });
+          setTypeData((val) => ({ ...val, [type]: res?.data?.data }));
+        }
+        if (type == "unassign") {
+          setData({ ...data, unassigned: res?.data?.data });
+          setTypeData((val) => ({ ...val, [type]: res?.data?.data }));
+        }
+        if (type == "reportedbyme") {
+          setData({ ...data, reportedbyme: res?.data?.data });
+          setTypeData((val) => ({ ...val, [type]: res?.data?.data }));
+        }
+        if (type == "autoquery75days") {
+          setData({ ...data, autoquery75days: res?.data?.data });
+          setTypeData((val) => ({ ...val, [type]: res?.data?.data }));
+        }
+        if (type == "autoquery90days") {
+          setData({ ...data, autoquery90days: res?.data?.data });
+          setTypeData((val) => ({ ...val, [type]: res?.data?.data }));
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   useEffect(() => {
     getAssignewdToMe("", "");

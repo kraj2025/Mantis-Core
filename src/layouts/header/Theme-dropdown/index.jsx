@@ -11,6 +11,7 @@ import { headers } from "../../../utils/apitools";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { useCryptoLocalStorage } from "../../../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../../../networkServices/axiosInstance";
 
 const themes = [
   // {
@@ -131,17 +132,16 @@ const LanguagesDropdown = () => {
   }, [theme]);
 
   const handleThemeApi = (item) => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("ThemeColor", item),
-      axios
-        .post(apiUrls?.UpdateThemeColor, form, { headers })
-        .then((res) => {
-          toast.success(res?.data?.message);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls?.UpdateThemeColor, {
+        ThemeColor: String(item),
+      })
+      .then((res) => {
+        toast.success(res?.data?.message);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const handleSelect = (eventKey) => {

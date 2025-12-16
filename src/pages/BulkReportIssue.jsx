@@ -3,9 +3,7 @@ import { useTranslation } from "react-i18next";
 import Heading from "../components/UI/Heading";
 import Input from "../components/formComponent/Input";
 
-import {
-  MOBILE_NUMBER_VALIDATION_REGX,
-} from "../utils/constant";
+import { MOBILE_NUMBER_VALIDATION_REGX } from "../utils/constant";
 
 import ReactSelect from "../components/formComponent/ReactSelect";
 
@@ -22,6 +20,8 @@ import Tables from "../components/UI/customTable";
 import TableSelect from "../components/formComponent/TableSelect";
 import { apiUrls } from "../networkServices/apiEndpoints";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../networkServices/axiosInstance";
+import { formatDate } from "date-fns";
 
 const BulkReportIssue = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -49,7 +49,7 @@ const BulkReportIssue = () => {
   const [category, setCategory] = useState([]);
   const [assignto, setAssignedto] = useState([]);
   const [priority, setPriority] = useState([]);
-console.log("tabledata",tableData)
+  console.log("tabledata", tableData);
   const [rowHandler, setRowHandler] = useState({
     SummaryShow: false,
     DateSubmittedShow: false,
@@ -95,71 +95,72 @@ console.log("tabledata",tableData)
   };
 
   const getProject = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      axios
-        .post(apiUrls?.ProjectSelect, form, { headers })
-        .then((res) => {
-          const poc3s = res?.data.data.map((item) => {
-            return { label: item?.Project, value: item?.ProjectId };
-          });
-          setProject(poc3s);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.ProjectSelect, {
+        ProjectID: Number(0),
+        SearchType: String(0),
+        Date: new Date(),
+        ManagerID: new Date(),
+      })
+      .then((res) => {
+        const poc3s = res?.data.data.map((item) => {
+          return { label: item?.Project, value: item?.ProjectId };
         });
+        setProject(poc3s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   function removeHtmlTags(text) {
     return text?.replace(/<[^>]*>?/gm, "");
   }
 
   const getCategory = (proj) => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("RoleID", useCryptoLocalStorage("user_Data", "get", "RoleID")),
-      axios
-        .post(apiUrls?.Category_Select, form, { headers })
-        .then((res) => {
-          const poc3s = res?.data.data.map((item) => {
-            return { label: item?.NAME, value: item?.NAME };
-          });
-          setCategory(poc3s);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.Category_Select, {
+        RoleID: useCryptoLocalStorage("user_Data", "get", "ID"),
+        ProjectID: Number("0"),
+      })
+      .then((res) => {
+        const poc3s = res?.data.data.map((item) => {
+          return { label: item?.NAME, value: item?.NAME };
         });
+        setCategory(poc3s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getAssignTo = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post("/CRMAPI/API/MasterBind/AssignTo_Select", form, { headers })
-        .then((res) => {
-          const assigntos = res?.data.data.map((item) => {
-            return { label: item?.NAME, value: item?.ID };
-          });
-          setAssignedto(assigntos);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.AssignTo_Select, {
+        ProjectID: 0,
+      })
+      .then((res) => {
+        const assigntos = res?.data.data.map((item) => {
+          return { label: item?.Name, value: item?.ID };
         });
+        setAssignedto(assigntos);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getPriority = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post("/CRMAPI/API/MasterBind/Priority_Select", form, { headers })
-        .then((res) => {
-          const assigntos = res?.data.data.map((item) => {
-            return { label: item?.NAME, value: item?.ID };
-          });
-          setPriority(assigntos);
-          setFormData({ ...formData, Priority: assigntos[0]?.value });
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.Priority_Select, {})
+
+      .then((res) => {
+        const assigntos = res?.data.data.map((item) => {
+          return { label: item?.NAME, value: item?.ID };
         });
+        setPriority(assigntos);
+        setFormData({ ...formData, Priority: assigntos[0]?.value });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const transformData = (data) => {
@@ -207,23 +208,23 @@ console.log("tabledata",tableData)
         return {
           "S.No.": index + 1,
           Project: {
-            value: projectOption ? projectOption.value : null, 
+            value: projectOption ? projectOption.value : null,
             label: ele?.Project,
             isValid: !!projectOption,
           },
           Category: {
-            value: categoryOption ? categoryOption.value : null, 
+            value: categoryOption ? categoryOption.value : null,
             label: ele?.Category,
-            isValid: !!categoryOption, 
+            isValid: !!categoryOption,
           },
           AssignTo: {
             value: assignToOption ? assignToOption.value : null,
             label: ele?.AssignTo,
-            isValid: !!assignToOption, 
+            isValid: !!assignToOption,
           },
           Email: ele?.Email,
           Priority: {
-            value: priorityOption ? priorityOption.value : null, 
+            value: priorityOption ? priorityOption.value : null,
             label: ele?.Priority,
             isValid: !!priorityOption,
           },
@@ -299,23 +300,28 @@ console.log("tabledata",tableData)
         ProjectId: item.Project.value,
         CategoryId: item.Category.value,
         // AssignTo: item.AssignTo.label || item.AssignTo.value,
-        AssignTo: item.AssignTo.value,
+        AssignTo: String(item.AssignTo.value),
         PriorityID: item.Priority.value,
-        Summary: item.Summary,
-        ReporterName: item.ReportedByName,
+        Summary: String(item.Summary),
+        ReporterName: String(item.ReportedByName),
         ReporterMobile: String(item.ReportedByMobile),
         Description: item?.Description,
       });
     });
     setIsSubmitting(true);
-    const form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-    form.append("RoleID", useCryptoLocalStorage("user_Data", "get", "RoleID"));
-    form.append("TicketData", JSON.stringify(transformPayload));
-    axios
-      .post(apiUrls?.BulkNewTicket, form, { headers })
+    axiosInstances
+      .post(apiUrls.BulkNewTicket, {
+        ReporterID: "0",
+        TicketData: transformPayload,
+      })
+      // const form = new FormData();
+      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
+      // form.append("RoleID", useCryptoLocalStorage("user_Data", "get", "RoleID"));
+      // form.append("TicketData", JSON.stringify(transformPayload));
+      // axios
+      //   .post(apiUrls?.BulkNewTicket, form, { headers })
       .then((res) => {
-        if (res?.data?.status === true) {
+        if (res?.data?.success === true) {
           toast.success(res?.data?.message);
         } else {
           toast.error(res?.data?.message);
@@ -366,7 +372,7 @@ console.log("tabledata",tableData)
       }))
     );
   };
-  
+
   return (
     <>
       {visible?.showVisible && (
@@ -507,7 +513,7 @@ console.log("tabledata",tableData)
                     />
                   </div>,
                   <div className="">
-                    <span>{ t("Reported Mobile")}</span>
+                    <span>{t("Reported Mobile")}</span>
                     <Input
                       type="text"
                       name="ReportedByMobile"
@@ -517,7 +523,7 @@ console.log("tabledata",tableData)
                     />
                   </div>,
                   <div className="">
-                    <span>{  t("Description")}</span>
+                    <span>{t("Description")}</span>
                     <Input
                       type="text"
                       name="Description"

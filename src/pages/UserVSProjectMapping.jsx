@@ -13,6 +13,7 @@ import Input from "../components/formComponent/Input";
 import MultiSelectComp from "../components/formComponent/MultiSelectComp";
 import { useTranslation } from "react-i18next";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../networkServices/axiosInstance";
 
 const UserVSProjectMapping = () => {
   const [tableData, setTableData] = useState([]);
@@ -32,29 +33,40 @@ const UserVSProjectMapping = () => {
   });
   const [t] = useTranslation();
   const getReporter = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("RoleID", useCryptoLocalStorage("user_Data", "get", "RoleID")),
-      form.append("IsMaster", "1"),
-      axios
-        .post(apiUrls?.Reporter_Select, form, { headers })
-        .then((res) => {
-          const reporters = res?.data.data.map((item) => {
-            return { label: item?.NAME, value: item?.ID };
-          });
-          setReporter(reporters);
-        })
-        .catch((err) => {
-          console.log(err);
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append("RoleID", useCryptoLocalStorage("user_Data", "get", "RoleID")),
+    //   form.append("IsMaster", "1"),
+    //   axios
+    //     .post(apiUrls?.Reporter_Select, form, { headers })
+    axiosInstances
+      .post(apiUrls.Reporter_Select, {
+        ID: useCryptoLocalStorage("user_Data", "get", "ID"),
+        RoleID: useCryptoLocalStorage("user_Data", "get", "RoleID"),
+        IsMaster: "1",
+
+      })
+      .then((res) => {
+        const reporters = res?.data.data.map((item) => {
+          return { label: item?.Name, value: item?.ID };
         });
+        setReporter(reporters);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getUserVsProject_Select = (value) => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("RoleID", useCryptoLocalStorage("user_Data", "get", "RoleID")),
-      form.append("UserID", value || formData?.User),
-      axios
-        .post(apiUrls?.UserVsProject_Select, form, { headers })
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append("RoleID", useCryptoLocalStorage("user_Data", "get", "RoleID")),
+    //   form.append("UserID", value || formData?.User),
+    //   axios
+    //     .post(apiUrls?.UserVsProject_Select, form, { headers })
+    axiosInstances
+      .post(apiUrls.UserVsProject_Select,{
+        
+      })
         .then((res) => {
           const dadadata = res?.data?.data;
           setTableData(dadadata);
@@ -87,21 +99,26 @@ const UserVSProjectMapping = () => {
   }, []);
 
   const getProject = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("IsMaster", "1"),
-      axios
-        .post(apiUrls?.ProjectSelect, form, { headers })
-        .then((res) => {
-          const poc3s = res?.data.data.map((item) => {
-            return { name: item?.Project, code: item?.ProjectId };
-          });
-          setProject(poc3s);
-        })
-        .catch((err) => {
-          console.log(err);
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
+    //   form.append("IsMaster", "1"),
+    //   axios
+    //     .post(apiUrls?.ProjectSelect, form, { headers })
+    axiosInstances
+      .post(apiUrls.ProjectSelect, {
+        Id: useCryptoLocalStorage("user_Data", "get", "ID"),
+        LoginName: useCryptoLocalStorage("user_Data", "get", "realname"),
+      })
+      .then((res) => {
+        const poc3s = res?.data.data.map((item) => {
+          return { name: item?.Project, code: item?.ProjectId };
         });
+        setProject(poc3s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const handleusermapping = () => {
     setLoading(true);
@@ -112,30 +129,38 @@ const UserVSProjectMapping = () => {
       toast.error("Please Select Project.");
       setLoading(false);
     } else {
-      let form = new FormData();
-      form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-        form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-        form.append("UserID", formData?.User),
-        form.append("Status", "Add"),
-        form.append("TargetUserID", ""),
-        form.append("ProjectID", formData?.Project),
-        form.append("AccessType", formData?.AccessType),
-        axios
-          .post(apiUrls?.UserVsProjectMapping, form, { headers })
-          .then((res) => {
-            if (res?.data?.status === true) {
-              toast.success(res?.data?.message);
-              setLoading(false);
-              formData?.User && getUserVsProject_Select();
-            } else {
-              toast.error(res?.data?.message);
-              setLoading(false);
-            }
-          })
-          .catch((err) => {
-            console.log(err);
+      // let form = new FormData();
+      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+      //   form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
+      //   form.append("UserID", formData?.User),
+      //   form.append("Status", "Add"),
+      //   form.append("TargetUserID", ""),
+      //   form.append("ProjectID", formData?.Project),
+      //   form.append("AccessType", formData?.AccessType),
+      //   axios
+      //     .post(apiUrls?.UserVsProjectMapping, form, { headers })
+      axiosInstances.post(apiUrls.UserVsProjectMapping, {
+        Status: formData?.Status || "Add",
+        TargetUserID: formData?.User || 0,
+        AccessType: formData?.AccessType || "",
+        ProjectIDs: Array.isArray(formData?.Project)
+          ? formData?.Project   
+          : [formData?.Project] 
+      })
+        .then((res) => {
+          if (res?.data.success) {
+            toast.success(res?.data?.message);
             setLoading(false);
-          });
+            formData?.User && getUserVsProject_Select();
+          } else {
+            toast.error(res?.data?.message);
+            setLoading(false);
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+          setLoading(false);
+        });
     }
   };
 
@@ -232,15 +257,19 @@ const UserVSProjectMapping = () => {
       setLoading(false);
       return;
     }
-    const form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("UserID", formData?.User),
-      form.append("ProjectID", selectedIds.join(",")),
-      axios
-        .post(apiUrls?.Remove_UserVsProjectMapping, form, { headers })
+    // const form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
+    //   form.append("UserID", formData?.User),
+    //   form.append("ProjectID", selectedIds.join(",")),
+    //   axios
+    //     .post(apiUrls?.Remove_UserVsProjectMapping, form, { headers })
+    axiosInstances
+      .post(apiUrls.Remove_UserVsProjectMapping, {
+         ProjectIDs: selectedIds?.length > 0 ? selectedIds : [0], 
+      })
         .then((res) => {
-          if (res?.data?.status === true) {
+          if (res?.data?.success) {
             toast.success(res?.data?.message);
             setLoading(false);
             formData?.User && getUserVsProject_Select();

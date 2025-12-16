@@ -1,29 +1,24 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { apiUrls } from "../../../networkServices/apiEndpoints";
-import { headers } from "../../../utils/apitools";
-import { toast } from "react-toastify";
 import Heading from "../Heading";
 import Tables from ".";
 import { useTranslation } from "react-i18next";
-import { useCryptoLocalStorage } from "../../../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../../../networkServices/axiosInstance";
 const UnlockClientLog = ({ visible }) => {
   const [tableData, setTableData] = useState([]);
-const [t]=useTranslation()
+  const [t] = useTranslation();
   const handleget = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("ProjectID", visible?.showData?.ProjectID),
-      axios
-        .post(apiUrls?.LedgerStatus_LockUnLock_Log, form, { headers })
-        .then((res) => {
-          setTableData(res?.data?.Data);
-          // setVisible((val) => ({ ...val, showLog: false }));
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls.LedgerStatus_LockUnLock_Log, {
+        ProjectID: Number(visible?.showData?.ProjectID),
+      })
+
+      .then((res) => {
+        setTableData(res?.data?.Data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const logTHEAD = [
     t("S.No."),

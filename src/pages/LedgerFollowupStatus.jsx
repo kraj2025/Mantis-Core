@@ -12,6 +12,7 @@ import Tables from "../components/UI/customTable";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
 import Heading from "../components/UI/Heading";
 import NoRecordFound from "../components/formComponent/NoRecordFound";
+import { axiosInstances } from "../networkServices/axiosInstance";
 
 const LedgerFollowupStatus = (visible) => {
   console.log("visible visible", visible);
@@ -49,15 +50,35 @@ const LedgerFollowupStatus = (visible) => {
   };
 
   const handlePaymentFollowup = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("ActionType", "FollowupReason"),
-      axios
-        .post(apiUrls?.PaymentFollowup, form, { headers })
+     axiosInstances
+      .post(apiUrls.PaymentFollowup,{
+  "ActionType": "FollowupReason",
+  "FollowupHeadID": 0,
+  "FolloupHead": "",
+  "dtFollowup": "",
+  "IsNextFollowupReq": true,
+  "dtNextFollowup": "",
+  "Remark": "",
+  "SalesID": 0,
+  "PINo": "string",
+  "HelpingHandID": 0,
+  "HelpingHand": "",
+  "IsClose": true,
+  "PaymentStatus": "",
+  "ProjectID": 0,
+  "FollowupID": 0,
+  "ExpectedPaymentDate": ""
+})
+
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append(
+    //     "LoginName",
+    //     useCryptoLocalStorage("user_Data", "get", "realname")
+    //   ),
+    //   form.append("ActionType", "FollowupReason"),
+    //   axios
+    //     .post(apiUrls?.PaymentFollowup, form, { headers })
         .then((res) => {
           const poc3s = res?.data?.data?.map((item) => {
             return { label: item?.NAME, value: item?.ID };
@@ -70,16 +91,35 @@ const LedgerFollowupStatus = (visible) => {
   };
   const handlePaymentFollowupClose = (id) => {
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("FollowupID", id),
-      form.append("ActionType", "Close"),
-      axios
-        .post(apiUrls?.PaymentFollowup, form, { headers })
+    axiosInstances
+      .post(apiUrls.PaymentFollowup,{
+  "ActionType": "Close",
+  "FollowupHeadID": 0,
+  "FolloupHead": "",
+  "dtFollowup": "",
+  "IsNextFollowupReq": true,
+  "dtNextFollowup": "",
+  "Remark": "",
+  "SalesID": 0,
+  "PINo": "string",
+  "HelpingHandID": 0,
+  "HelpingHand": "",
+  "IsClose": true,
+  "PaymentStatus": "",
+  "ProjectID": 0,
+  "FollowupID": Number(id),
+  "ExpectedPaymentDate": ""
+})
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append(
+    //     "LoginName",
+    //     useCryptoLocalStorage("user_Data", "get", "realname")
+    //   ),
+    //   form.append("FollowupID", id),
+    //   form.append("ActionType", "Close"),
+    //   axios
+    //     .post(apiUrls?.PaymentFollowup, form, { headers })
         .then((res) => {
           if (res?.data?.status === true) {
             toast.success(res?.data?.messge);
@@ -95,17 +135,36 @@ const LedgerFollowupStatus = (visible) => {
         });
   };
   const handlePaymentFollowupSearch = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("ProjectID", visible?.data?.ProjectID),
-      form.append("SalesID", visible?.data?.SalesID),
-      form.append("ActionType", "FollowupSearch"),
-      axios
-        .post(apiUrls?.PaymentFollowup, form, { headers })
+    axiosInstances
+      .post(apiUrls.PaymentFollowup,{
+  "ActionType": "FollowupSearch",
+  "FollowupHeadID": 0,
+  "FolloupHead": "",
+  "dtFollowup": "",
+  "IsNextFollowupReq": true,
+  "dtNextFollowup": "",
+  "Remark": "",
+  "SalesID": Number(visible?.data?.SalesID),
+  "PINo": "string",
+  "HelpingHandID": 0,
+  "HelpingHand": "",
+  "IsClose": true,
+  "PaymentStatus": "",
+  "ProjectID": Number(visible?.data?.ProjectID),
+  "FollowupID": 0,
+  "ExpectedPaymentDate": ""
+})
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append(
+    //     "LoginName",
+    //     useCryptoLocalStorage("user_Data", "get", "realname")
+    //   ),
+    //   form.append("ProjectID", visible?.data?.ProjectID),
+    //   form.append("SalesID", visible?.data?.SalesID),
+    //   form.append("ActionType", "FollowupSearch"),
+    //   axios
+    //     .post(apiUrls?.PaymentFollowup, form, { headers })
         .then((res) => {
           setTableData(res?.data?.data);
         })
@@ -121,44 +180,65 @@ const LedgerFollowupStatus = (visible) => {
       toast.error("Please Enter PaymentStatus.");
     } else {
       setLoading(true);
-      let form = new FormData();
-      form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-        form.append(
-          "LoginName",
-          useCryptoLocalStorage("user_Data", "get", "realname")
-        ),
-        form.append("ProjectID", visible?.data?.ProjectID),
-        form.append("FollowupHeadID", formData?.FollowUpType),
-        form.append("FolloupHead", getlabel(formData?.FollowUpType, followup)),
-        form.append(
-          "dtFollowup",
-          moment(formData?.LockingDate).format("YYYY-MM-DD")
-        ),
-        form.append("Remark", formData?.Remark),
-        form.append("SalesID", visible?.data?.SalesID),
-        form.append("PINo", visible?.data?.PINo),
-        form.append("PaymentStatus", formData?.PaymentStatus),
-        form.append(
-          "IsNextFollowupReq",
-          formData?.IsNextFollowupReq == 1 ? 1 : 0
-        ),
-        form.append(
-          "dtNextFollowup",
-          formData?.dtNextFollowup == ""
+      axiosInstances
+      .post(apiUrls.PaymentFollowup,{
+  "ActionType": "Insert",
+  "FollowupHeadID": Number(formData?.FollowUpType),
+  "FolloupHead":String(getlabel(formData?.FollowUpType, followup)),
+  "dtFollowup": String(moment(formData?.LockingDate).format("YYYY-MM-DD")) ,
+  "IsNextFollowupReq": formData?.IsNextFollowupReq == 1 ? true : false,
+  "dtNextFollowup": String(formData?.dtNextFollowup == ""
             ? "2001-01-01"
-            : moment(formData?.dtNextFollowup).format("YYYY-MM-DD")
-        ),
-        form.append(
-          "ExpectedPaymentDate",
-          moment(formData?.ExpectedPaymentDate).format("YYYY-MM-DD") || ""
-        ),
-        form.append("HelpingHandID", "0"),
-        form.append("HelpingHand", ""),
-        form.append("ActionType", "Insert"),
-        axios
-          .post(apiUrls?.PaymentFollowup, form, { headers })
+            : moment(formData?.dtNextFollowup).format("YYYY-MM-DD")),
+  "Remark": String(formData?.Remark),
+  "SalesID": String(visible?.data?.SalesID),
+  "PINo": String(visible?.data?.PINo),
+  "HelpingHandID": 0,
+  "HelpingHand": "",
+  "IsClose": true,
+  "PaymentStatus": String(formData?.PaymentStatus),
+  "ProjectID": Number(visible?.data?.ProjectID),
+  "FollowupID": 0,
+  "ExpectedPaymentDate": String(moment(formData?.ExpectedPaymentDate).format("YYYY-MM-DD") || "")
+})
+      // let form = new FormData();
+      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+      //   form.append(
+      //     "LoginName",
+      //     useCryptoLocalStorage("user_Data", "get", "realname")
+      //   ),
+      //   form.append("ProjectID", visible?.data?.ProjectID),
+      //   form.append("FollowupHeadID", formData?.FollowUpType),
+      //   form.append("FolloupHead", getlabel(formData?.FollowUpType, followup)),
+      //   form.append(
+      //     "dtFollowup",
+      //     moment(formData?.LockingDate).format("YYYY-MM-DD")
+      //   ),
+      //   form.append("Remark", formData?.Remark),
+      //   form.append("SalesID", visible?.data?.SalesID),
+      //   form.append("PINo", visible?.data?.PINo),
+      //   form.append("PaymentStatus", formData?.PaymentStatus),
+      //   form.append(
+      //     "IsNextFollowupReq",
+      //     formData?.IsNextFollowupReq == 1 ? 1 : 0
+      //   ),
+      //   form.append(
+      //     "dtNextFollowup",
+      //     formData?.dtNextFollowup == ""
+      //       ? "2001-01-01"
+      //       : moment(formData?.dtNextFollowup).format("YYYY-MM-DD")
+      //   ),
+      //   form.append(
+      //     "ExpectedPaymentDate",
+      //     moment(formData?.ExpectedPaymentDate).format("YYYY-MM-DD") || ""
+      //   ),
+      //   form.append("HelpingHandID", "0"),
+      //   form.append("HelpingHand", ""),
+      //   form.append("ActionType", "Insert"),
+      //   axios
+      //     .post(apiUrls?.PaymentFollowup, form, { headers })
           .then((res) => {
-            if (res?.data?.status === true) {
+            if (res?.data?.success === true) {
               toast.success(res?.data?.message);
               handlePaymentFollowupSearch();
               setLoading(false);
@@ -194,21 +274,21 @@ const LedgerFollowupStatus = (visible) => {
   //     [name]: type === "checkbox" ? (checked ? 1 : 0) : value,
   //   });
   // };
-  const getAssignTo = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post("/CRMAPI/API/MasterBind/AssignTo_Select", form, { headers })
-        .then((res) => {
-          const assigntos = res?.data.data.map((item) => {
-            return { label: item?.NAME, value: item?.ID };
-          });
-          setAssignedto(assigntos);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-  };
+  // const getAssignTo = () => {
+  //   let form = new FormData();
+  //   form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+  //     axios
+  //       .post("/CRMAPI/API/MasterBind/AssignTo_Select", form, { headers })
+  //       .then((res) => {
+  //         const assigntos = res?.data.data.map((item) => {
+  //           return { label: item?.NAME, value: item?.ID };
+  //         });
+  //         setAssignedto(assigntos);
+  //       })
+  //       .catch((err) => {
+  //         console.log(err);
+  //       });
+  // };
 
   const followupTHEAD = [
     "S.No.",

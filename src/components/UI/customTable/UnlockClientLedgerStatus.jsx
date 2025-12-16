@@ -6,6 +6,7 @@ import { apiUrls } from "../../../networkServices/apiEndpoints";
 import { headers } from "../../../utils/apitools";
 import axios from "axios";
 import { useCryptoLocalStorage } from "../../../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../../../networkServices/axiosInstance";
 
 const UnlockClientLedgerStatus = ({ visible, setVisible }) => {
   const [formData, setFormData] = useState({
@@ -34,30 +35,29 @@ const UnlockClientLedgerStatus = ({ visible, setVisible }) => {
     if (formData?.Reason == "") {
       toast.error("Please Enter Reason.");
     } else {
-      let form = new FormData();
-      form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-        form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-        form.append("ProjectID", visible?.showData?.ProjectID),
-        form.append("Reason", formData?.Reason),
-        form.append("IsLock", ""),
-        form.append("txtTimeLimit", formData?.UnLockHours),
-        form.append("ddlTime", formData?.UnLockDays),
-        axios
-          .post(apiUrls?.LedgerStatus_LockUnLock, form, { headers })
-          .then((res) => {
-            toast.success(res?.data?.message);
-            setFormData({
-              ...formData,
-              UnLockDays: "",
-              UnLockHours: "",
-              Reason: "",
-            });
-            setVisible((val) => ({ ...val, showVisible: false }));
-            // setVisible(false);
-          })
-          .catch((err) => {
-            console.log(err);
+      axiosInstances
+        .post(apiUrls.LedgerStatus_LockUnLock, {
+          ProjectID: Number(visible?.showData?.ProjectID),
+          Reason: String(formData?.Reason),
+          IsLock: 0,
+          TxtTimeLimit: Number(formData?.UnLockHours),
+          DdlTime: Number(formData?.UnLockDays),
+        })
+
+        .then((res) => {
+          toast.success(res?.data?.message);
+          setFormData({
+            ...formData,
+            UnLockDays: "",
+            UnLockHours: "",
+            Reason: "",
           });
+          setVisible((val) => ({ ...val, showVisible: false }));
+          // setVisible(false);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
     }
   };
   return (

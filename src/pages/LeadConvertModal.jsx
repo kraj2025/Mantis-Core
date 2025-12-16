@@ -8,9 +8,10 @@ import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
 import { apiUrls } from "../networkServices/apiEndpoints";
 import Loading from "../components/loader/Loading";
 import Heading from "../components/UI/Heading";
+import { axiosInstances } from "../networkServices/axiosInstance";
 
 const LeadConvertModal = (showData, handleSearch) => {
-console.log("showData", showData);
+  console.log("showData", showData);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     BaseAmount: "",
@@ -47,32 +48,41 @@ console.log("showData", showData);
       return;
     }
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("LeadID", showData?.visible?.showData?.ID),
-      form.append("BaseAmount", formData?.BaseAmount),
-      form.append("TaxAmount", formData?.TaxAmount),
-      form.append("NetAmount", formData?.NetAmount),
-      axios
-        .post(apiUrls?.ConvertedSalesLead, form, { headers })
-        .then((res) => {
-          if (res?.data?.status === true) {
-            toast.success(res?.data?.message);
-            setLoading(false);
-            showData?.setVisible(false);
-            showData?.handleSearch();
-          } else {
-            toast.error(res?.data?.message);
-            setLoading(false);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append(
+    //     "LoginName",
+    //     useCryptoLocalStorage("user_Data", "get", "realname")
+    //   ),
+    //   form.append("LeadID", showData?.visible?.showData?.ID),
+    //   form.append("BaseAmount", formData?.BaseAmount),
+    //   form.append("TaxAmount", formData?.TaxAmount),
+    //   form.append("NetAmount", formData?.NetAmount),
+    const payload = {
+      LeadID: Number(showData?.visible?.showData?.ID || 0),
+      BaseAmount: Number(formData?.BaseAmount || 0),
+      TaxAmount: Number(formData?.TaxAmount || 0),
+      NetAmount: Number(formData?.NetAmount || 0),
+    };
+
+    // axios
+    //   .post(apiUrls?.ConvertedSalesLead, form, { headers })
+    axiosInstances
+      .post(apiUrls?.ConvertedSalesLead, payload)
+      .then((res) => {
+        if (res?.data?.success === true) {
+          toast.success(res?.data?.message);
+          setLoading(false);
+          showData?.setVisible(false);
+          showData?.handleSearch();
+        } else {
+          toast.error(res?.data?.message);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   return (
     <>
@@ -83,13 +93,18 @@ console.log("showData", showData);
       /> */}
       <div className="card  p-2">
         <span style={{ fontWeight: "bold" }}>
-          Organization Name : {showData?.visible?.showData?.OrganizationName} &nbsp; &nbsp;
-          &nbsp; &nbsp; &nbsp; Created By : {showData?.visible?.showData?.CreatedBy} &nbsp; &nbsp;
-          &nbsp; &nbsp; &nbsp; Created Date : {new Date(showData?.visible?.showData?.dtEntry).toLocaleDateString("en-GB", {
-                day: "2-digit",
-                month: "short",
-                year: "numeric",
-              })}
+          Organization Name : {showData?.visible?.showData?.OrganizationName}{" "}
+          &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; Created By :{" "}
+          {showData?.visible?.showData?.CreatedBy} &nbsp; &nbsp; &nbsp; &nbsp;
+          &nbsp; Created Date :{" "}
+          {new Date(showData?.visible?.showData?.dtEntry?.Value).toLocaleDateString(
+            "en-GB",
+            {
+              day: "2-digit",
+              month: "short",
+              year: "numeric",
+            }
+          )}
         </span>
       </div>
       <div className="card">

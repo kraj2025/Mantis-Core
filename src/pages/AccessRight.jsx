@@ -11,6 +11,7 @@ import { headers } from "../utils/apitools";
 import { toast } from "react-toastify";
 import Loading from "../components/loader/Loading";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../networkServices/axiosInstance";
 const AccessRight = (data) => {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
@@ -42,42 +43,36 @@ const AccessRight = (data) => {
   };
 
   const bindMenu = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("MenuName", ""),
-      axios
-        .post(apiUrls?.SearchMenu, form, { headers })
-        .then((res) => {
-          const poc3s = res?.data.data.map((item) => {
-            return { label: item?.MenuName, value: item?.ID };
-          });
-          setMenuMaster(poc3s);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.SearchMenu, {
+        MenuName: "",
+      })
+      .then((res) => {
+        const poc3s = res?.data.data.map((item) => {
+          return { label: item?.MenuName, value: item?.ID };
         });
+        setMenuMaster(poc3s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const bindRole = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("RoleName", ""),
-      axios
-        .post(apiUrls?.SearchRole, form, { headers })
-        .then((res) => {
-          const poc3s = res?.data.data.map((item) => {
-            return { label: item?.RoleName, value: item?.ID, ...item };
-          });
-          setRoleMaster(poc3s);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.SearchRole, {
+        RoleName: String(""),
+      })
+      .then((res) => {
+        const poc3s = res?.data.data.map((item) => {
+          return { label: item?.RoleName, value: item?.ID, ...item };
         });
+        setRoleMaster(poc3s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
-
-  // console.log("remaining check", unmappedItems);
 
   const handleSearch = () => {
     if (!Object.keys(formData?.RoleMaster)?.length > 0) {
@@ -86,23 +81,20 @@ const AccessRight = (data) => {
       toast.error("Please Select Menu.");
     } else {
       setLoading(true);
-      let form = new FormData();
-      form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-        form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-        form.append("RoleID", formData?.RoleMaster?.value),
-        form.append("MenuID", formData?.MenuMaster),
-        axios
-          .post(apiUrls?.AccessRight_Bind, form, { headers })
-          .then((res) => {
-            // console.log("res res", res);
-            setMappedItems(res?.data?.Available);
-            setUnmappedItems(res?.data?.Remaining);
-            setLoading(false);
-          })
-          .catch((err) => {
-            console.log(err);
-            setLoading(false);
-          });
+      axiosInstances
+        .post(apiUrls.AccessRight_Bind, {
+          RoleID: Number(formData?.RoleMaster?.value),
+          MenuID: Number(formData?.MenuMaster),
+        })
+        .then((res) => {
+          setMappedItems(res?.data?.data?.Available);
+          setUnmappedItems(res?.data?.data?.Remaining);
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.log(err);
+          setLoading(false);
+        });
     }
   };
 
@@ -119,21 +111,23 @@ const AccessRight = (data) => {
   const [selectedMappedItem, setSelectedMappedItem] = useState(null);
 
   const handleAdd = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("RoleID", formData?.RoleMaster?.value),
-      form.append("UrlID", unmappedItems[selectedUnmappedItem]?.id),
-      form.append("ActionType", "Add"),
-      axios
-        .post(apiUrls?.AccessRight_Update, form, { headers })
-        .then((res) => {
+    axiosInstances
+      .post(apiUrls.AccessRight_Insert, {
+        RoleID: Number(formData?.RoleMaster?.value),
+        UrlID: Number(unmappedItems[selectedUnmappedItem]?.id),
+        ActionType: String("Add"),
+      })
+      .then((res) => {
+        if (res?.data?.success === true) {
           toast.success(res?.data?.message);
           handleSearch();
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+        } else {
+          toast.error(res?.data?.message);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const handleSelectMapItem = (index) => {
@@ -145,24 +139,25 @@ const AccessRight = (data) => {
     setSelectedMappedItem(null);
   };
   const handleRemove = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("RoleID", formData?.RoleMaster?.value),
-      form.append("UrlID", mappedItems[selectedMappedItem]?.ID),
-      form.append("ActionType", "Remove"),
-      axios
-        .post(apiUrls?.AccessRight_Update, form, { headers })
-        .then((res) => {
+    axiosInstances
+      .post(apiUrls.AccessRight_Update, {
+        RoleID: Number(formData?.RoleMaster?.value),
+        UrlID: Number(mappedItems[selectedMappedItem]?.ID),
+        ActionType: String("Remove"),
+      })
+      .then((res) => {
+        if (res?.data?.success === true) {
           toast.success(res?.data?.message);
           handleSearch();
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+        } else {
+          toast.error(res?.data?.message);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
-  console.log(formData);
   return (
     <>
       {visible?.ShowRole && (
@@ -341,7 +336,7 @@ const AccessRight = (data) => {
                     hanldeSelectedUnmappedItem(index);
                   }}
                 >
-                  {item.filename}
+                  {item.FileName}
                 </li>
               ))}
             </ul>

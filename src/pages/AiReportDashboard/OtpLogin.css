@@ -1,0 +1,109 @@
+.login-container {
+  min-height: 78vh !important;
+  background: linear-gradient(to bottom right, #f3e8ff, #dbeafe) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 1rem !important;
+}
+
+.login-card {
+  width: 100% !important;
+  max-width: 28rem !important;
+  background: white !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+  padding: 20px;
+  border-radius: 12px;
+}
+
+.login-header {
+  text-align: center !important;
+  padding-bottom: 1.5rem !important;
+}
+
+.logo-container {
+  margin: 0 auto 1rem auto !important;
+  width: 4rem !important;
+  height: 4rem !important;
+  background: #dbeafe !important;
+  border-radius: 9999px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.logo-icon {
+  width: 2rem !important;
+  height: 2rem !important;
+  color: #2563eb !important;
+}
+
+.login-title {
+  font-size: 1.5rem !important;
+  font-weight: bold !important;
+  color: #1f2937 !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.login-subtitle {
+  color: #4b5563 !important;
+}
+
+.login-content {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1.5rem !important;
+}
+
+.form-group {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.5rem !important;
+}
+
+.form-label {
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  color: #374151 !important;
+}
+
+.input-group {
+  display: flex !important;
+  gap: 0.5rem !important;
+}
+
+.send-btn {
+  padding: 0 1.5rem !important;
+  background: transparent !important;
+  border-radius: 10px;
+}
+
+.send-btn:hover {
+  background: rgb(67, 167, 67) !important;
+  color: white;
+  border: rgb(67, 167, 67) !important;
+}
+
+.form-hint {
+  font-size: 0.75rem !important;
+  color: #6b7280 !important;
+}
+
+.login-btn {
+  width: 100% !important;
+  background: rgb(67, 167, 67) !important;
+  color: white !important;
+  padding: 0.75rem 0 !important;
+  font-size: 1rem !important;
+  border: none;
+  border-radius: 20px;
+}
+
+.login-btn:hover {
+  background: #1d4ed8 !important;
+}
+
+.w-75 {
+  width: 75% !important;
+  border-radius: 12px !important;
+}

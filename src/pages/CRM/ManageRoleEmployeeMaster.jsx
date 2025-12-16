@@ -3,11 +3,8 @@ import Heading from "../../components/UI/Heading";
 import Tables from "../../components/UI/customTable";
 import ReactSelect from "../../components/formComponent/ReactSelect";
 import { apiUrls } from "../../networkServices/apiEndpoints";
-import { headers } from "../../utils/apitools";
-import axios from "axios";
 import { toast } from "react-toastify";
-import { isContentEditable } from "@testing-library/user-event/dist/cjs/utils/index.js";
-import { useCryptoLocalStorage } from "../../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../../networkServices/axiosInstance";
 
 const ManageRoleEmployeeMaster = (ele) => {
   const [roleMaster, setRoleMaster] = useState([]);
@@ -30,6 +27,7 @@ const ManageRoleEmployeeMaster = (ele) => {
   ]);
 
   const newRoleTHEAD = ["S.No.", "Role Name", "Remove"];
+
   const handleDeliveryChange = (name, e) => {
     const { value } = e;
     setFormData({
@@ -37,70 +35,55 @@ const ManageRoleEmployeeMaster = (ele) => {
       [name]: value,
     });
   };
+
   const bindRole = () => {
-    let form = new FormData();
-    form.append("ID",  useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("RoleName", ""),
-      axios
-        .post(apiUrls?.SearchRole, form, { headers })
-        .then((res) => {
-          const poc3s = res?.data.data.map((item) => {
-            return { label: item?.RoleName, value: item?.ID };
-          });
-          setRoleMaster(poc3s);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls?.SearchRole, {
+        RoleName: String(""),
+      })
+      .then((res) => {
+        const poc3s = res?.data.data.map((item) => {
+          return { label: item?.RoleName, value: item?.ID };
         });
+        setRoleMaster(poc3s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const addRole = (item) => {
-    let form = new FormData();
-    form.append("ID",  useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("UserID", ele?.visible?.showData?.id),
-      form.append("Status", "Add"),
-      form.append("TargetUserID", ""),
-      form.append("RoleID", formData?.RoleMaster),
-      axios
-        .post(apiUrls?.UserVsRoleMapping, form, { headers })
-        .then((res) => {
-          toast.success(res?.data?.message);
-          handleSearch();
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls?.UserVsRoleMapping, {
+        Status: "Add",
+        TargetUserID: Number(ele?.visible?.showData?.id),
+        RoleID: Number(formData?.RoleMaster),
+      })
+      .then((res) => {
+        toast.success(res?.data?.message);
+        handleSearch();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const removeRole = (item) => {
-    console.log("hhhh", item);
-    let form = new FormData();
-    form.append("ID",  useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("UserID", ele?.visible?.showData?.id),
-      form.append("Status", "Remove"),
-      form.append("TargetUserID", ""),
-      form.append("RoleID", item?.RoleID),
-      axios
-        .post(apiUrls?.UserVsRoleMapping, form, { headers })
-        .then((res) => {
-          toast.success(res?.data?.message);
-          handleSearch();
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls?.UserVsRoleMapping, {
+        Status: "Remove",
+        TargetUserID: Number(ele?.visible?.showData?.id),
+        RoleID: Number(item?.RoleID),
+      })
+      .then((res) => {
+        toast.success(res?.data?.message);
+        handleSearch();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const handleSearch = () => {
-    let form = new FormData();
-    form.append("ID",  useCryptoLocalStorage("user_Data", "get", "ID"));
-    form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname"));
-    form.append("UserID", ele?.visible?.showData?.id);
-
-    axios
-      .post(apiUrls?.UserVsRole_Select, form, {
-        headers,
-      })
+    axiosInstances
+      .post(apiUrls?.UserVsRole_Select, {})
       .then((res) => {
         const data = res?.data?.data;
         setTableData(data);
@@ -108,24 +91,6 @@ const ManageRoleEmployeeMaster = (ele) => {
       .catch((err) => {
         console.log(err);
       });
-  };
-  const transferRole = () => {
-    let form = new FormData();
-    form.append("ID",  useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("UserID", ele?.visible?.showData?.id),
-      form.append("Status", "Transfer"),
-      form.append("TargetUserID", ""),
-      form.append("RoleID", formData?.RoleMaster),
-      axios
-        .post(apiUrls?.UserVsRoleMapping, form, { headers })
-        .then((res) => {
-          toast.success(res?.data?.message);
-          handleSearch();
-        })
-        .catch((err) => {
-          console.log(err);
-        });
   };
   useEffect(() => {
     bindRole();
@@ -151,12 +116,6 @@ const ManageRoleEmployeeMaster = (ele) => {
           <button className="btn btn-sm btn-success" onClick={addRole}>
             Add Role
           </button>
-          {/* <button
-            className="btn btn-sm btn-success ml-3"
-            onClick={transferRole}
-          >
-            Transfer Role
-          </button> */}
         </div>
       </div>
       {tableData?.length > 0 && (
@@ -181,9 +140,6 @@ const ManageRoleEmployeeMaster = (ele) => {
             }))}
             tableHeight={"tableHeight"}
           />
-          {/* <div className="col-2">
-          <button className="btn btn-sm btn-success m-1">Save</button>
-        </div> */}
         </div>
       )}
     </>

@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from "react";
 import ReactSelect from "../components/formComponent/ReactSelect";
-import axios from "axios";
 import { apiUrls } from "../networkServices/apiEndpoints";
-import { headers } from "../utils/apitools";
 import Heading from "../components/UI/Heading";
 import Tables from "../components/UI/customTable";
 import { toast } from "react-toastify";
-import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../networkServices/axiosInstance";
 const AddVerticalModal = (ele) => {
   const [tableData, setTableData] = useState([]);
   const [vertical, setVertical] = useState([]);
@@ -23,69 +21,69 @@ const AddVerticalModal = (ele) => {
   const newRoleTHEAD = ["S.No.", "Vertical Name", "Remove"];
 
   const getVertical = () => {
-    let form = new FormData();
-    form.append("Id",  useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Vertical_Select, form, { headers })
-        .then((res) => {
-          const verticals = res?.data.data.map((item) => {
-            return { label: item?.Vertical, value: item?.VerticalID };
-          });
-          setVertical(verticals);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls?.Vertical_Select, {})
+      .then((res) => {
+        const verticals = res?.data.data.map((item) => {
+          return { label: item?.Vertical, value: item?.VerticalID };
         });
+        setVertical(verticals);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const handleSearch = () => {
-    let form = new FormData();
-    form.append("Id",  useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("UserID", ele?.visible?.showData?.id),
-      axios
-        .post(apiUrls?.UserVsVertical_Select, form, { headers })
-        .then((res) => {
-          setTableData(res?.data?.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls?.UserVsVertical_Select, {
+        EmployeeId: Number(ele?.visible?.showData?.id),
+      })
+      .then((res) => {
+        setTableData(res?.data?.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const handleADD = () => {
-    let form = new FormData();
-    form.append("Id",  useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("UserID", ele?.visible?.showData?.id),
-      form.append("Status", "Add"),
-      form.append("VerticalID", formData?.Vertical),
-      axios
-        .post(apiUrls?.UserVsVerticalMapping, form, { headers })
-        .then((res) => {
+    axiosInstances
+      .post(apiUrls?.UserVsVerticalMapping, {
+        EmployeeId: Number(ele?.visible?.showData?.id),
+        Status: String("Add"),
+        VerticalID: Number(formData?.Vertical),
+      })
+      .then((res) => {
+        if (res.data.success === true) {
           toast.success(res?.data?.message);
           handleSearch();
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+        } else {
+          toast.error(res?.data?.message);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const handleRemove = (item) => {
-    console.log("item", item);
-    let form = new FormData();
-    form.append("Id",  useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("UserID", ele?.visible?.showData?.id),
-      form.append("Status", "Remove"),
-      form.append("VerticalID", item?.VerticalID),
-      axios
-        .post(apiUrls?.UserVsVerticalMapping, form, { headers })
-        .then((res) => {
+    axiosInstances
+      .post(apiUrls?.UserVsVerticalMapping, {
+        EmployeeId: Number(ele?.visible?.showData?.id),
+        Status: String("Remove"),
+        VerticalID: Number(item?.VerticalID),
+      })
+      .then((res) => {
+        if (res.data.success === true) {
           toast.success(res?.data?.message);
           handleSearch();
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+        } else {
+          toast.error(res?.data?.message);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   useEffect(() => {

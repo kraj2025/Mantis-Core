@@ -142,7 +142,6 @@ export function renameKeys(obj, newKeys) {
 }
 
 export const bindLabelValue = (label, value) => {
-  // debugger
   return { label: label ? label : " ", value: value ? value : " " };
 };
 

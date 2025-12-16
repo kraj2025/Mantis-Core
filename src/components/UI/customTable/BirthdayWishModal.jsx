@@ -9,6 +9,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import Loading from "../../loader/Loading";
 import { useCryptoLocalStorage } from "../../../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../../../networkServices/axiosInstance";
 const BirthdayWishModal = ({ visible, setVisible, tableData }) => {
   // console.log("check wishes", visible, tableData);
   const [loading, setLoading] = useState(false);
@@ -25,43 +26,33 @@ const BirthdayWishModal = ({ visible, setVisible, tableData }) => {
       toast.error("Please Enter Message.");
     } else {
       setLoading(true);
-      let form = new FormData();
-      form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-        form.append(
-          "LoginName",
-          useCryptoLocalStorage("user_Data", "get", "realname")
-        ),
-        form.append("ToEmployeeID", tableData[0]?.Employee_ID),
-        form.append("ToEmployeeName", tableData[0]?.EmpName),
-        form.append(
-          "ToEMailID",
-          String(tableData[0]?.CompanyEmail).toLowerCase()
-        ),
-        form.append("WishesType", tableData[0]?.Type),
-        form.append(
-          "Subject",
-          `Greeting from ${useCryptoLocalStorage("user_Data", "get", "realname")}`
-        ),
-        form.append("SearchType", "WishesInsert"),
-        form.append("dtBirthday", tableData[0]?.dtWish),
-        form.append("Message", formData?.BirthdayMessage),
-        axios
-          .post(apiUrls?.Birthday_Anniversary_Interface_Search, form, {
-            headers,
-          })
-          .then((res) => {
-            if (res?.data?.status === true) {
-              toast.success(res?.data?.message);
-              setVisible(false);
-              setLoading(false);
-            } else {
-              toast.error(res?.data?.message);
-            }
-          })
-          .catch((err) => {
-            console.log(err);
+    
+      axiosInstances
+        .post(apiUrls.Birthday_Anniversary_Interface_Search, {
+          SearchType: String("WishesInsert"),
+          ToEmployeeID: String(tableData[0]?.Employee_ID),
+          ToEmployeeName: String(tableData[0]?.EmpName),
+          ToEMailID: String(tableData[0]?.CompanyEmail).toLowerCase(),
+          WishesType: String(tableData[0]?.Type),
+          Subject: String(
+            `Greeting from ${useCryptoLocalStorage("user_Data", "get", "realname")}`
+          ),
+          Message: String(formData?.BirthdayMessage),
+          dtBirthday: String(tableData[0]?.dtWish),
+        })
+        .then((res) => {
+          if (res?.data?.success === true) {
+            toast.success(res?.data?.message);
+            setVisible(false);
             setLoading(false);
-          });
+          } else {
+            toast.error(res?.data?.message);
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+          setLoading(false);
+        });
     }
   };
   const handleSelectChange = (e) => {

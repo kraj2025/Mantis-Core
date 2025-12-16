@@ -9,6 +9,7 @@ import { apiUrls } from "../../../networkServices/apiEndpoints";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useCryptoLocalStorage } from "../../../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../../../networkServices/axiosInstance";
 const AddResultQueryModal = () => {
   const [editMode, setEditMode] = useState(false);
   const [query, setQuery] = useState([]);
@@ -70,21 +71,18 @@ const AddResultQueryModal = () => {
     } else if (formData?.Result == "") {
       toast.error("Please Select Result.");
     } else {
-      let form = new FormData();
-      form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-        form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-        form.append("QueryID", formData?.Query),
-        form.append("Result", formData?.Result),
-        form.append(
-          "Document_Base64",
-          formData?.Document_Base64 ? formData?.Document_Base64 : ""
-        ),
-        form.append(
-          "Document_FormatType",
-          formData?.FileExtension ? formData?.FileExtension : ""
-        ),
-        axios
-          .post(apiUrls?.Result_Insert, form, { headers })
+    
+      axiosInstances
+      .post(apiUrls.Result_Insert, {
+        ID: useCryptoLocalStorage("user_Data", "get", "ID"),
+        LoginName: useCryptoLocalStorage("user_Data", "get", "realname"),
+        QueryID: formData?.Query,
+        Result: formData?.Result,
+        Document_Base64: formData?.Document_Base64 ? formData?.Document_Base64 : "",
+        Document_FormatType: formData?.FileExtension ? formData?.FileExtension : "",  
+
+
+      })
           .then((res) => {
             toast.success(res?.data?.message);
           })
@@ -94,17 +92,18 @@ const AddResultQueryModal = () => {
     }
   };
   const handleUpdate = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("QueryID", formData?.Query),
-      form.append("Result", formData?.Result),
-      // form.append("ResultID", ""),
-      form.append("IsActive", formData?.IsActive),
-      form.append("Document_Base64", formData?.Document_Base64),
-      form.append("Document_FormatType", formData?.FileExtension),
-      axios
-        .post(apiUrls?.Result_Update, form, { headers })
+   
+    axiosInstances
+      .post(apiUrls.Result_Update, {
+        ID: useCryptoLocalStorage("user_Data", "get", "ID"),
+        LoginName: useCryptoLocalStorage("user_Data", "get", "realname"),
+        QueryID: formData?.Query,
+        Result: formData?.Result,
+        // ResultID: "",
+        IsActive: formData?.IsActive,
+        Document_Base64: formData?.Document_Base64,
+        Document_FormatType: formData?.FileExtension,
+      })
         .then((res) => {
           toast.success(res?.data?.message);
         })
@@ -124,13 +123,16 @@ const AddResultQueryModal = () => {
   };
 
   const getQueryName = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      // form.append("IsActive", "")
-      form.append("SearchType", "Query_Select"),
-      axios
-        .post(apiUrls?.QueryVsResult_Select, form, { headers })
+   
+    
+    axiosInstances
+      .post(apiUrls.QueryVsResult_Select, {
+        ID: useCryptoLocalStorage("user_Data", "get", "ID"),  
+        LoginName: useCryptoLocalStorage("user_Data", "get", "realname"),
+        // IsActive: "",
+        SearchType: "Query_Select",
+
+      })
         .then((res) => {
           console.log(res?.data?.data);
           const assigntos = res?.data.data.map((item) => {
@@ -143,17 +145,15 @@ const AddResultQueryModal = () => {
         });
   };
   const getQuery = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      // form.append("IsActive", ""),
-      // form.append("ProductID", ""),
-      // form.append("ModuleID", ""),
-      // form.append("ModuleID", ""),
-      // form.append("QueryID", ""),
-      form.append("SearchType", "Result_Select"),
-      axios
-        .post(apiUrls?.QueryVsResult_Select, form, { headers })
+    
+      axiosInstances
+      .post(apiUrls.QueryVsResult_Select, {
+        ID: useCryptoLocalStorage("user_Data", "get", "ID"),  
+        LoginName: useCryptoLocalStorage("user_Data", "get", "realname"),
+        // IsActive: "",
+        SearchType: "Query_Select",
+          
+      })
         .then((res) => {
           console.log(res?.data?.data);
           setTableData(res?.data?.data);

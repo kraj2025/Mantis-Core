@@ -9,6 +9,7 @@ import { headers } from "../../../src/utils/apitools";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useCryptoLocalStorage } from "../../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../../networkServices/axiosInstance";
 const RoleMaster = () => {
   const [tableData, setTableData] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -50,7 +51,10 @@ const RoleMaster = () => {
     setLoading(true);
     let form = new FormData();
     form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
+      form.append(
+        "LoginName",
+        useCryptoLocalStorage("user_Data", "get", "realname")
+      ),
       form.append("RoleName", formData?.RoleName),
       form.append("ActiveStatus", formData?.IsActive),
       axios
@@ -65,61 +69,58 @@ const RoleMaster = () => {
           setLoading(false);
         });
   };
-  console.log("gsgs", tableData);
+
   const handleUpdate = () => {
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("RoleName", formData?.RoleName),
-      form.append("ActiveStatus", formData?.IsActive),
-      form.append("RoleID", tableData[0]?.ID),
-      axios
-        .post(apiUrls?.UpdateRole, form, { headers })
-        .then((res) => {
+    axiosInstances
+      .post(apiUrls.UpdateRole, {
+        RoleID: Number(tableData[0]?.ID),
+        RoleName: String(formData?.RoleName),
+        ActiveStatus: formData?.IsActive == "1" ? true : false,
+      })
+      .then((res) => {
+        if (res.data.success === true) {
           toast.success(res?.data?.message);
           setLoading(false);
           handleTableData();
-        })
-        .catch((err) => {
-          console.log(err);
-          setLoading(false);
-        });
+        } else {
+          toast.error(res?.data?.message);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
   };
   const handleTableData = () => {
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("RoleName", ""),
-      form.append("ActiveStatus", "2"),
-      axios
-        .post(apiUrls?.SearchRole, form, { headers })
-        .then((res) => {
-          setTableData(res?.data?.data);
-          setLoading(false);
-        })
-        .catch((err) => {
-          console.log(err);
-          setLoading(false);
-        });
+    axiosInstances
+      .post(apiUrls.SearchRole, {
+        RoleName: String(),
+      })
+      .then((res) => {
+        setTableData(res?.data?.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
   };
   const handleEmployeeView = (ele) => {
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("RoleID", ele?.ID),
-      axios
-        .post(apiUrls?.EmployeeView, form, { headers })
-        .then((res) => {
-          toast.success(res?.data?.message);
-          setLoading(false);
-        })
-        .catch((err) => {
-          console.log(err);
-          setLoading(false);
-        });
+    axiosInstances
+      .post(apiUrls.EmployeeView, {
+        RoleID: Number(ele?.ID),
+      })
+      .then((res) => {
+        toast.success(res?.data?.message);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
   };
   // useEffect(() => {
   //   if (tableData.length > 0 && tableData[0]?.ID) {
@@ -128,7 +129,6 @@ const RoleMaster = () => {
   // }, [tableData]);
   useEffect(() => {
     handleTableData();
-
   }, []);
   return (
     <>

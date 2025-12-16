@@ -1,10 +1,5 @@
-import React, { useEffect, useState } from "react";
-import Heading from "../components/UI/Heading";
-import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
-import { apiUrls } from "../networkServices/apiEndpoints";
-import { headers } from "../utils/apitools";
+import React, { useState } from "react";
 import ReactSelect from "../components/formComponent/ReactSelect";
-import axios from "axios";
 
 const AddDashboardModal = ({ visible, setVisible }) => {
   const [dashboard, setDashboard] = useState([]);
@@ -13,21 +8,6 @@ const AddDashboardModal = ({ visible, setVisible }) => {
     Dashboard: "",
   });
 
-  const getDashboard = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.kk, form, { headers })
-        .then((res) => {
-          const teams = res?.data.data.map((item) => {
-            return { label: item?.Team, value: item?.TeamID };
-          });
-          setTeam(teams);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-  };
   const handleDeliveryChange = (name, e) => {
     const { value } = e;
     setFormData({
@@ -35,9 +15,7 @@ const AddDashboardModal = ({ visible, setVisible }) => {
       [name]: value,
     });
   };
-  useEffect(() => {
-    getDashboard();
-  });
+
   return (
     <>
       <div className="card p-2">

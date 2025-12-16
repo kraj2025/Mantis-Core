@@ -15,6 +15,7 @@ import { headers } from "../utils/apitools";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../networkServices/axiosInstance";
 
 ChartJS.register(
   CategoryScale,
@@ -34,12 +35,12 @@ const CoordinatoeTotalPending = () => {
   );
 
   const handleFirstDashboardCount = (developerId, searchType) => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-    form.append("DeveloperID", developerId);
-    form.append("SearchType", searchType == "" ? "0" : searchType);
-    axios
-      .post(apiUrls?.CoorDashboard_Total_Pending, form, { headers })
+       axiosInstances
+      .post(apiUrls.CoorDashboard_Total_Pending, {
+        CoordinatorID: Number(useCryptoLocalStorage("user_Data", "get", "ID")),
+        DeveloperID: Number(developerId),
+        SearchType: Number(searchType == "" ? "0" : searchType),
+      })
       .then((res) => {
         const response = res?.data?.data;
 
@@ -116,6 +117,9 @@ const CoordinatoeTotalPending = () => {
           usePointStyle: true,
           pointStyle: "circle",
         },
+      },
+      datalabels: {
+        display: false, // 👈 disables value labels on bars
       },
     },
     scales: {

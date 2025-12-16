@@ -34,10 +34,13 @@ import ManagerTotalPendingChart from "./ManagerTotalPendingChart";
 import { useDispatch } from "react-redux";
 import LandingVideoModal from "./LandingVideoModal";
 import { axiosInstances } from "../networkServices/axiosInstance";
+import DeveloperFreeHours from "./DeveloperFreeHours";
+import ManagerVsActualWorkingHour from "./ManagerVsActualWorkingHour";
+import PointwiseResolutionWeekWise from "./PointwiseResolutionWeekWise";
+import PointwiseResolutionDayWise from "./PointwiseResolutionDayWise";
 const ManagerDashboard = () => {
-  const { memberID, developerSearchType , setToggleModal, ToggleModal} = useSelector(
-    (state) => state?.loadingSlice
-  );
+  const { memberID, developerSearchType, setToggleModal, ToggleModal } =
+    useSelector((state) => state?.loadingSlice);
   const dispatch = useDispatch();
   const handleClose = () => {
     dispatch(setToggleModal(true));
@@ -110,31 +113,41 @@ const ManagerDashboard = () => {
   // console.log("birtdatyfadaadaddaad", birthDayData);
   const handleHeightOfBirthDaycardApi = () => {
     axiosInstances
-         .post(apiUrls.Birthday_Anniversary_Interface_Search, {
-           searchType: String("Search"),
-         })
-        .then((res) => {
-          setBirthDayData(res?.data?.dt);
-          setAnniverssary(res?.data?.dtAnniversary);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+      .post(apiUrls.Birthday_Anniversary_Interface_Search, {
+        searchType: String("Search"),
+      })
+      .then((res) => {
+        setBirthDayData(res?.data?.data);
+        // setBirthDayData(res?.data?.dt);
+        setAnniverssary(res?.data?.dtAnniversary);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const handleFirstDashboardCount = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("Title", "Heads"),
-      form.append("DeveloperID", memberID || 0),
-      axios
-        .post(apiUrls?.DevDashboard_Summary, form, { headers })
-        .then((res) => {
-          setCountData(res?.data?.dtSummary[0]);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append("Title", "Heads"),
+    //   form.append("DeveloperID", memberID || 0),
+    // axios
+    //   .post(apiUrls?.DevDashboard_Summary, form, { headers })
+
+    const payload = {
+      ID: useCryptoLocalStorage("user_Data", "get", "ID"),
+      Title: "Heads",
+      DeveloperID: String(memberID || 0),
+    };
+
+    axiosInstances
+      .post(apiUrls?.DevDashboard_Summary, payload)
+      .then((res) => {
+        setCountData(res?.data?.dtSummary[0]);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const [showLabels, setShowLabels] = useState(false);
@@ -161,13 +174,22 @@ const ManagerDashboard = () => {
 
   const handleMultiChart = (value, developerId, searchType) => {
     const lotus = moment(value).format("YYYY-MM-DD");
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("dtFrom", lotus),
-      form.append("DeveloperID", developerId);
-    form.append("SearchType", searchType === "" ? "0" : searchType);
-    axios
-      .post(apiUrls?.CoorDashboard_Quotation_Month, form, { headers })
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append("dtFrom", lotus),
+    //   form.append("DeveloperID", developerId);
+    // form.append("SearchType", searchType === "" ? "0" : searchType);
+    // axios
+    //   .post(apiUrls?.CoorDashboard_Quotation_Month, form, { headers })
+    const payload = {
+      ID: useCryptoLocalStorage("user_Data", "get", "ID"),
+      dtFrom: lotus,
+      DeveloperID: developerId,
+      SearchType: searchType === "" ? "0" : searchType,
+    };
+
+    axiosInstances
+      .post(apiUrls?.CoorDashboard_Quotation_Month, payload)
       .then((res) => {
         setFilterData(res?.data?.data);
       })
@@ -177,17 +199,24 @@ const ManagerDashboard = () => {
   };
 
   const handleNews = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("IsFlash", "0"),
-      axios
-        .post(apiUrls?.Circular_News, form, { headers })
-        .then((res) => {
-          setNewsList(res?.data?.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls.Circular_News, {
+        // IsFlash: String("0"),
+        RoleID: Number(useCryptoLocalStorage("user_Data", "get", "RoleID")),
+      })
+      .then((res) => {
+        console.log("Circular_News", res);
+        const data = res?.data?.data;
+        setNewsList(res?.data?.data);
+        if (data.some((item) => item.IsView === 0)) {
+          setVisible(true); // Modal khol do
+        } else {
+          setVisible(false); // Modal band rakho
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const handleNewsModal = (item) => {
@@ -263,7 +292,7 @@ const ManagerDashboard = () => {
   };
   return (
     <>
-    {/* {!ToggleModal && <LandingVideoModal onClose={() => handleClose()} />} */}
+      {/* {!ToggleModal && <LandingVideoModal onClose={() => handleClose()} />} */}
       {registerModal.isShow && (
         <Modal
           visible={registerModal?.isShow}
@@ -414,7 +443,7 @@ const ManagerDashboard = () => {
                     ></i>
                     <div style={{ textAlign: "center", marginLeft: "33px" }}>
                       {/* <SpeedometerChart getItem={getItem} /> */}
-                        <span>Coming Soon...</span>
+                      <span>Coming Soon...</span>
                     </div>
                   </div>
                 </div>
@@ -430,10 +459,11 @@ const ManagerDashboard = () => {
                 <span style={{ fontWeight: 700, color: "red" }}>
                   {t("News List")}
                 </span>
-                ( {moment(payloadData?.fromDate)
+                ({" "}
+                {moment(payloadData?.fromDate)
                   .startOf("month")
-                  .format("DD-MMM-YYYY")} -{" "}
-                {moment(payloadData?.toDate).format("DD-MMM-YYYY")} )
+                  .format("DD-MMM-YYYY")}{" "}
+                - {moment(payloadData?.toDate).format("DD-MMM-YYYY")} )
               </div>
               <div
                 style={{
@@ -822,7 +852,9 @@ const ManagerDashboard = () => {
                 style={{ width: "100%", height: "153px" }}
               >
                 <div className="d-flex flex-wrap mainHeader">
-                  <label className="ml-2 mt-1">{t("Recovery By Quarter")}</label>
+                  <label className="ml-2 mt-1">
+                    {t("Recovery By Quarter")}
+                  </label>
                   <ManagerRecoveryQuarter />
                 </div>
               </div>
@@ -832,7 +864,7 @@ const ManagerDashboard = () => {
             <div className="mainDashboardwrp">
               <div
                 className="mainBox1"
-                style={{ width: "100%", height: "153px" }}
+                style={{ width: "100%", height: "175px" }}
               >
                 <div className="d-flex flex-wrap mainHeader">
                   <label className="ml-2 mt-1">Ageing POC</label>
@@ -845,13 +877,73 @@ const ManagerDashboard = () => {
             <div className="mainDashboardwrp">
               <div
                 className="mainBox1"
-                style={{ width: "100%", height: "153px" }}
+                style={{ width: "100%", height: "175px" }}
               >
                 <div className="d-flex flex-wrap mainHeader">
                   <label className="ml-2 mt-1">
                     {t("Total Pending Balance")}
                   </label>
                   <ManagerTotalPendingChart />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="col-md-3 col-sm-12 mt-2">
+            <div className="mainDashboardwrp">
+              <div
+                className="mainBox1"
+                style={{ width: "100%", height: "175px" }}
+              >
+                <div className="d-flex flex-wrap mainHeader">
+                  <label className="ml-2 mt-1">
+                    {t("Developer Free ManMinutes")}
+                  </label>
+                  <DeveloperFreeHours />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="col-md-3 col-sm-12 mt-2">
+            <div className="mainDashboardwrp">
+              <div
+                className="mainBox1"
+                style={{ width: "100%", height: "175px" }}
+              >
+                <div className="d-flex flex-wrap mainHeader">
+                  <label className="ml-2 mt-1">
+                    {t("Manager ManMinutes Vs Developer ManMinutes")}
+                  </label>
+                  <ManagerVsActualWorkingHour />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="col-md-3 col-sm-12 mt-2">
+            <div className="mainDashboardwrp">
+              <div
+                className="mainBox1"
+                style={{ width: "100%", height: "175px" }}
+              >
+                <div className="d-flex flex-wrap mainHeader">
+                  <label className="ml-2 mt-1">
+                    {t("Tickets Resolution Daywise")}
+                  </label>
+                  <PointwiseResolutionDayWise />
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="col-md-3 col-sm-12 mt-2">
+            <div className="mainDashboardwrp">
+              <div
+                className="mainBox1"
+                style={{ width: "100%", height: "175px" }}
+              >
+                <div className="d-flex flex-wrap mainHeader">
+                  <label className="ml-2 mt-1">
+                    {t("Tickets Resolution Weekwise")}
+                  </label>
+                  <PointwiseResolutionWeekWise />
                 </div>
               </div>
             </div>

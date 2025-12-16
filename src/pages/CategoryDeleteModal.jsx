@@ -5,34 +5,31 @@ import { headers } from "../utils/apitools";
 import axios from "axios";
 import Loading from "../components/loader/Loading";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../networkServices/axiosInstance";
 
 const CategoryDeleteModal = ({ visible, setVisible }) => {
-  console.log("visible", visible);
   const [loading, setLoading] = useState(false);
   const handleRemove = () => {
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("RoleID", useCryptoLocalStorage("user_Data", "get", "RoleID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname") ),
-      form.append("ProjectID", visible?.data?.Id),
-      form.append("CategoryName", ""),
-      form.append("Category", ""),
-      form.append("ActionType", "DeleteCategoryMapping"),
-      axios
-        .post(apiUrls?.ProjectMasterUpdate, form, { headers })
-        .then((res) => {
-          if (res?.data?.status === true) {
-            toast.success(res?.data?.message);
-            setLoading(false);
-          } else {
-            toast.error(res?.data?.message);
-            setLoading(false);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls.ProjectMasterUpdate, {
+        ProjectID: String(visible?.data?.Id),
+        CategoryName: String(""),
+        Category: String(""),
+        ActionType: String("DeleteCategoryMapping"),
+      })
+      .then((res) => {
+        if (res?.data?.success === true) {
+          toast.success(res?.data?.message);
+          setLoading(false);
+        } else {
+          toast.error(res?.data?.message);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   return (
     <>

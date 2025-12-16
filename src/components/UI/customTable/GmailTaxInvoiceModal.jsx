@@ -11,6 +11,7 @@ import Heading from "../Heading";
 import ReactSelect from "../../formComponent/ReactSelect";
 import Loading from "../../loader/Loading";
 import { useCryptoLocalStorage } from "../../../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../../../networkServices/axiosInstance";
 
 const GmailTaxInvoiceModal = (visible) => {
   // console.log("visible visible", visible);
@@ -28,23 +29,18 @@ const GmailTaxInvoiceModal = (visible) => {
   };
 
   const handleQuotation_Email_Log = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      // form.append("DocumentType", "TaxInvoice"),
-      form.append("TaxId", visible?.visible?.showData?.ID),
-      axios
-        .post(apiUrls?.TaxInvoiceLog, form, { headers })
-        .then((res) => {
-          console.log("email log", res);
-          setTableData(res?.data?.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    
+    axiosInstances
+      .post(apiUrls?.TaxInvoiceLog, {
+        TaxId: String(visible?.visible?.showData?.ID),
+      })
+      .then((res) => {
+      
+        setTableData(res?.data?.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const handleQuotation_Email = () => {
     if (formData?.EmailTo == "") {
@@ -53,42 +49,34 @@ const GmailTaxInvoiceModal = (visible) => {
       toast.error("Please Enter EmailCC.");
     } else {
       setLoading(true);
-      let form = new FormData();
-      form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-        form.append(
-          "LoginName",
-          useCryptoLocalStorage("user_Data", "get", "realname")
-        ),
-        // form.append("DocumentType", "TaxInvoice"),
-        form.append("TaxId", visible?.visible?.showData?.ID),
-        // form.append("EmailTo", formData?.EmailTo),
-        form.append("ToEmail", formData?.EmailTo),
-        form.append("CcEmail", formData?.EmailCC),
-        // form.append("EmailCC", formData?.EmailCC),
-        axios
-          .post(apiUrls?.SendTaxInvoiceMailFinal, form, { headers })
-          // .post(apiUrls?.Quotation_Email, form, { headers })
-          .then((res) => {
-            if (res?.data?.status === true) {
-              toast.success(res?.data?.messsage);
-              handleQuotation_Email_Log();
-              setFormData({
-                EmailTo: "",
-                EmailCC: "",
-              });
-              setLoading(false);
-            } else {
-              toast.error(res?.data?.messsage);
-              setLoading(false);
-            }
-          })
-          .catch((err) => {
-            console.log(err);
+      const payload = {
+        TaxId: Number(visible?.visible?.showData?.ID || 0),
+        ToEmail: String(formData?.EmailTo || ""),
+        CcEmail: String(formData?.EmailCC || ""),
+      };
+
+      axiosInstances
+        .post(apiUrls?.SendTaxInvoiceMailFinal, payload)
+        .then((res) => {
+          if (res?.data?.success === true) {
+            toast.success(res?.data?.message);
+            handleQuotation_Email_Log();
+            setFormData({
+              EmailTo: "",
+              EmailCC: "",
+            });
             setLoading(false);
-          });
+          } else {
+            toast.error(res?.data?.message);
+            setLoading(false);
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+          setLoading(false);
+        });
     }
   };
- 
 
   useEffect(() => {
     handleQuotation_Email_Log();
@@ -146,7 +134,7 @@ const GmailTaxInvoiceModal = (visible) => {
       </div>
       {tableData?.length > 0 && (
         <div className="card p-0">
-          <Heading title={"Search Details"}/>
+          <Heading title={"Search Details"} />
           <Tables
             thead={gmailQuotationTHEAD}
             tbody={tableData?.map((ele, index) => ({

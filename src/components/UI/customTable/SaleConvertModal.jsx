@@ -11,9 +11,9 @@ import moment from "moment";
 import Loading from "../../loader/Loading";
 import { useDispatch } from "react-redux";
 import { useCryptoLocalStorage } from "../../../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../../../networkServices/axiosInstance";
 
-const SaleConvertModal = ({ visible ,setVisible ,handleSearch}) => {
-  console.log(visible);
+const SaleConvertModal = ({ visible, setVisible, handleSearch }) => {
   const [loading, setLoading] = useState(false);
   const { VITE_DATE_FORMAT } = import.meta.env;
   const [tableData, setTableData] = useState([]);
@@ -41,18 +41,20 @@ const SaleConvertModal = ({ visible ,setVisible ,handleSearch}) => {
   };
 
   const getProjectEmail = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("ProjectID", visible?.showData?.ProjectID),
-      axios
-        .post(apiUrls?.ProjectSelect, form, { headers })
-        .then((res) => {
-          setProjectEmail(res?.data?.data[0]);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls.ProjectSelect, {
+        ProjectID: Number(visible?.showData?.ProjectID),
+        IsMaster: String("0"),
+        WingID: Number("0"),
+        TeamID: Number("0"),
+        VerticalID: Number("0"),
+      })
+      .then((res) => {
+        setProjectEmail(res?.data?.data[0]);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const handleAddRow = () => {
@@ -73,35 +75,35 @@ const SaleConvertModal = ({ visible ,setVisible ,handleSearch}) => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
-  
+
   const searchHandleChange = (e, index) => {
     const { name, value } = e.target;
-  
+
     if (typeof index === "undefined") {
       console.error("Index is not defined. Please provide a valid index.");
       return;
     }
-  
+
     setTableData((prevTableData) => {
       const updatedTableData = [...prevTableData];
       const newErrors = { ...errors };
-  
+
       if (!updatedTableData[index]) return prevTableData;
-  
+
       let netAmount = parseFloat(visible?.showData?.NetAmount) || 0;
-  
+
       if (name === "Percent") {
         let percentValue = parseFloat(value);
         if (percentValue > 100) percentValue = 100;
-  
+
         let calculatedAmount = (percentValue / 100) * netAmount;
-  
+
         let totalAmount = updatedTableData.reduce((sum, row, i) => {
           return (
-            sum + (i === index ? calculatedAmount : parseFloat(row.Amount ))
+            sum + (i === index ? calculatedAmount : parseFloat(row.Amount))
           );
         }, 0);
-  
+
         if (totalAmount > netAmount) {
           newErrors[index] = "Enter Valid Percent.";
         } else {
@@ -115,12 +117,12 @@ const SaleConvertModal = ({ visible ,setVisible ,handleSearch}) => {
       } else if (name === "Amount") {
         let enteredAmount = value; // allow raw input including empty string
         let parsedAmount = parseFloat(enteredAmount);
-      
+
         let totalAmount = updatedTableData.reduce((sum, row, i) => {
           let amt = i === index ? parsedAmount : parseFloat(row.Amount || 0);
           return sum + (isNaN(amt) ? 0 : amt);
         }, 0);
-      
+
         if (!isNaN(parsedAmount) && totalAmount > netAmount) {
           newErrors[index] = "Enter Valid Amount.";
         } else {
@@ -133,7 +135,6 @@ const SaleConvertModal = ({ visible ,setVisible ,handleSearch}) => {
                 ? ((parsedAmount / netAmount) * 100).toFixed(2)
                 : "",
           };
-        
         }
       } else {
         // Handle all other generic fields like Terms, Remark, etc.
@@ -142,12 +143,11 @@ const SaleConvertModal = ({ visible ,setVisible ,handleSearch}) => {
           [name]: value,
         };
       }
-  
+
       setErrors(newErrors);
       return updatedTableData;
     });
   };
-  
 
   const handleRemoveRow = (index) => {
     setTableData((prevTableData) =>
@@ -156,28 +156,25 @@ const SaleConvertModal = ({ visible ,setVisible ,handleSearch}) => {
   };
 
   const Quotation_PaymentTerms_Select = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("QuotationID", visible?.showData?.EncryptID),
-      axios
-        .post(apiUrls?.Quotation_PaymentTerms_Select, form, { headers })
-        .then((res) => {
-          // console.log("terms data", res?.data?.data);
-          const uploadData = res?.data?.data;
-          const updatedData = uploadData.map((item) => ({
-            ...item,
-            ExpectedDate: item?.ExpectedDate || new Date(),
-            Amount: item.Amount || 0, // Default to empty string if undefined
-            Remark: item.Remark || "",
-            Percent: item.Percent || 0, // Default to 0 if undefined
-          }));
+    axiosInstances
+      .post(apiUrls.Quotation_PaymentTerms_Select, {
+        QuotationID: String(visible?.showData?.EncryptID),
+      })
+      .then((res) => {
+        const uploadData = res?.data?.data;
+        const updatedData = uploadData.map((item) => ({
+          ...item,
+          ExpectedDate: item?.ExpectedDate || new Date(),
+          Amount: item.Amount || 0, // Default to empty string if undefined
+          Remark: item.Remark || "",
+          Percent: item.Percent || 0, // Default to 0 if undefined
+        }));
 
-          setTableData(updatedData);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+        setTableData(updatedData);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const handleSaleConvert = () => {
@@ -196,36 +193,21 @@ const SaleConvertModal = ({ visible ,setVisible ,handleSearch}) => {
       });
     });
 
-    // let PaymentTerms = [];
-    // termsdata?.map((val, index) => {
-    //   PaymentTerms?.push({
-    //     "S.No.": index,
-    //     TermsID: val?.TermsID,
-    //     Terms: val?.Terms,
-    //   });
-    // });
+
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("QuotationID", visible?.showData?.EncryptID),
-      form.append("EmailTo", formData?.EmailTo),
-      form.append("EmailCC", formData?.EmailCC),
-      // form.append("InstallmentNo", formData?.Installment),
-      form.append(
-        "dtAcknowledgment",
-        moment(formData?.AcknowledgmentDate).format("YYYY-MM-DD")
-      ),
-      form.append("InstallmentData", JSON.stringify(DatePayload));
-    // form.append("PaymentTerms", JSON.stringify(PaymentTerms));
-    axios
-      .post(apiUrls?.Quotation_SalesConvert, form, { headers })
+  
+    axiosInstances
+      .post(apiUrls.Quotation_SalesConvert, {
+        QuotationID: String(visible?.showData?.EncryptID),
+        dtAcknowledgement:  String(moment(formData?.AcknowledgmentDate).format("YYYY-MM-DD")),
+        InstallmentData:  String(DatePayload),
+      })
       .then((res) => {
-        if (res?.data?.status == true) {
+        if (res?.data?.success == true) {
           toast.success(res?.data?.message);
           setLoading(false);
-          setVisible(false)
-          handleSearch()
+          setVisible(false);
+          handleSearch();
         } else {
           toast.error(res?.data?.message);
           setLoading(false);
@@ -353,7 +335,7 @@ const SaleConvertModal = ({ visible ,setVisible ,handleSearch}) => {
                       lable="%"
                       placeholder=" "
                       onChange={(e) => searchHandleChange(e, index)}
-                      value={ele?.Percent }
+                      value={ele?.Percent}
                       // respclass="col-xl-12 col-md-4 col-sm-6 col-12 mt-2"
                     />
                     {errors[index] && (
@@ -379,7 +361,7 @@ const SaleConvertModal = ({ visible ,setVisible ,handleSearch}) => {
                       lable="₹"
                       placeholder=" "
                       onChange={(e) => searchHandleChange(e, index)}
-                      value={ele?.Amount }
+                      value={ele?.Amount}
                     />
                     {errors[index] && (
                       <p

@@ -12,6 +12,7 @@ import DocumentTypeModal from "../components/UI/customTable/DocumentTypeModal";
 import Modal from "../components/modalComponent/Modal";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
 import { useTranslation } from "react-i18next";
+import { axiosInstances } from "../networkServices/axiosInstance";
 
 const UploadDocumentProject = ({ data }) => {
   const [t] = useTranslation();
@@ -56,7 +57,7 @@ const UploadDocumentProject = ({ data }) => {
         });
   };
 
-  const handleUploadDocument = () => {
+  const handleUploadDocument = async () => {
     setLoading(true);
 
     // Convert base64 to Blob
@@ -73,48 +74,75 @@ const UploadDocumentProject = ({ data }) => {
       type: "application/pdf",
     });
 
-    console.log("pdfFile", pdfFile);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-    form.append(
-      "LoginName",
-      useCryptoLocalStorage("user_Data", "get", "realname")
-    );
-    form.append("ProjectID", data?.ProjectID || data?.Id);
-    form.append("DocumentTypeID", formData?.DocumentType);
-    form.append(
-      "DocumentTypeName",
-      documenttype.find((item) => item?.value === formData?.DocumentType)?.label
-    );
+    const toBase64 = (file) =>
+      new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => {
+          const result = reader.result;
+          // Remove the "data:application/...;base64," prefix
+          const base64 = result.split(",")[1]?.trim();
+          resolve(base64);
+        };
+        reader.onerror = (error) => reject(error);
+      });
+
+    // console.log("pdfFile", pdfFile);
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
+    // form.append(
+    //   "LoginName",
+    //   useCryptoLocalStorage("user_Data", "get", "realname")
+    // );
+    // form.append("ProjectID", data?.ProjectID || data?.Id);
+    // form.append("DocumentTypeID", formData?.DocumentType);
+    // form.append(
+    //   "DocumentTypeName",
+    //   documenttype.find((item) => item?.value === formData?.DocumentType)?.label
+    // );
 
     // Append the PDF file
-    form.append("File", pdfFile);
-    form.append("FileExtension", formData?.FileExtension),
-      axios
-        .post(apiUrls?.UploadDocument, form, { headers })
-        .then((res) => {
-          if (res?.data?.status == true) {
-            toast.success(res?.data?.message);
-            setLoading(false);
-            setFormData({
-              ...formData,
-              DocumentType: "",
-              SelectFile: "",
-              Document_Base64: "",
-              FileExtension: "",
-            });
-            handleSearch();
-            document.getElementById("SelectFile").value = "";
-            setVisible(false);
-          } else {
-            toast.error(res?.data?.message);
-            setLoading(false);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
+    // form.append("File", pdfFile);
+    // form.append("FileExtension", formData?.FileExtension),
+    // axios
+    //   .post(apiUrls?.UploadDocument, form, { headers })
+    const base64File = pdfFile ? await toBase64(pdfFile) : "";
+    const payload = {
+      ProjectID: Number(data?.ProjectID || data?.Id),
+      DocumentTypeID: Number(formData?.DocumentType),
+      DocumentTypeName:
+        String(
+          documenttype.find((item) => item?.value === formData?.DocumentType)
+            ?.label
+        ) || "",
+      Document_Base64: base64File,
+      FileExtension: String(formData?.FileExtension),
+    };
+    axiosInstances
+      .post(apiUrls?.UploadDocument, payload)
+      .then((res) => {
+        if (res?.data?.success == true) {
+          toast.success(res?.data?.message);
           setLoading(false);
-        });
+          setFormData({
+            ...formData,
+            DocumentType: "",
+            SelectFile: "",
+            Document_Base64: "",
+            FileExtension: "",
+          });
+          handleSearch();
+          document.getElementById("SelectFile").value = "";
+          setVisible(false);
+        } else {
+          toast.error(res?.data?.message);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
   };
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -142,61 +170,59 @@ const UploadDocumentProject = ({ data }) => {
 
   const handleDocRemove = (ele) => {
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("ProjectID", ele?.ProjectID),
-      form.append("ActionType", "DeleteDocument"),
-      form.append("DocumentPrimaryID", ele?.UniqueID),
-      axios
-        .post(apiUrls?.ProjectMasterUpdate, form, { headers })
-        .then((res) => {
-          if (res?.data?.status === true) {
-            toast.success(res?.data?.message);
-            handleSearch();
-            setLoading(false);
-          } else {
-            toast.error(res?.data?.message);
-            setLoading(false);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append(
+    //     "LoginName",
+    //     useCryptoLocalStorage("user_Data", "get", "realname")
+    //   ),
+    //   form.append("ProjectID", ele?.ProjectID),
+    //   form.append("ActionType", "DeleteDocument"),
+    //   form.append("DocumentPrimaryID", ele?.UniqueID),
+    //   axios
+    //     .post(apiUrls?.ProjectMasterUpdate, form, { headers })
+    axiosInstances
+      .post(apiUrls.ProjectMasterUpdate, {
+        ProjectID: Number(ele?.ProjectID),
+        ActionType: "DeleteDocument",
+        User_ID: ele?.UniqueID,
+      })
+      .then((res) => {
+        if (res?.data?.success === true) {
+          toast.success(res?.data?.message);
+          handleSearch();
           setLoading(false);
-        });
+        } else {
+          toast.error(res?.data?.message);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
   };
 
   const handleSearch = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "RoleID",
-        useCryptoLocalStorage("user_Data", "get", "RoleID")
-      ),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("VerticalID", ""),
-      form.append("TeamID", ""),
-      form.append("WingID", ""),
-      form.append("POC1", ""),
-      form.append("POC2", ""),
-      form.append("POC3", ""),
-      form.append("Status", ""),
-      form.append("ProjectID", data?.Id || data?.ProjectID),
-      // form.append("Title", "ClickToShift"),
-      axios
-        .post(apiUrls?.UploadDocument_Search, form, { headers })
-        .then((res) => {
-          setTableData(res?.data?.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    const payload = {
+      RoleID: useCryptoLocalStorage("user_Data", "get", "RoleID"),
+      VerticalID: "",
+      TeamID: "",
+      WingID: "",
+      POC1: "",
+      POC2: "",
+      POC3: "",
+      Status: "",
+      ProjectID: String(data?.Id || data?.ProjectID),
+    };
+    axiosInstances
+      .post(apiUrls?.UploadDocument_Search, payload)
+      .then((res) => {
+        setTableData(res?.data?.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   useEffect(() => {
     getType();
@@ -261,7 +287,9 @@ const UploadDocumentProject = ({ data }) => {
   const processFile = (file) => {
     if (file) {
       if (file.size > 1 * 1024 * 1024) {
-        toast.error("File size exceeds 1MB limit, Please compress the file below 1MB");
+        toast.error(
+          "File size exceeds 1MB limit, Please compress the file below 1MB"
+        );
         return;
       }
 

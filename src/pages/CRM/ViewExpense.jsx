@@ -3,8 +3,6 @@ import Heading from "../../components/UI/Heading";
 import DatePickerMonth from "../../components/formComponent/DatePickerMonth";
 import MultiSelectComp from "../../components/formComponent/MultiSelectComp";
 import { apiUrls } from "../../networkServices/apiEndpoints";
-import axios from "axios";
-import { headers } from "../../utils/apitools";
 import ReactSelect from "../../components/formComponent/ReactSelect";
 import Tables from "../../components/UI/customTable";
 import { ViewExpenseThead } from "../../components/modalComponent/Utils/HealperThead";
@@ -32,7 +30,7 @@ import OtherDetailModal from "./OtherDetailModal";
 import ViewExpenseDelete from "./ViewExpenseDelete";
 import Loading from "../../components/loader/Loading";
 import { useCryptoLocalStorage } from "../../utils/hooks/useCryptoLocalStorage";
-import AmountSubmissionSeeMoreList from "../../networkServices/AmountSubmissionSeeMoreList";
+import { axiosInstances } from "../../networkServices/axiosInstance";
 
 const currentDate = new Date();
 const currentMonth = currentDate.getMonth() + 1; // Months are 0-indexed, so add 1
@@ -138,88 +136,103 @@ const ViewExpense = () => {
   };
 
   const getReporter = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.GetReportingTo_Employee, form, { headers })
-        .then((res) => {
-          const reporters = res?.data.data.map((item) => {
-            return { label: item?.NAME, value: item?.Employee_ID };
-          });
-          setReporter(reporters);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.GetReportingTo_Employee, {})
+      // let form = new FormData();
+      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+      //   axios
+      //     .post(apiUrls?.GetReportingTo_Employee, form, { headers })
+      .then((res) => {
+        const reporters = res?.data.data.map((item) => {
+          return { label: item?.NAME, value: item?.Employee_ID };
         });
+        setReporter(reporters);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const getEmployee = () => {
-    let form = new FormData();
-    form.append(
-      "CrmEmployeeID",
-      useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-    ),
-      form.append(
-        "RoleID",
-        useCryptoLocalStorage("user_Data", "get", "RoleID")
-      ),
-      axios
-        .post(apiUrls?.EmployeeBind, form, { headers })
-        .then((res) => {
-          const wings = res?.data?.data?.map((item) => {
-            return { label: item?.EmployeeName, value: item?.Employee_ID };
-          });
-          setEmployee(wings);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.EmployeeBind, {
+        CrmEmployeeID: Number(
+          useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+        ),
+        RoleID: Number(useCryptoLocalStorage("user_Data", "get", "RoleID")),
+      })
+      // let form = new FormData();
+      // form.append(
+      //   "CrmEmployeeID",
+      //   useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+      // ),
+      //   form.append(
+      //     "RoleID",
+      //     useCryptoLocalStorage("user_Data", "get", "RoleID")
+      //   ),
+      //   axios
+      //     .post(apiUrls?.EmployeeBind, form, { headers })
+      .then((res) => {
+        const wings = res?.data?.data?.map((item) => {
+          return { label: item?.EmployeeName, value: item?.Employee_ID };
         });
+        setEmployee(wings);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const getVertical = () => {
-    let form = new FormData();
-    form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Vertical_Select, form, { headers })
-        .then((res) => {
-          const verticals = res?.data.data.map((item) => {
-            return { name: item?.Vertical, code: item?.VerticalID };
-          });
-          setVertical(verticals);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.Vertical_Select, {})
+      // let form = new FormData();
+      // form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
+      //   axios
+      //     .post(apiUrls?.Vertical_Select, form, { headers })
+      .then((res) => {
+        const verticals = res?.data.data.map((item) => {
+          return { name: item?.Vertical, code: item?.VerticalID };
         });
+        setVertical(verticals);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getTeam = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Team_Select, form, { headers })
-        .then((res) => {
-          const teams = res?.data.data.map((item) => {
-            return { name: item?.Team, code: item?.TeamID };
-          });
-          setTeam(teams);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.Team_Select, {})
+      // let form = new FormData();
+      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+      //   axios
+      //     .post(apiUrls?.Team_Select, form, { headers })
+      .then((res) => {
+        const teams = res?.data.data.map((item) => {
+          return { name: item?.Team, code: item?.TeamID };
         });
+        setTeam(teams);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getWing = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Wing_Select, form, { headers })
-        .then((res) => {
-          const wings = res?.data.data.map((item) => {
-            return { name: item?.Wing, code: item?.WingID };
-          });
-          setWing(wings);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.Wing_Select, {})
+      // let form = new FormData();
+      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+      //   axios
+      //     .post(apiUrls?.Wing_Select, form, { headers })
+      .then((res) => {
+        const wings = res?.data.data.map((item) => {
+          return { name: item?.Wing, code: item?.WingID };
         });
+        setWing(wings);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const handleMultiSelectChange = (name, selectedOptions) => {
@@ -256,38 +269,55 @@ const ViewExpense = () => {
       toast.error("Please Select Expense Type.");
     } else {
       setLoading(true);
-      let form = new FormData();
-      form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID"));
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      );
-      form.append(
-        "CrmEmployeeID",
-        useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-      );
-      form.append(
-        "ExpenseEmployeeID",
-        formData?.Employee ? formData.Employee : "0"
-        // IsManager == 1
-        //   ? "0"
-        //   : formData?.Employee
-        //     ? formData.Employee
-        //     : useCryptoLocalStorage("user_Data", "get", "ID")
-      );
-      form.append("Month", formData?.currentMonth),
-        form.append("Year", formData?.currentYear),
-        form.append("Status", "0");
-      form.append("TripName", "");
-      form.append("ExpenseType", formData?.ExpenseType);
-      form.append("VerticalID", formData?.VerticalID);
-      form.append("TeamID", formData?.TeamID);
-      form.append("WingID", formData?.WingID);
+      axiosInstances
+        .post(apiUrls.ViewExpenseList, {
+          ExpenseEmployeeID: formData?.Employee ? Number(formData.Employee) : 0,
+          Month: Number(formData?.currentMonth),
+          Year: Number(formData?.currentYear),
+          Status: String(0),
+          TripName: String(""),
+          ExpenseType: String(formData?.ExpenseType),
+          VerticalID: Number(formData?.VerticalID),
+          TeamID: Number(formData?.TeamID),
+          WingID: Number(formData?.WingID),
+          CrmEmployeeID: Number(
+            useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+          ),
+          IsAccountant: Number(0),
+          StatusType: Number(0),
+        })
+        // let form = new FormData();
+        // form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID"));
+        // form.append(
+        //   "LoginName",
+        //   useCryptoLocalStorage("user_Data", "get", "realname")
+        // );
+        // form.append(
+        //   "CrmEmployeeID",
+        //   useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+        // );
+        // form.append(
+        //   "ExpenseEmployeeID",
+        //   formData?.Employee ? formData.Employee : "0"
+        //   // IsManager == 1
+        //   //   ? "0"
+        //   //   : formData?.Employee
+        //   //     ? formData.Employee
+        //   //     : useCryptoLocalStorage("user_Data", "get", "ID")
+        // );
+        // form.append("Month", formData?.currentMonth),
+        //   form.append("Year", formData?.currentYear),
+        //   form.append("Status", "0");
+        // form.append("TripName", "");
+        // form.append("ExpenseType", formData?.ExpenseType);
+        // form.append("VerticalID", formData?.VerticalID);
+        // form.append("TeamID", formData?.TeamID);
+        // form.append("WingID", formData?.WingID);
 
-      axios
-        .post(apiUrls?.ViewExpenseList, form, { headers })
+        // axios
+        //   .post(apiUrls?.ViewExpenseList, form, { headers })
         .then((res) => {
-          if (res?.data?.status === true) {
+          if (res?.data?.success === true) {
             setTableData(res?.data?.data);
             setFilteredData(res?.data?.data);
             setLoading(false);
@@ -308,31 +338,50 @@ const ViewExpense = () => {
       toast.error("Please Select Expense Type.");
     } else {
       setLoading(true);
-      let form = new FormData();
-      form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID"));
-      form.append(
-        "CrmEmployeeID",
-        useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-      );
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      );
-      form.append(
-        "ExpenseEmployeeID",
-        useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-      );
-      form.append("Month", formData?.currentMonth),
-        form.append("Year", formData?.currentYear),
-        form.append("Status", "0");
-      form.append("TripName", "");
-      form.append("ExpenseType", formData?.ExpenseType);
-      form.append("VerticalID", formData?.VerticalID);
-      form.append("TeamID", formData?.TeamID);
-      form.append("WingID", formData?.WingID);
+      axiosInstances
+        .post(apiUrls.ViewExpenseList, {
+          ExpenseEmployeeID: Number(
+            formData?.Employee ? Number(formData.Employee) : 0
+          ),
+          Month: Number(formData?.currentMonth),
+          Year: Number(formData?.currentYear),
+          Status: String(0),
+          TripName: String(""),
+          ExpenseType: String(formData?.ExpenseType),
+          VerticalID: Number(formData?.VerticalID),
+          TeamID: Number(formData?.TeamID),
+          WingID: Number(formData?.WingID),
+          CrmEmployeeID: Number(
+            useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+          ),
+          IsAccountant: Number(0),
+          StatusType: Number(0),
+        })
+        // let form = new FormData();
+        // form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID"));
+        // form.append(
+        //   "CrmEmployeeID",
+        //   useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+        // );
+        // form.append(
+        //   "LoginName",
+        //   useCryptoLocalStorage("user_Data", "get", "realname")
+        // );
+        // form.append(
+        //   "ExpenseEmployeeID",
+        //   useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+        // );
+        // form.append("Month", formData?.currentMonth),
+        //   form.append("Year", formData?.currentYear),
+        //   form.append("Status", "0");
+        // form.append("TripName", "");
+        // form.append("ExpenseType", formData?.ExpenseType);
+        // form.append("VerticalID", formData?.VerticalID);
+        // form.append("TeamID", formData?.TeamID);
+        // form.append("WingID", formData?.WingID);
 
-      axios
-        .post(apiUrls?.ViewExpenseList, form, { headers })
+        // axios
+        //   .post(apiUrls?.ViewExpenseList, form, { headers })
         .then((res) => {
           if (res?.data?.status === true) {
             setTableData(res?.data?.data);
@@ -374,6 +423,66 @@ const ViewExpense = () => {
     getReporter();
     getEmployee();
   }, []);
+
+  const isCurrentMonthSelected = () => {
+    const today = new Date();
+    const currentMonth = today.getMonth() + 1; // months are 0-based
+    const currentYear = today.getFullYear();
+
+    // Previous month and year logic
+    const prevMonth = currentMonth === 1 ? 12 : currentMonth - 1;
+    const prevMonthYear = currentMonth === 1 ? currentYear - 1 : currentYear;
+
+    const isCurrentMonth =
+      formData.currentMonth === currentMonth &&
+      formData.currentYear === currentYear;
+
+    const isPreviousMonth =
+      formData.currentMonth === prevMonth &&
+      formData.currentYear === prevMonthYear;
+
+    // Check if today is within the first 5 days of the month
+    const isWithinFirst5Days = today.getDate() <= 5;
+
+    // Allow previous month only for first 5 days
+    if (isPreviousMonth && isWithinFirst5Days) {
+      return true; // enabled
+    } else if (isPreviousMonth && !isWithinFirst5Days) {
+      return false; // disabled
+    }
+
+    return isCurrentMonth; // normal current month behavior
+  };
+  const TwelthdayCurrentMonthSelected = () => {
+    const today = new Date();
+    const currentMonth = today.getMonth() + 1; // months are 0-based
+    const currentYear = today.getFullYear();
+
+    // Previous month and year logic
+    const prevMonth = currentMonth === 1 ? 12 : currentMonth - 1;
+    const prevMonthYear = currentMonth === 1 ? currentYear - 1 : currentYear;
+
+    const isCurrentMonth =
+      formData.currentMonth === currentMonth &&
+      formData.currentYear === currentYear;
+
+    const isPreviousMonth =
+      formData.currentMonth === prevMonth &&
+      formData.currentYear === prevMonthYear;
+
+    // Check if today is within the first 5 days of the month
+    const isWithinFirst5Days = today.getDate() <= 12;
+
+    // Allow previous month only for first 5 days
+    if (isPreviousMonth && isWithinFirst5Days) {
+      return true; // enabled
+    } else if (isPreviousMonth && !isWithinFirst5Days) {
+      return false; // disabled
+    }
+
+    return isCurrentMonth; // normal current month behavior
+  };
+
   return (
     <>
       {visible?.ShowApprove && (
@@ -679,7 +788,191 @@ const ViewExpense = () => {
             title={<span style={{ fontWeight: "bold" }}>Search Details</span>}
             secondTitle={
               <div className="d-flex">
-                <div style={{ padding: "0px !important", marginLeft: "10px" }}>
+                <div className="d-flex flex-wrap align-items-center">
+                  <div
+                    className="d-flex "
+                    style={{
+                      justifyContent: "flex-start",
+                      alignItems: "center",
+                    }}
+                  >
+                    <div
+                      className="legendcircleExpense"
+                      style={{
+                        backgroundColor: "#007bff",
+                        cursor: "pointer",
+                        width: "16px",
+                        height: "16px",
+                        borderRadius: "50%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "white",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      V
+                    </div>
+                    <span
+                      style={{
+                        color: "#007bff",
+                        fontWeight: "bold",
+                        marginLeft: "4px",
+                      }}
+                    >
+                      View
+                    </span>
+                  </div>
+
+                  <div
+                    className="d-flex "
+                    style={{
+                      justifyContent: "flex-start",
+                      alignItems: "center",
+                    }}
+                  >
+                    <div
+                      className="legendcircleExpense"
+                      style={{
+                        backgroundColor: "green",
+                        cursor: "pointer",
+                        width: "16px",
+                        height: "16px",
+                        borderRadius: "50%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "white",
+                        fontWeight: "bold",
+                        marginLeft: "5px",
+                      }}
+                    >
+                      A
+                    </div>
+                    <span
+                      style={{
+                        color: "green",
+                        fontWeight: "bold",
+                        marginLeft: "4px",
+                      }}
+                    >
+                      Approve
+                    </span>
+                  </div>
+
+                  <div
+                    className="d-flex "
+                    style={{
+                      justifyContent: "flex-start",
+                      alignItems: "center",
+                    }}
+                  >
+                    <div
+                      className="legendcircleExpense"
+                      style={{
+                        backgroundColor: "red",
+                        cursor: "pointer",
+                        width: "16px",
+                        height: "16px",
+                        borderRadius: "50%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "white",
+                        fontWeight: "bold",
+                        marginLeft: "5px",
+                      }}
+                    >
+                      R
+                    </div>
+                    <span
+                      style={{
+                        color: "red",
+                        fontWeight: "bold",
+                        marginLeft: "4px",
+                      }}
+                    >
+                      Reject
+                    </span>
+                  </div>
+
+                  <div
+                    className="d-flex "
+                    style={{
+                      justifyContent: "flex-start",
+                      alignItems: "center",
+                    }}
+                  >
+                    <div
+                      className="legendcircleExpense"
+                      style={{
+                        backgroundColor: "orange",
+                        cursor: "pointer",
+                        width: "16px",
+                        height: "16px",
+                        borderRadius: "50%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "white",
+                        fontWeight: "bold",
+                        marginLeft: "5px",
+                      }}
+                    >
+                      S
+                    </div>
+                    <span
+                      style={{
+                        color: "orange",
+                        fontWeight: "bold",
+                        marginLeft: "4px",
+                      }}
+                    >
+                      Submit
+                    </span>
+                  </div>
+                  <div
+                    className="d-flex "
+                    style={{
+                      justifyContent: "flex-start",
+                      alignItems: "center",
+                    }}
+                  >
+                    <div
+                      className="legendcircleExpense"
+                      style={{
+                        backgroundColor: "#EB3467",
+                        cursor: "pointer",
+                        width: "16px",
+                        height: "16px",
+                        borderRadius: "50%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: "white",
+                        fontWeight: "bold",
+                        marginLeft: "5px",
+                      }}
+                    >
+                      D
+                    </div>
+                    <span
+                      style={{
+                        color: "#EB3467",
+                        fontWeight: "bold",
+                        marginLeft: "4px",
+                        marginRight: "10px",
+                      }}
+                    >
+                      Delete
+                    </span>
+                  </div>
+                </div>
+                <span style={{ fontWeight: "bold", marginLeft: "10px" }}>
+                  Grand Total :&nbsp;
+                  {tableData?.reduce((acc, curr) => acc + (curr.Total || 0), 0)}
+                </span>
+                {/* <div style={{ padding: "0px !important", marginLeft: "10px" }}>
                   <Input
                     type="text"
                     className="form-control"
@@ -691,8 +984,8 @@ const ViewExpense = () => {
                     value={searchQuery}
                     respclass="col-xl-12 col-md-4 col-sm-6 col-12"
                   />
-                </div>
-                <span style={{ fontWeight: "bold" }}>
+                </div> */}
+                <span style={{ fontWeight: "bold", marginLeft: "10px" }}>
                   Total Record :&nbsp;{tableData?.length}
                 </span>
               </div>
@@ -737,142 +1030,155 @@ const ViewExpense = () => {
               Hotel: (
                 <div className="d-flex align-items-center justify-content-between">
                   <span>{ele?.Hotel_Amount}</span>
-                  <i
-                    className="fa fa-eye"
-                    onClick={() => {
-                      setVisible({
-                        hotelShow: true,
-                        showData: ele,
-                      });
-                    }}
-                    style={{
-                      cursor: "pointer",
-                      color: "black",
-                      marginLeft: "10px",
-                    }}
-                    title="Hotel Details"
-                  ></i>
+                  {ele?.Hotel_Amount > 0 && (
+                    <i
+                      className="fa fa-eye"
+                      onClick={() => {
+                        setVisible({
+                          hotelShow: true,
+                          showData: ele,
+                        });
+                      }}
+                      style={{
+                        cursor: "pointer",
+                        color: "black",
+                        marginLeft: "10px",
+                      }}
+                      title="Hotel Details"
+                    ></i>
+                  )}
                 </div>
               ),
               Meals: (
                 <div className="d-flex align-items-center justify-content-between">
                   <span>{ele?.Meals_Expense}</span>
-                  <i
-                    className="fa fa-eye"
-                    onClick={() => {
-                      setVisible({
-                        mealsShow: true,
-                        showData: ele,
-                      });
-                    }}
-                    style={{
-                      cursor: "pointer",
-                      color: "black",
-                      marginLeft: "10px",
-                    }}
-                    title="Meal Details"
-                  ></i>
+                  {ele?.Meals_Expense > 0 && (
+                    <i
+                      className="fa fa-eye"
+                      onClick={() => {
+                        setVisible({
+                          mealsShow: true,
+                          showData: ele,
+                        });
+                      }}
+                      style={{
+                        cursor: "pointer",
+                        color: "black",
+                        marginLeft: "10px",
+                      }}
+                      title="Meal Details"
+                    ></i>
+                  )}
                 </div>
               ),
               Local: (
                 <div className="d-flex align-items-center justify-content-between">
                   <span>{ele?.LocalAmount}</span>
-                  <i
-                    className="fa fa-eye"
-                    onClick={() => {
-                      setVisible({
-                        localShow: true,
-                        showData: ele,
-                      });
-                    }}
-                    style={{
-                      cursor: "pointer",
-                      color: "black",
-                      marginLeft: "10px",
-                    }}
-                    title="Local Details"
-                  ></i>
+                  {ele?.LocalAmount > 0 && (
+                    <i
+                      className="fa fa-eye"
+                      onClick={() => {
+                        setVisible({
+                          localShow: true,
+                          showData: ele,
+                        });
+                      }}
+                      style={{
+                        cursor: "pointer",
+                        color: "black",
+                        marginLeft: "10px",
+                      }}
+                      title="Local Details"
+                    ></i>
+                  )}
                 </div>
               ),
               InterCity: (
                 <div className="d-flex align-items-center justify-content-between">
                   <span>{ele?.InterCityAmount}</span>
-                  <i
-                    className="fa fa-eye"
-                    onClick={() => {
-                      setVisible({
-                        intercityShow: true,
-                        showData: ele,
-                      });
-                    }}
-                    style={{
-                      cursor: "pointer",
-                      color: "black",
-                      marginLeft: "10px",
-                    }}
-                    title="Intercity Details"
-                  ></i>
+                  {ele?.InterCityAmount > 0 && (
+                    <i
+                      className="fa fa-eye"
+                      onClick={() => {
+                        setVisible({
+                          intercityShow: true,
+                          showData: ele,
+                        });
+                      }}
+                      style={{
+                        cursor: "pointer",
+                        color: "black",
+                        marginLeft: "10px",
+                      }}
+                      title="Intercity Details"
+                    ></i>
+                  )}
                 </div>
               ),
-              Phone: (
-                <div className="d-flex align-items-center justify-content-between">
-                  <span>{ele?.phone_Expense}</span>
-                  <i
-                    className="fa fa-eye"
-                    onClick={() => {
-                      setVisible({
-                        phoneShow: true,
-                        showData: ele,
-                      });
-                    }}
-                    style={{
-                      cursor: "pointer",
-                      color: "black",
-                      marginLeft: "10px",
-                    }}
-                    title="Phone Details"
-                  ></i>
-                </div>
-              ),
+              // Phone: (
+              //   <div className="d-flex align-items-center justify-content-between">
+              //     <span>{ele?.phone_Expense}</span>
+              //     {ele?.phone_Expense > 0 && (
+              //       <i
+              //         className="fa fa-eye"
+              //         onClick={() => {
+              //           setVisible({
+              //             phoneShow: true,
+              //             showData: ele,
+              //           });
+              //         }}
+              //         style={{
+              //           cursor: "pointer",
+              //           color: "black",
+              //           marginLeft: "10px",
+              //         }}
+              //         title="Phone Details"
+              //       ></i>
+              //     )}
+              //   </div>
+              // ),
               Entertainment: (
                 <div className="d-flex align-items-center justify-content-between">
                   <span>{ele?.entertainment_Expense}</span>
-                  <i
-                    className="fa fa-eye"
-                    onClick={() => {
-                      setVisible({
-                        entertainmentShow: true,
-                        showData: ele,
-                      });
-                    }}
-                    style={{
-                      cursor: "pointer",
-                      color: "black",
-                      marginLeft: "10px",
-                    }}
-                    title="Entertainment Details"
-                  ></i>
+                  {ele?.entertainment_Expense > 0 && (
+                    <i
+                      className="fa fa-eye"
+                      onClick={() => {
+                        setVisible({
+                          entertainmentShow: true,
+                          showData: ele,
+                        });
+                      }}
+                      style={{
+                        cursor: "pointer",
+                        color: "black",
+                        marginLeft: "10px",
+                      }}
+                      title="Entertainment Details"
+                    ></i>
+                  )}
                 </div>
               ),
               Others: (
                 <div className="d-flex align-items-center justify-content-between">
-                  {/* <span>{"0"}</span> */}
-                  <span>{ele?.Amount}</span>
-                  <i
-                    className="fa fa-eye"
-                    onClick={() => {
-                      setVisible({
-                        othersShow: true,
-                        showData: ele,
-                      });
-                    }}
-                    style={{
-                      cursor: "pointer",
-                      color: "black",
-                      marginLeft: "10px",
-                    }}
-                    title="Other Details"
-                  ></i>
+                  <span>{ele?.misc_Expense}</span>
+                  {ele?.misc_Expense > 0 && (
+                    <i
+                      className="fa fa-eye"
+                      onClick={() => {
+                        setVisible({
+                          othersShow: true,
+                          showData: ele,
+                        });
+                      }}
+                      style={{
+                        cursor: "pointer",
+                        color: "black",
+                        marginLeft: "10px",
+                      }}
+                      title="Other Details"
+                    ></i>
+                  )}
                 </div>
               ),
               Total: ele?.Total,
@@ -898,117 +1204,482 @@ const ViewExpense = () => {
               //         />
               //       </span>
               // </div>
-              Action: (
-                <>
-                  &nbsp;
-                  <div style={{ marginTop: "0px" }}>
-                    <Link
-                      style={{
-                        color: "white",
-                        fontWeight: "bold",
-                        border: "1px solid #355ec4",
-                        padding: "2px 9px",
-                        background: "#355ec4",
-                        borderRadius: "2px",
-                      }}
-                      to="/ExpenseSubmission"
-                      state={{
-                        data: ele?.DATE,
-                        edit: true,
-                        givenData: ele,
-                      }}
-                    >
-                      View
-                    </Link>
 
-                    {ele?.EmpID ==
+              // Action: (
+              //   <>
+              //     &nbsp;
+              //     <div style={{ marginTop: "0px" }}>
+              //       <Link
+              //         style={{
+              //           color: "white",
+              //           fontWeight: "bold",
+              //           border: "1px solid #355ec4",
+              //           padding: "2px 9px",
+              //           background: "#355ec4",
+              //           borderRadius: "2px",
+              //         }}
+              //         to="/ExpenseSubmission"
+              //         state={{
+              //           data: ele?.DATE,
+              //           edit: true,
+              //           givenData: ele,
+              //         }}
+              //       >
+              //         View
+              //       </Link>
+
+              //       {ele?.EmpID ==
+              //       useCryptoLocalStorage(
+              //         "user_Data",
+              //         "get",
+              //         "CrmEmployeeID"
+              //       ) ? (
+              //         <button
+              //           className="btn btn-sm btn-info"
+              //           style={{
+              //             background: "green",
+              //             fontWeight: "bold",
+              //             border: "none",
+              //             marginLeft: "10px",
+              //           }}
+              //           onClick={() => {
+              //             setVisible({ ShowApprove: true, showData: ele });
+              //           }}
+              //           disabled
+              //         >
+              //           Approve
+              //         </button>
+              //       ) : (
+              //         <button
+              //           className="btn btn-sm btn-info"
+              //           style={{
+              //             background: "green",
+              //             fontWeight: "bold",
+              //             border: "none",
+              //             marginLeft: "10px",
+              //           }}
+              //           onClick={() => {
+              //             setVisible({ ShowApprove: true, showData: ele });
+              //           }}
+              //           disabled={ele?.is_approved === 1}
+              //         >
+              //           Approve
+              //         </button>
+              //       )}
+              //     </div>
+              //     <br></br>
+              //     <button
+              //       className="btn btn-sm btn-info"
+              //       style={{
+              //         background: "red",
+              //         fontWeight: "bold",
+              //         marginTop: "0px",
+              //         border: "none",
+              //       }}
+              //       onClick={() => {
+              //         setVisible({ ShowReject: true, showData: ele });
+              //       }}
+              //       disabled={ele?.is_approved === 1}
+              //     >
+              //       Reject
+              //     </button>
+              //     &nbsp;&nbsp;&nbsp;&nbsp;
+              //     <button
+              //       className="btn btn-sm btn-info"
+              //       style={{
+              //         background: "orange",
+              //         fontWeight: "bold",
+              //         marginTop: "5px",
+              //         border: "none",
+              //       }}
+              //       onClick={() => {
+              //         setVisible({ ShowSubmit: true, showData: ele });
+              //       }}
+              //       disabled={["Submitted", "Approved"].includes(ele?.Status)}
+              //     >
+              //       Submit
+              //     </button>
+              //     <br></br>
+              //     <button
+              //       className="btn btn-sm btn-info"
+              //       style={{
+              //         background: "#eb3467",
+              //         fontWeight: "bold",
+              //         marginTop: "5px",
+              //         border: "none",
+              //       }}
+              //       onClick={() => {
+              //         setVisible({ deleteShow: true, showData: ele });
+              //       }}
+              //     >
+              //       Delete
+              //     </button>
+              //   </>
+              // ),
+
+              // Action: (
+              //   <div
+              //     style={{
+              //       display: "flex",
+              //       // flexWrap: "wrap",
+              //       gap: "8px", // spacing between buttons
+              //       padding: "3px",
+              //     }}
+              //   >
+              //     <Link
+              //       style={{
+              //         color: "white",
+              //         fontWeight: "bold",
+              //         border: "1px solid #355ec4",
+              //         width: "20px",
+              //         height: "20px",
+              //         background: "#355ec4",
+              //         borderRadius: "50%",
+              //         display: "flex",
+              //         alignItems: "center",
+              //         justifyContent: "center",
+              //         textDecoration: "none",
+              //       }}
+              //       to="/ExpenseSubmission"
+              //       state={{
+              //         data: ele?.DATE,
+              //         edit: true,
+              //         givenData: ele,
+              //       }}
+              //       title="Click to View/Edit"
+              //     >
+              //       V
+              //     </Link>
+
+              //     {ele?.EmpID ==
+              //       useCryptoLocalStorage(
+              //         "user_Data",
+              //         "get",
+              //         "CrmEmployeeID"
+              //       ) || ele?.is_approved === 1 ? null : (
+              //       <span
+              //         style={{
+              //           color: "white",
+              //           fontWeight: "bold",
+              //           border: "1px solid green",
+              //           width: "20px",
+              //           height: "20px",
+              //           background: "green",
+              //           borderRadius: "50%",
+              //           display: "flex",
+              //           alignItems: "center",
+              //           justifyContent: "center",
+              //           textDecoration: "none",
+              //         }}
+              //         onClick={() => {
+              //           setVisible({ ShowApprove: true, showData: ele });
+              //         }}
+              //         title="Click to Approve"
+              //       >
+              //         A
+              //       </span>
+              //     )}
+
+              //     {ele?.is_approved !== 1 && (
+              //       <span
+              //         style={{
+              //           color: "white",
+              //           fontWeight: "bold",
+              //           border: "1px solid red",
+              //           width: "20px",
+              //           height: "20px",
+              //           background: "red",
+              //           borderRadius: "50%",
+              //           display: "flex",
+              //           alignItems: "center",
+              //           justifyContent: "center",
+              //           textDecoration: "none",
+              //         }}
+              //         onClick={() => {
+              //           setVisible({ ShowReject: true, showData: ele });
+              //         }}
+              //         title="Click to Reject"
+              //       >
+              //         R
+              //       </span>
+              //     )}
+
+              //     {!["Submitted", "Approved"].includes(ele?.Status) && (
+              //       <span
+              //         style={{
+              //           color: "white",
+              //           fontWeight: "bold",
+              //           border: "1px solid orange",
+              //           width: "20px",
+              //           height: "20px",
+              //           background: "orange",
+              //           borderRadius: "50%",
+              //           display: "flex",
+              //           alignItems: "center",
+              //           justifyContent: "center",
+              //           textDecoration: "none",
+              //         }}
+              //         onClick={() => {
+              //           setVisible({ ShowSubmit: true, showData: ele });
+              //         }}
+              //         title="Click to Submit"
+              //       >
+              //         S
+              //       </span>
+              //     )}
+
+              //     <span
+              //       style={{
+              //         color: "white",
+              //         fontWeight: "bold",
+              //         border: "1px solid #eb3467",
+              //         width: "20px",
+              //         height: "20px",
+              //         background: "#eb3467",
+              //         borderRadius: "50%",
+              //         display: "flex",
+              //         alignItems: "center",
+              //         justifyContent: "center",
+              //         textDecoration: "none",
+              //       }}
+              //       onClick={() => {
+              //         setVisible({ deleteShow: true, showData: ele });
+              //       }}
+              //     >
+              //       D
+              //     </span>
+              //   </div>
+              // ),
+
+              Action: (
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "8px",
+                    padding: "3px",
+                  }}
+                >
+                  {/* View Button */}
+                  <Link
+                    style={{
+                      color: "white",
+                      fontWeight: "bold",
+                      border: "1px solid #355ec4",
+                      width: "20px",
+                      height: "20px",
+                      background: "#355ec4",
+                      borderRadius: "50%",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      textDecoration: "none",
+                    }}
+                    to="/ExpenseSubmission"
+                    state={{
+                      data: ele?.DATE,
+                      edit: true,
+                      givenData: ele,
+                    }}
+                    title="Click to View/Edit"
+                  >
+                    V
+                  </Link>
+
+                  {/* Approve Button - with conditional styling */}
+                  {ele?.EmpID ==
                     useCryptoLocalStorage(
                       "user_Data",
                       "get",
                       "CrmEmployeeID"
-                    ) ? (
-                      <button
-                        className="btn btn-sm btn-info"
-                        style={{
-                          background: "green",
-                          fontWeight: "bold",
-                          border: "none",
-                          marginLeft: "10px",
-                        }}
-                        onClick={() => {
+                    ) ||
+                  ele?.is_approved === 1 ||
+                  ele?.Status === "Active" ? null : (
+                    <span
+                      style={{
+                        color: "white",
+                        fontWeight: "bold",
+                        border: "1px solid green",
+                        width: "20px",
+                        height: "20px",
+                        background: TwelthdayCurrentMonthSelected()
+                          ? "green"
+                          : "#cccccc",
+                        borderRadius: "50%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        textDecoration: "none",
+                        cursor: TwelthdayCurrentMonthSelected()
+                          ? "pointer"
+                          : "not-allowed",
+                        opacity: TwelthdayCurrentMonthSelected() ? 1 : 0.6,
+                      }}
+                      onClick={() => {
+                        if (TwelthdayCurrentMonthSelected()) {
                           setVisible({ ShowApprove: true, showData: ele });
-                        }}
-                        disabled
-                      >
-                        Approve
-                      </button>
-                    ) : (
-                      <button
-                        className="btn btn-sm btn-info"
-                        style={{
-                          background: "green",
-                          fontWeight: "bold",
-                          border: "none",
-                          marginLeft: "10px",
-                        }}
-                        onClick={() => {
-                          setVisible({ ShowApprove: true, showData: ele });
-                        }}
-                        disabled={ele?.is_approved === 1}
-                      >
-                        Approve
-                      </button>
-                    )}
-                  </div>
-                  <br></br>
-                  <button
-                    className="btn btn-sm btn-info"
+                        }
+                      }}
+                      title={
+                        TwelthdayCurrentMonthSelected()
+                          ? "Click to Approve"
+                          : "Approval is available only on the 12th day of the current month."
+                      }
+                    >
+                      A
+                    </span>
+                  )}
+
+                  {/* Reject Button */}
+                  {ele?.is_approved !== 1 && (
+                    <span
+                      style={{
+                        color: "white",
+                        fontWeight: "bold",
+                        border: "1px solid red",
+                        width: "20px",
+                        height: "20px",
+                        background: TwelthdayCurrentMonthSelected()
+                          ? "red"
+                          : "#cccccc",
+                        borderRadius: "50%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        textDecoration: "none",
+                        cursor: TwelthdayCurrentMonthSelected()
+                          ? "pointer"
+                          : "not-allowed",
+                        opacity: TwelthdayCurrentMonthSelected() ? 1 : 0.6,
+                      }}
+                      onClick={() => {
+                        if (TwelthdayCurrentMonthSelected()) {
+                          setVisible({ ShowReject: true, showData: ele });
+                        }
+                      }}
+                      title={
+                        TwelthdayCurrentMonthSelected()
+                          ? "Click to Reject"
+                          : "Reject is available only on the 12th day of the current month."
+                      }
+                    >
+                      R
+                    </span>
+                  )}
+
+                  {/* Submit Button */}
+                  {!["Submitted", "Approved"].includes(ele?.Status) && (
+                    <span
+                      style={{
+                        color: "white",
+                        fontWeight: "bold",
+                        border: "1px solid orange",
+                        width: "20px",
+                        height: "20px",
+                        background: isCurrentMonthSelected()
+                          ? "orange"
+                          : "#cccccc",
+                        borderRadius: "50%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        textDecoration: "none",
+                        cursor: isCurrentMonthSelected()
+                          ? "pointer"
+                          : "not-allowed",
+                        opacity: isCurrentMonthSelected() ? 1 : 0.6,
+                      }}
+                      onClick={() => {
+                        if (isCurrentMonthSelected()) {
+                          setVisible({ ShowSubmit: true, showData: ele });
+                        }
+                      }}
+                      title={
+                        isCurrentMonthSelected()
+                          ? "Click to Submit"
+                          : "Submit is available only on the 5th day of the current month."
+                      }
+                    >
+                      S
+                    </span>
+                  )}
+
+                  {/* Delete Button */}
+                  <span
                     style={{
-                      background: "red",
+                      color: "white",
                       fontWeight: "bold",
-                      marginTop: "0px",
-                      border: "none",
+                      border: "1px solid #eb3467",
+                      width: "20px",
+                      height: "20px",
+                      background:
+                        ReportingManager == 1
+                          ? TwelthdayCurrentMonthSelected()
+                            ? "#eb3467"
+                            : "#cccccc"
+                          : isCurrentMonthSelected()
+                            ? "#eb3467"
+                            : "#cccccc",
+
+                      borderRadius: "50%",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      textDecoration: "none",
+                      cursor:
+                        ReportingManager == 1
+                          ? TwelthdayCurrentMonthSelected()
+                            ? "pointer"
+                            : "not-allowed"
+                          : isCurrentMonthSelected()
+                            ? "pointer"
+                            : "not-allowed",
+                      // cursor: isCurrentMonthSelected()
+                      //   ? "pointer"
+                      //   : "not-allowed",
+                      opacity:
+                        ReportingManager == 1
+                          ? TwelthdayCurrentMonthSelected()
+                            ? 1
+                            : 0.6
+                          : isCurrentMonthSelected()
+                            ? 1
+                            : 0.6,
+                      // opacity: isCurrentMonthSelected() ? 1 : 0.6,
                     }}
+                    // onClick={() => {
+                    //   if (isCurrentMonthSelected()) {
+                    //     setVisible({ deleteShow: true, showData: ele });
+                    //   }
+                    // }}
                     onClick={() => {
-                      setVisible({ ShowReject: true, showData: ele });
+                      ReportingManager == 1
+                        ? TwelthdayCurrentMonthSelected()
+                          ? setVisible({ deleteShow: true, showData: ele })
+                          : ""
+                        : isCurrentMonthSelected()
+                          ? setVisible({ deleteShow: true, showData: ele })
+                          : "";
                     }}
-                    disabled={ele?.is_approved === 1}
+                    title={
+                      ReportingManager == 1
+                        ? TwelthdayCurrentMonthSelected()
+                          ? "Click to Delete"
+                          : "Delete is available only on the 12th day of the current month."
+                        : isCurrentMonthSelected()
+                          ? "Click to Delete"
+                          : "Delete is available only on the 5th day of the current month."
+                    }
+                    // title={
+                    //   isCurrentMonthSelected()
+                    //     ? "Click to Delete"
+                    //     : "Delete only available for current month"
+                    // }
                   >
-                    Reject
-                  </button>
-                  &nbsp;&nbsp;&nbsp;&nbsp;
-                  <button
-                    className="btn btn-sm btn-info"
-                    style={{
-                      background: "orange",
-                      fontWeight: "bold",
-                      marginTop: "5px",
-                      border: "none",
-                    }}
-                    onClick={() => {
-                      setVisible({ ShowSubmit: true, showData: ele });
-                    }}
-                    disabled={["Submitted", "Approved"].includes(ele?.Status)}
-                  >
-                    Submit
-                  </button>
-                  <br></br>
-                  <button
-                    className="btn btn-sm btn-info"
-                    style={{
-                      background: "#eb3467",
-                      fontWeight: "bold",
-                      marginTop: "5px",
-                      border: "none",
-                    }}
-                    onClick={() => {
-                      setVisible({ deleteShow: true, showData: ele });
-                    }}
-                  >
-                    Delete
-                  </button>
-                </>
+                    D
+                  </span>
+                </div>
               ),
+
               Attachment: ele?.FileURLs ? (
                 <>
                   <i

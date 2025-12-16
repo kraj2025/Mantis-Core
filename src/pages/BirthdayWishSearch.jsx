@@ -14,6 +14,7 @@ import Loading from "../components/loader/Loading";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
 import MorningWishContentModal from "./MorningWishContentModal";
 import Modal from "../components/modalComponent/Modal";
+import { axiosInstances } from "../networkServices/axiosInstance";
 
 const BirthdayWishSearch = () => {
   const [t] = useTranslation();
@@ -94,60 +95,45 @@ const BirthdayWishSearch = () => {
 
   const handleSearch = () => {
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("Day", formData?.SelectDate),
-      //   form.append("RowColor", code ? code : "0"),
-      axios
-        .post(apiUrls?.MorningWishSearch, form, {
-          headers,
-        })
-        .then((res) => {
-          if (res?.data?.status === true) {
-            setTableData(res?.data?.data);
-            setLoading(false);
-          } else {
-            toast.error(res?.data?.message);
-            setTableData([]);
-            setLoading(false);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+
+    axiosInstances
+      .post(apiUrls.MorningWishSearch, {
+        Day: String(formData?.SelectDate),
+      })
+      .then((res) => {
+        if (res?.data?.success === true) {
+          setTableData(res?.data?.data);
+          setLoading(false);
+        } else {
+          toast.error(res?.data?.message);
+          setTableData([]);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const handleRemove = (ele) => {
-    console.log(ele);
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("WishID", ele?.ID),
-      axios
-        .post(apiUrls?.RemoveMorningWish, form, {
-          headers,
-        })
-        .then((res) => {
-          if (res?.data?.status === true) {
-            toast.success(res?.data?.message);
-            setLoading(false);
-            handleSearch();
-          } else {
-            toast.error(res?.data?.message);
-            setLoading(false);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls.RemoveMorningWish, {
+        WishID: String(ele?.ID),
+      })
+      .then((res) => {
+        if (res?.data?.success === true) {
+          toast.success(res?.data?.message);
+          setLoading(false);
+          handleSearch();
+        } else {
+          toast.error(res?.data?.message);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const shortenName = (name) => {
     return name?.length > 55 ? name?.substring(0, 65) + "..." : name;

@@ -14,6 +14,7 @@ import { max7digit } from "../../../utils/constant";
 import Loading from "../../loader/Loading";
 import { useTranslation } from "react-i18next";
 import { useCryptoLocalStorage } from "../../../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../../../networkServices/axiosInstance";
 const SettlementAmountModal = (visible, edit) => {
   const [t] = useTranslation();
   const [tableData, setTableData] = useState([]);
@@ -29,7 +30,6 @@ const SettlementAmountModal = (visible, edit) => {
     Address: "",
     GSTNumber: "",
     PanCardNo: "",
-    // Sale: "",
     Sale: "",
     NetAmount: "",
     PendingAmount: "",
@@ -103,68 +103,53 @@ const SettlementAmountModal = (visible, edit) => {
   };
 
   const getSales = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "RoleID",
-        useCryptoLocalStorage("user_Data", "get", "RoleID")
-      ),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("ProjectID", visible?.visible?.showData?.ProjectID),
-      form.append("OnAccount_Req_ID", visible?.visible?.showData?.EncryptID),
-      axios
-        .post(apiUrls?.Settlement_Select, form, { headers })
-        .then((res) => {
-          const assigntos = res?.data.dtSales.map((item) => {
-            return { label: item?.ItemName, value: item?.SalesID, ...item };
-          });
-          setSale(assigntos);
+    const payload = {
+      ProjectID: Number(visible?.visible?.showData?.ProjectID || "0"),
+      OnAccount_Req_ID: String(visible?.visible?.showData?.EncryptID || ""),
+    };
 
-          setTableData([res?.data?.dtOnAccount_Req_ID[0]]);
-
-          const dataID = res?.data?.dtSales[0];
-          // console.log("restst", dataID);
-          // setFormData((prevState) => ({
-          //   ...prevState, // Retain any existing values in formData
-          //   Sale: dataID?.SalesID || "", // Set default value if null or undefined
-          //   NetAmount: dataID?.NetAmount || 0, // Default to 0 if not available
-          //   PendingAmount: dataID?.PendingAmount || 0,
-          //   AdjustmentAmount: dataID?.Adjustment || 0,
-          //   SalesNo: dataID?.SalesNo || "",
-          //   SalesID: "", // Explicitly set SalesID as empty string
-          // }));
-          // console.log(res?.data?.dtSales);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls?.Settlement_Select, payload)
+      .then((res) => {
+        const assigntos = res?.data?.data?.Sales?.map((item) => {
+          return { label: item?.ItemName, value: item?.SalesID, ...item };
         });
+        setSale(assigntos);
+
+        setTableData([res?.data?.data?.dtOnAccountDetail[0]]);
+
+        const dataID = res?.data?.Sales[0];
+        console.log("restst", dataID);
+        setFormData((prevState) => ({
+          ...prevState, // Retain any existing values in formData
+          Sale: dataID?.SalesID || "", // Set default value if null or undefined
+          NetAmount: dataID?.NetAmount || 0, // Default to 0 if not available
+          PendingAmount: dataID?.PendingAmount || 0,
+          AdjustmentAmount: dataID?.Adjustment || 0,
+          SalesNo: dataID?.SalesNo || "",
+          SalesID: "", // Explicitly set SalesID as empty string
+        }));
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const getsalestable = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "RoleID",
-        useCryptoLocalStorage("user_Data", "get", "RoleID")
-      ),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("ProjectID", visible?.visible?.showData?.ProjectID),
-      form.append("OnAccount_Req_ID", visible?.visible?.showData?.EncryptID),
-      axios
-        .post(apiUrls?.Settlement_Select, form, { headers })
-        .then((res) => {
-          console.log("restst", res);
-          setTableData([res?.data?.dtOnAccount_Req_ID[0]]);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    const payload = {
+      ProjectID: Number(visible?.visible?.showData?.ProjectID || "0"),
+      OnAccount_Req_ID: String(visible?.visible?.showData?.EncryptID || ""),
+    };
+
+    axiosInstances
+      .post(apiUrls?.Settlement_Select, payload)
+      .then((res) => {
+        console.log("restst", res);
+        setTableData([res?.data?.dtOnAccount_Req_ID[0]]);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const handleReset = () => {
     setFormData({
@@ -188,62 +173,49 @@ const SettlementAmountModal = (visible, edit) => {
     });
   };
   const handleSettlement = () => {
-    // console.log(formData?.Sale?.SalesID);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "RoleID",
-        useCryptoLocalStorage("user_Data", "get", "RoleID")
+    const payload = {
+      SalesID: Number(formData?.SalesID || "0"),
+      OnAccount_Req_ID: Number(
+        visible?.visible?.showData?.OnAccount_Req_ID || "0"
       ),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("SalesID", formData?.SalesID),
-      form.append(
-        "OnAccount_Req_ID",
-        visible?.visible?.showData?.OnAccount_Req_ID
-      ),
-      form.append("SettlementAmount", formData?.SettlementAmount),
-      form.append("TDS", formData?.TDSAmount),
-      axios
-        .post(apiUrls?.Settlement, form, { headers })
-        .then((res) => {
-          if (res?.data?.status == true) {
-            toast.success(res?.data?.message);
-            setLoading(false);
-          } else {
-            toast.error(res?.data?.message);
-            setLoading(false);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-          s;
-        });
+      SettlementAmount: Number(formData?.SettlementAmount || "0"),
+      TDS: Number(formData?.TDSAmount || "0"),
+    };
+
+    axiosInstances
+      .post(apiUrls?.SaveSettlement, payload)
+      .then((res) => {
+        if (res?.data?.success == true) {
+          toast.success(res?.data?.message);
+          setLoading(false);
+        } else {
+          toast.error(res?.data?.message);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        s;
+      });
   };
 
   const SettlementCancel = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "RoleID",
-        useCryptoLocalStorage("user_Data", "get", "RoleID")
+    const payload = {
+      RoleID: String(
+        useCryptoLocalStorage("user_Data", "get", "RoleID") || "0"
       ),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("SettlementID", ""),
-      form.append("Reason", ""),
-      axios
-        .post(apiUrls?.Settlement, form, { headers })
-        .then((res) => {
-          toast.success(res?.data?.message);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+      SettlementID: String(""),
+      Reason: String(""),
+    };
+
+    axiosInstances
+      .post(apiUrls?.Settlement, payload)
+      .then((res) => {
+        toast.success(res?.data?.message);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   useEffect(() => {
@@ -257,10 +229,6 @@ const SettlementAmountModal = (visible, edit) => {
             {t("Project")}: {visible?.visible?.showData?.ProjectName}
           </span>{" "}
           &nbsp; &nbsp; &nbsp; &nbsp;
-          {/* <span style={{ fontWeight: "bold" }}>
-            Payment Mode : {visible?.visible?.showData?.PaymentMode}
-          </span>{" "} */}
-          {/* &nbsp; &nbsp; &nbsp; &nbsp; */}
           <span style={{ fontWeight: "bold" }}>
             {t("Non-Settled Amount")} : {tableData[0]?.ReceivedAmount}
           </span>{" "}
@@ -273,155 +241,6 @@ const SettlementAmountModal = (visible, edit) => {
             {t("Pending Amount for Settlement")} : {tableData[0]?.PendingAmount}
           </span>{" "}
           &nbsp;
-          {/* <div className="row g-4 ">
-          <Input
-            type="text"
-            className="form-control"
-            id="ProjectName"
-            name="ProjectName"
-            lable="Project Name"
-            onChange={handleSelectChange}
-            value={formData?.ProjectName}
-            respclass="col-md-4 col-12 col-sm-12"
-          />
-          <Input
-            type="text"
-            className="form-control"
-            id="BillingCompanyName"
-            name="BillingCompanyName"
-            lable="Billing Company Name"
-            onChange={handleSelectChange}
-            value={formData?.BillingCompanyName}
-            respclass="col-md-4 col-12 col-sm-12"
-          />
-          <Input
-            type="text"
-            className="form-control"
-            id="Address"
-            name="Address"
-            lable="Address"
-            onChange={handleSelectChange}
-            value={formData?.Address}
-            respclass="col-md-4 col-12 col-sm-12"
-          />
-          <Input
-            type="text"
-            className="form-control"
-            id="GSTNumber"
-            name="GSTNumber"
-            lable="GST Number"
-            onChange={handleSelectChange}
-            value={formData?.GSTNumber}
-            respclass="col-md-4 col-12 col-sm-12"
-          />
-          <Input
-            type="text"
-            className="form-control"
-            id="PanCardNo"
-            name="PanCardNo"
-            lable="PanCard No"
-            onChange={handleSelectChange}
-            value={formData?.PanCardNo}
-            respclass="col-md-4 col-12 col-sm-12"
-          />
-        </div> */}
-          {/* <div className="row">
-          <ReactSelect
-            style={{ marginLeft: "20px" }}
-            name="Sale"
-            respclass="col-md-4 col-12 col-sm-12"
-            placeholderName="Sale"
-            dynamicOptions={sale}
-            value={formData?.Sale}
-            handleChange={handleDeliveryChange}
-          />
-          {formData?.Sale == "SaleI" && (
-            <>
-              <Input
-                type="text"
-                className="form-control"
-                id="NetAmount"
-                name="NetAmount"
-                lable="Net Amount"
-                onChange={handleSelectChange}
-                value={formData?.NetAmount}
-                respclass="col-md-4 col-12 col-sm-12"
-                disabled={true}
-              />
-
-              <Input
-                type="text"
-                className="form-control"
-                id="TaxAmount"
-                name="TaxAmount"
-                lable="Tax Amount"
-                onChange={handleSelectChange}
-                value={formData?.TaxAmount}
-                respclass="col-md-4 col-12 col-sm-12"
-                disabled={true}
-              />
-              <Input
-                type="text"
-                className="form-control"
-                id="PayableAmount"
-                name="PayableAmount"
-                lable="Payable Amount"
-                onChange={handleSelectChange}
-                value={formData?.PayableAmount}
-                respclass="col-md-4 col-12 col-sm-12"
-                disabled={true}
-              />
-              <Input
-                type="text"
-                className="form-control"
-                id="PaidAmount"
-                name="PaidAmount"
-                lable="Paid Amount"
-                onChange={handleSelectChange}
-                value={formData?.PaidAmount}
-                respclass="col-md-4 col-12 col-sm-12"
-                disabled={true}
-              />
-              <Input
-                type="text"
-                className="form-control"
-                id="AdjustAmount"
-                name="AdjustAmount"
-                lable="Adjust Amount"
-                onChange={handleSelectChange}
-                value={formData?.AdjustAmount}
-                respclass="col-md-4 col-12 col-sm-12"
-              />
-              <Input
-                type="text"
-                className="form-control"
-                id="DueAmount"
-                name="DueAmount"
-                lable="Due Amount"
-                onChange={handleSelectChange}
-                value={formData?.DueAmount}
-                respclass="col-md-4 col-12 col-sm-12"
-              />
-            </>
-          )}
-          <div className="col-2">
-            {!isEditVisible ? (
-              <button
-                onClick={handleButtonClick}
-                className="btn btn-sm btn-success"
-              >
-                Update
-              </button>
-            ) : (
-              <button
-                onClick={handleButtonClick}
-                className="btn btn-sm btn-success"
-              >
-                Edit
-              </button>
-            )}
-          </div>
-        // </div> */}
         </div>
         <div className=" row mt-2">
           <ReactSelect
@@ -431,7 +250,7 @@ const SettlementAmountModal = (visible, edit) => {
             dynamicOptions={sale}
             value={formData?.Sale}
             handleChange={handleDeliveryChange}
-            isDisabled={formData?.Sale == "" ? false : true}
+            // isDisabled={formData?.Sale == "" ? false : true}
           />
 
           <Input
@@ -502,36 +321,6 @@ const SettlementAmountModal = (visible, edit) => {
             respclass="col-md-3 col-12 col-sm-12"
             disabled={true}
           />
-          {/* <Input
-            type="text"
-            className="form-control mt-1"
-            id="AdjustmentAmount"
-            name="AdjustmentAmount"
-            lable="Adjustment Amount"
-            onChange={handleSelectChange}
-            value={formData?.Sale?.Adjustment}
-            respclass="col-md-3 col-12 col-sm-12"
-          /> */}
-          {/* <Input
-            type="text"
-            className="form-control mt-1"
-            id="ReceivedAmount"
-            name="ReceivedAmount"
-            lable="Received Amount"
-            onChange={handleSelectChange}
-            value={formData?.ReceivedAmount}
-            respclass="col-md-3 col-12 col-sm-12"
-          /> */}
-          {/* <Input
-            type="text"
-            className="form-control mt-1"
-            id="Balance"
-            name="Balance"
-            lable="Balance"
-            onChange={handleSelectChange}
-            value={formData?.Balance}
-            respclass="col-md-3 col-12 col-sm-12"
-          /> */}
 
           {loading ? (
             <Loading />

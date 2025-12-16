@@ -6,26 +6,26 @@ import { headers } from "../utils/apitools";
 import { toast } from "react-toastify";
 import Tables from "../components/UI/customTable";
 import NoRecordFound from "../components/formComponent/NoRecordFound";
+import { axiosInstances } from "../networkServices/axiosInstance";
 const CircularUNCountModal = ({ visible }) => {
   const [tableData, setTableData] = useState([]);
 
   const getHandle = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("CircularID", visible?.showData?.ID),
-      form.append("Type", "Unread"),
-      axios
-        .post(apiUrls?.GetFeaturesStatus, form, { headers })
-        .then((res) => {
-          if (res.data.status === true) {
-            setTableData(res.data.data);
-          } else {
-            toast.error("No record found.");
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls?.GetFeaturesStatus, {
+        CircularID: String(visible?.showData?.ID),
+        Type: String("Unread"),
+      })
+      .then((res) => {
+        if (res.data.status === true) {
+          setTableData(res.data.data);
+        } else {
+          toast.error("No record found.");
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   useEffect(() => {

@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 ChartJS.register(ArcElement, Tooltip, Legend, Title);
 
 function Chat2({ state }) {
-  // console.log("chat2 data",state)
+  console.log("chat2 data",state)
   const { t } = useTranslation();
   // console.log("state state lotus",state)
   // Define color mapping for different status labels

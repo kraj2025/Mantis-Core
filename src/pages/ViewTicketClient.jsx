@@ -2,20 +2,17 @@ import React, { useEffect, useRef, useState } from "react";
 import Heading from "../components/UI/Heading";
 import { toast } from "react-toastify";
 import { apiUrls } from "../networkServices/apiEndpoints";
-import { headers } from "../utils/apitools";
 import { useTranslation } from "react-i18next";
 import DatePicker from "../components/formComponent/DatePicker";
 import ReactSelect from "../components/formComponent/ReactSelect";
 import NoRecordFound from "../components/formComponent/NoRecordFound";
 import * as XLSX from "xlsx";
 import * as FileSaver from "file-saver";
-import axios from "axios";
 import Loading from "../components/loader/Loading";
 import Input from "../components/formComponent/Input";
 import MultiSelectComp from "../components/formComponent/MultiSelectComp";
 import { PageSize } from "../utils/constant";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
-import ViewClientTicketTable from "./ViewClientTicketTable";
 import ViewIssueDocTable from "../components/UI/customTable/ViewIssueDocTable";
 import ViewIssueNotesModal from "../components/UI/customTable/ViewIssueNotesModal";
 import ViewIssueDocModal from "../components/UI/customTable/ViewIssueDocModal";
@@ -25,6 +22,7 @@ import { Link, useLocation } from "react-router-dom";
 import Tooltip from "./Tooltip";
 import CustomPagination from "../utils/CustomPagination";
 import Modal from "../components/modalComponent/Modal";
+import { axiosInstances } from "../networkServices/axiosInstance";
 const ViewTicketClient = () => {
   const { VITE_DATE_FORMAT } = import.meta.env;
   const [t] = useTranslation();
@@ -42,16 +40,6 @@ const ViewTicketClient = () => {
   const location = useLocation();
   const [showSelect, setShowSelect] = useState(null);
   const roleStatus = useCryptoLocalStorage("user_Data", "get", "RoleID");
-  const ShowClientDeliveryDate = useCryptoLocalStorage(
-    "user_Data",
-    "get",
-    "ShowClientDeliveryDate"
-  );
-  const ShowClientManHour = useCryptoLocalStorage(
-    "user_Data",
-    "get",
-    "ShowClientManHour"
-  );
   const [formData, setFormData] = useState({
     PageNo: "",
     PageSize: 50,
@@ -128,6 +116,7 @@ const ViewTicketClient = () => {
     SearhType: "0",
     ReOpen: "",
     ResolveDate: "",
+    OnlyDelay: "",
   });
   const AllowAssign = useCryptoLocalStorage(
     "user_Data",
@@ -156,67 +145,57 @@ const ViewTicketClient = () => {
     if (savedData) {
       setFormData(JSON.parse(savedData));
     }
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("_FiterData", savedData),
-      axios
-        .post(apiUrls?.SaveFilterData, form, { headers })
-        .then((res) => {
-          toast.success(res?.data?.message);
-          handleGetFilter();
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls.SaveFilterData, {
+        FilterData: String(savedData),
+        Type: String(""),
+      })
+      .then((res) => {
+        toast.success(res?.data?.message);
+        handleGetFilter();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const handleGetFilter = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-    axios
-      .post(apiUrls?.SearchFilterData, form, { headers })
+    axiosInstances
+      .post(apiUrls.SearchFilterData, {
+        Type: String(""),
+      })
       .then((res) => {
         if (res?.data) {
           let data = res?.data;
-          const cleanedData =
-            typeof data === "string"
-              ? data?.replace(/^\{|\}$/g, "")?.trim()
-              : data;
-          const keyValuePairs = cleanedData?.split(",");
-          const resultObject = keyValuePairs?.reduce((acc, pair) => {
-            const [key, value] = pair.split(":")?.map((item) => item?.trim());
-            acc[key] = value || "";
-            return acc;
-          }, {});
 
           setFormData((val) => ({
             ...val,
             VerticalID: res?.data?.VerticalID,
-            TeamID: resultObject?.TeamID || "",
-            ProjectID: resultObject?.ProjectID || "",
-            WingID: resultObject?.WingID || "",
-
-            POC1: resultObject?.POC1 || "",
-            POC2: resultObject?.POC2 || "",
-            POC3: resultObject?.POC3 || "",
-            Reporter: resultObject?.Reporter || "",
-            AssignedTo: resultObject?.AssignedTo || "",
-            Category: resultObject?.Category || "",
-
-            SubmitDate: new Date(resultObject?.SubmitDate) || "",
-            DeliveryDate: new Date(resultObject?.DeliveryDate) || "",
-            ClientDeliveryDate:
-              new Date(resultObject?.ClientDeliveryDate) || "",
-            ResolveDate: new Date(resultObject?.ResolveDate) || "",
-            CloseDate: new Date(resultObject?.CloseDate) || "",
-            UpadteDate: new Date(resultObject?.UpadteDate) || "",
-            ClientManHourDropdown:
-              new Date(resultObject?.ClientManHourDropdown) || "",
-            ManHourDropdown: new Date(resultObject?.ManHourDropdown) || "",
-
-            Priority: resultObject?.Priority || "",
-            HideStatus: resultObject?.HideStatus || "",
-            Status: resultObject?.Status || "",
+            TeamID: data?.TeamID || "",
+            ProjectID: data?.ProjectID || "",
+            WingID: data?.WingID || "",
+            PageSize: data?.PageSize || "",
+            POC1: data?.POC1 || "",
+            POC2: data?.POC2 || "",
+            POC3: data?.POC3 || "",
+            Reporter: data?.Reporter || "",
+            AssignedTo: data?.AssignedTo || "",
+            Category: data?.Category || "",
+            Priority: data?.Priority || "",
+            HideStatus: data?.HideStatus || "",
+            Status: data?.Status || "",
+            SearhType: data?.SearhType || "",
+            OnlyReOpen: data?.OnlyReOpen || "",
+            OnlyDelay: data?.OnlyDelay || "",
+            ClientManHourDropdown: data?.ClientManHourDropdown || "",
+            ManHourDropdown: data?.ManHourDropdown || "",
+            ClientDeliveryDate: data?.ClientDeliveryDate || "",
+            SubmitDate: data?.SubmitDate || "",
+            DeliveryDate: data?.DeliveryDate || "",
+            ResolveDate: data?.ResolveDate || "",
+            CloseDate: data?.CloseDate || "",
+            UpadteDate: data?.UpadteDate || "",
+            Ticket: data?.Ticket || "",
           }));
         } else {
           console.error("No data found in the response.");
@@ -253,6 +232,7 @@ const ViewTicketClient = () => {
       ManHourDropdown: "",
       ClientManHourDropdown: "",
       OnlyReOpen: "",
+      OnlyDelay: "",
       SubmitDateBefore: new Date(),
       SubmitDateAfter: new Date(),
       SubmitDateCurrent: new Date(),
@@ -331,48 +311,46 @@ const ViewTicketClient = () => {
   }
 
   const getPriority = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Priority_Select, form, { headers })
-        .then((res) => {
-          const assigntos = res?.data.data.map((item) => {
-            return { label: item?.NAME, value: item?.ID };
-          });
-          setPriority(assigntos);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.Priority_Select, {})
+      .then((res) => {
+        const assigntos = res?.data.data.map((item) => {
+          return { label: item?.NAME, value: item?.ID };
         });
+        setPriority(assigntos);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getAssignTo = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.AssignTo_Select, form, { headers })
-        .then((res) => {
-          const assigntos = res?.data.data.map((item) => {
-            return { name: item?.NAME, code: item?.ID };
-          });
-          setAssignedto(assigntos);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.AssignTo_Select, {
+        ProjectID: 0,
+      })
+      .then((res) => {
+        const assigntos = res?.data.data.map((item) => {
+          return { name: item?.Name, code: item?.ID };
         });
+        setAssignedto(assigntos);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getProject = () => {
-    const form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-    form.append(
-      "LoginName",
-      useCryptoLocalStorage("user_Data", "get", "realname")
-    );
-
-    axios
-      .post(apiUrls?.ProjectSelect, form, { headers })
+    axiosInstances
+      .post(apiUrls.ProjectSelect, {
+        ProjectID: 0,
+        IsMaster: "0",
+        VerticalID: 0,
+        TeamID: 0,
+        WingID: 0,
+      })
       .then((res) => {
-        const datas = res?.data?.data || [];
-        const poc3s = datas.map((item) => ({
+        const datas = res?.data?.data;
+        console.log("daysta", datas);
+        const poc3s = datas?.map((item) => ({
           name: item?.Project,
           code: item?.ProjectId,
         }));
@@ -393,206 +371,175 @@ const ViewTicketClient = () => {
   };
 
   const handleViewSearch = (code, page) => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "RoleID",
-        useCryptoLocalStorage("user_Data", "get", "RoleID")
-      ),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("PageSize", formData?.PageSize),
-      form.append("Ticket", formData?.Ticket ?? ""),
-      form.append("IsExcel", formData?.SearhType),
-      form.append("PriorityId", formData?.Priority),
-      form.append("ProjectID", formData?.ProjectID),
-      form.append("AssignToID", formData?.AssignedTo),
-      form.append("CategoryID", formData?.Category),
-      form.append("HideStatusId", formData?.HideStatus),
-      form.append("StatusId", formData?.Status),
-      form.append("SubmittedDateStatus", formData?.SubmitDate),
-      form.append(
-        "DateFromSubmitted",
-        formatDate(formData?.SubmitDateBefore)
-          ? formatDate(formData?.SubmitDateBefore)
-          : ""
-      );
-    form.append(
-      "DateToSubmitted",
-      formatDate(formData?.SubmitDateAfter)
-        ? formatDate(formData?.SubmitDateAfter)
-        : ""
-    ),
-      form.append("ClientDeliveryDateStatus", formData?.ClientDeliveryDate),
-      form.append(
-        "ClientDeliveryFromDate",
-        formatDate(formData?.ClientDeliveryDateBefore)
-      ),
-      form.append(
-        "ClientDeliverytodate",
-        formatDate(formData?.ClientDeliveryDateAfter)
-          ? formatDate(formData?.ClientDeliveryDateAfter)
-          : ""
-      ),
-      form.append("LastUpdateDateStatus", formData?.UpadteDate),
-      form.append(
-        "LastUpdatedFromDate",
-        formatDate(formData?.UpadteDateBefore)
-          ? formatDate(formData?.UpadteDateBefore)
-          : ""
-      ),
-      form.append("ClosedDateStatus", formData?.CloseDate),
-      form.append(
-        "ClosedFromDate",
-        formatDate(formData?.CloseDateBefore)
-          ? formatDate(formData?.CloseDateBefore)
-          : ""
-      ),
-      form.append(
-        "Closedtodate",
-        formatDate(formData?.CloseDateAfter)
-          ? formatDate(formData?.CloseDateAfter)
-          : ""
-      ),
-      form.append(
-        "LastUpdatedToDate",
-        formatDate(formData?.UpadteDateAfter)
-          ? formatDate(formData?.UpadteDateAfter)
-          : ""
-      ),
-      form.append("rowColor", code ? code : ""),
-      form.append("OnlyReOpen", formData?.OnlyReOpen),
-      form.append("PageNo", page ?? currentPage - 1);
-    setLoading(true);
-    axios
-      .post(apiUrls?.ViewIssueSearchClient, form, { headers })
+    axiosInstances
+      .post(apiUrls.ViewIssueSearchClient, {
+        RoleID:
+          Number(useCryptoLocalStorage("user_Data", "get", "RoleID")) || 0,
+        ProjectID: formData?.ProjectID ? String(formData?.ProjectID) : "",
+        AssignToID: formData?.AssignedTo ? String(formData?.AssignedTo) : "",
+        PriorityId: formData?.Priority ? String(formData?.Priority) : "",
+        CategoryID: formData?.Category ? String(formData?.Category) : "",
+        HideStatusId: formData?.HideStatus ? String(formData?.HideStatus) : "",
+        StatusId: formData?.Status ? String(formData?.Status) : "",
+        rowColor: code ? String(code) : "0",
+        SubmittedDateStatus: formData?.SubmitDate
+          ? String(formData?.SubmitDate)
+          : "",
+        DateFromSubmitted: formatDate(formData?.SubmitDateBefore) || "",
+        DateToSubmitted: formatDate(formData?.SubmitDateAfter) || "",
+        DeliveryDateStatus: formData?.ClientDeliveryDate
+          ? String(formData?.ClientDeliveryDate)
+          : "",
+        DeliveryFromDate: formatDate(formData?.ClientDeliveryDateBefore) || "",
+        Deliverytodate: formatDate(formData?.ClientDeliveryDateAfter) || "",
+        LastUpdateDateStatus: formData?.UpadteDate
+          ? String(formData?.UpadteDate)
+          : "",
+        LastUpdatedFromDate: formatDate(formData?.UpadteDateBefore) || "",
+        LastUpdatedToDate: formatDate(formData?.UpadteDateAfter) || "",
+        ClosedDateStatus: formData?.CloseDate
+          ? String(formData?.CloseDate)
+          : "",
+        ClosedFromDate: formatDate(formData?.CloseDateBefore) || "",
+        Closedtodate: formatDate(formData?.CloseDateAfter) || "",
+        PageNo: Number(page ?? currentPage - 1) || 1,
+        PageSize: Number(formData?.PageSize) || 0,
+        IsExcel: Number(formData?.SearhType) || 0,
+        OnlyReOpen: Number(formData?.OnlyReOpen) || 0,
+        OnlyDelay: Number(formData?.OnlyDelay) || 0,
+        Ticket: formData?.Ticket ? String(formData?.Ticket) : "",
+      })
       .then((res) => {
         const data = res?.data?.data;
 
-        if (formData?.SearhType == 0) {
-          if (data?.length == 0) {
-            setShownodata(true);
-          }
+        if (res?.data?.success === true) {
+          if (formData?.SearhType == 0) {
+            if (data?.length == 0) {
+              setShownodata(true);
+            }
 
-          const updatedData = data?.map((ele, index) => ({
-            ...ele,
-            IsActive: false,
-            MoveDropDown: "",
-            MoveResolve: false,
-            MoveDropDownValue: "",
-            AssignDropDown: "",
-            AssignResolve: false,
-            AssignDropDownValue: "",
-            UpdateStatusDropdown: "",
-            UpdateStatusResolve: false,
-            UpdateStatusValue: "",
-            ReOpenValue: "",
-            UpdateCategoryDropdown: "",
-            UpdateCategoryResolve: false,
-            UpdateCategoryValue: "",
-            UpdatedeliverydateDropdown: "",
-            UpdatedeliverydateResolve: false,
-            UpdatedeliverydateValue: "",
-            CloseDropdown: "",
-            CloseResolve: "",
-            index: index,
-            isDate: false,
-            isClientDate: false,
-            isManHour: false,
-            isClientManHour: false,
-            isCategory: false,
-            isAssignTo: false,
-            isStatus: false,
-            isProject: false,
-            isSummary: false,
-          }));
+            const updatedData = data?.map((ele, index) => ({
+              ...ele,
+              IsActive: false,
+              MoveDropDown: "",
+              MoveResolve: false,
+              MoveDropDownValue: "",
+              AssignDropDown: "",
+              AssignResolve: false,
+              AssignDropDownValue: "",
+              UpdateStatusDropdown: "",
+              UpdateStatusResolve: false,
+              UpdateStatusValue: "",
+              ReOpenValue: "",
+              UpdateCategoryDropdown: "",
+              UpdateCategoryResolve: false,
+              UpdateCategoryValue: "",
+              UpdatedeliverydateDropdown: "",
+              UpdatedeliverydateResolve: false,
+              UpdatedeliverydateValue: "",
+              CloseDropdown: "",
+              CloseResolve: "",
+              index: index,
+              isDate: false,
+              isClientDate: false,
+              isManHour: false,
+              isClientManHour: false,
+              isCategory: false,
+              isAssignTo: false,
+              isStatus: false,
+              isProject: false,
+              isSummary: false,
+            }));
 
-          setTableData(updatedData);
-          setFilteredData(updatedData);
-          //  tdRefs.current[0] = updatedData?.[0]?.index;
-          //   setSelectedRowIndex(updatedData?.[0]?.index);
-          // setSelectedRowIndex(index);
-        } else if (formData?.SearhType == 1) {
-          if (!data || data.length === 0) {
-            console.error("No data available for download.");
-            alert("No data available for download.");
-            return;
+            setTableData(updatedData);
+            setFilteredData(updatedData);
+            //  tdRefs.current[0] = updatedData?.[0]?.index;
+            //   setSelectedRowIndex(updatedData?.[0]?.index);
+            // setSelectedRowIndex(index);
+          } else if (formData?.SearhType == 1) {
+            if (!data || data.length === 0) {
+              console.error("No data available for download.");
+              alert("No data available for download.");
+              return;
+            }
+
+            setLoading(false);
+            const username =
+              useCryptoLocalStorage("user_Data", "get", "realname") || "User";
+            const now = new Date();
+            const currentDate = now.toLocaleDateString("en-GB", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+            });
+            const currentTime = now.toLocaleTimeString("en-GB", {
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+            });
+            const titleRow = [[`${username} - ${currentDate} ${currentTime}`]];
+            const ws = XLSX.utils.json_to_sheet(data, { origin: "A2" });
+            XLSX.utils.sheet_add_aoa(ws, titleRow, { origin: "A1" });
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Data");
+            const excelBuffer = XLSX.write(wb, {
+              bookType: "xlsx",
+              type: "array",
+            });
+            const fileData = new Blob([excelBuffer], {
+              type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
+            });
+
+            FileSaver.saveAs(
+              fileData,
+              `${username}_${currentDate}_${currentTime}.xlsx`
+            );
+          } else if (formData?.SearhType == 2) {
+            if (!data || data.length === 0) {
+              console.error("No data available for download.");
+              alert("No data available for download.");
+              return;
+            }
+            setLoading(false);
+
+            const username =
+              useCryptoLocalStorage("user_Data", "get", "realname") || "User";
+            const now = new Date();
+            const currentDate = now.toLocaleDateString("en-GB", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+            });
+            const currentTime = now.toLocaleTimeString("en-GB", {
+              hour: "2-digit",
+              minute: "2-digit",
+              second: "2-digit",
+            });
+            const titleRow = [[`${username} - ${currentDate} ${currentTime}`]];
+            const ws = XLSX.utils.json_to_sheet(data, { origin: "A2" });
+            XLSX.utils.sheet_add_aoa(ws, titleRow, { origin: "A1" });
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Data");
+            const excelBuffer = XLSX.write(wb, {
+              bookType: "xlsx",
+              type: "array",
+            });
+            const fileData = new Blob([excelBuffer], {
+              type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
+            });
+
+            FileSaver.saveAs(
+              fileData,
+              `${username}_${currentDate}_${currentTime}.xlsx`
+            );
           }
 
           setLoading(false);
-          const username =
-            useCryptoLocalStorage("user_Data", "get", "realname") || "User";
-          const now = new Date();
-          const currentDate = now.toLocaleDateString("en-GB", {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-          });
-          const currentTime = now.toLocaleTimeString("en-GB", {
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit",
-          });
-          const titleRow = [[`${username} - ${currentDate} ${currentTime}`]];
-          const ws = XLSX.utils.json_to_sheet(data, { origin: "A2" });
-          XLSX.utils.sheet_add_aoa(ws, titleRow, { origin: "A1" });
-          const wb = XLSX.utils.book_new();
-          XLSX.utils.book_append_sheet(wb, ws, "Data");
-          const excelBuffer = XLSX.write(wb, {
-            bookType: "xlsx",
-            type: "array",
-          });
-          const fileData = new Blob([excelBuffer], {
-            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
-          });
-
-          FileSaver.saveAs(
-            fileData,
-            `${username}_${currentDate}_${currentTime}.xlsx`
-          );
-        } else if (formData?.SearhType == 2) {
-          if (!data || data.length === 0) {
-            console.error("No data available for download.");
-            alert("No data available for download.");
-            return;
-          }
+        } else {
+          toast.error(res.data.message);
+          setTableData([]);
           setLoading(false);
-
-          const username =
-            useCryptoLocalStorage("user_Data", "get", "realname") || "User";
-          const now = new Date();
-          const currentDate = now.toLocaleDateString("en-GB", {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-          });
-          const currentTime = now.toLocaleTimeString("en-GB", {
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit",
-          });
-          const titleRow = [[`${username} - ${currentDate} ${currentTime}`]];
-          const ws = XLSX.utils.json_to_sheet(data, { origin: "A2" });
-          XLSX.utils.sheet_add_aoa(ws, titleRow, { origin: "A1" });
-          const wb = XLSX.utils.book_new();
-          XLSX.utils.book_append_sheet(wb, ws, "Data");
-          const excelBuffer = XLSX.write(wb, {
-            bookType: "xlsx",
-            type: "array",
-          });
-          const fileData = new Blob([excelBuffer], {
-            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8",
-          });
-
-          FileSaver.saveAs(
-            fileData,
-            `${username}_${currentDate}_${currentTime}.xlsx`
-          );
         }
-
-        setLoading(false);
       })
       .catch((err) => {
         toast.error(
@@ -629,12 +576,7 @@ const ViewTicketClient = () => {
     t("Status"),
     t("Submit Date"),
     t("Resolve Date"),
-    // t("Close"),
-
     t("Action"),
-
-    // { name: t("Close"), width: "4%" },
-    // { name: t("ReOpen"), width: "4%" },
     t("DeliveryDate"),
     t("ManMinutes"),
     t("ModuleName"),
@@ -669,43 +611,38 @@ const ViewTicketClient = () => {
 
     setCurrentPage(1);
   };
-
+  let baseRow = {};
   const getCategory = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "RoleID",
-        useCryptoLocalStorage("user_Data", "get", "RoleID")
-      ),
-      axios
-        .post(apiUrls?.Category_Select, form, { headers })
-        .then((res) => {
-          const poc3s = res?.data.data.map((item) => {
-            return { name: item?.NAME, code: item?.NAME };
-          });
-          setCategory(poc3s);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.Category_Select, {
+        RoleID: Number(useCryptoLocalStorage("user_Data", "get", "RoleID")),
+        ProjectID: 0,
+      })
+      .then((res) => {
+        const poc3s = res?.data.data.map((item) => {
+          return { name: item?.NAME, code: item?.NAME };
         });
+        setCategory(poc3s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getStatus = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Status_Select, form, { headers })
-        .then((res) => {
-          const poc3s = res?.data.data.map((item) => {
-            return {
-              label: item?.STATUS,
-              value: item?.id !== undefined ? item?.id : null,
-            };
-          });
-          setStatus(poc3s);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.Status_Select, {})
+      .then((res) => {
+        const poc3s = res?.data.data.map((item) => {
+          return {
+            label: item?.STATUS,
+            value: item?.id !== undefined ? item?.id : null,
+          };
         });
+        setStatus(poc3s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const handleChange = (e) => {
@@ -733,20 +670,19 @@ const ViewTicketClient = () => {
   };
 
   const getReopen = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("Title", "ReOpenReason"),
-      axios
-        .post(apiUrls?.Reason_Select, form, { headers })
-        .then((res) => {
-          const poc3s = res?.data.data.map((item) => {
-            return { label: item?.NAME, value: item?.ID };
-          });
-          setReOpen(poc3s);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.Reason_Select, {
+        Title: "ReOpenReason",
+      })
+      .then((res) => {
+        const poc3s = res?.data.data.map((item) => {
+          return { label: item?.NAME, value: item?.ID };
         });
+        setReOpen(poc3s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const [visible, setVisible] = useState({
     showVisible: false,
@@ -770,18 +706,13 @@ const ViewTicketClient = () => {
   }, [location.state?.data]);
 
   const handleResolveElementClose = (item) => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("TicketIDs", item?.TicketID),
-      form.append("ActionText", "Close");
-    axios
-      .post(apiUrls?.ApplyActionClient, form, { headers })
+    axiosInstances
+      .post(apiUrls.ApplyActionClient, {
+        TicketIDs: String(item?.TicketID),
+        ActionText: "Close",
+      })
       .then((res) => {
-        if (res?.data?.status === true) {
+        if (res?.data?.success === true) {
           toast.success(res?.data?.message);
           handleViewSearch();
         } else {
@@ -876,72 +807,80 @@ const ViewTicketClient = () => {
   const handleDelete = () => {
     const filterdata = tableData?.filter((item) => item?.IsActive == true);
     const ticketIDs = filterdata?.map((item) => item?.TicketID).join(",");
-    let form = new FormData();
-    form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("TicketIDs", ticketIDs),
-      axios
-        .post(apiUrls?.DeleteTicket, form, { headers })
-        .then((res) => {
-          toast.success(res?.data?.message);
-          handleViewSearch();
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls.DeleteTicket, {
+        TicketIDs: Number(ticketIDs),
+      })
+      .then((res) => {
+        toast.success(res?.data?.message);
+        handleViewSearch();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getApplyActionReason = (data, index, ele) => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("TicketIDs", tableData[index]?.TicketID),
-      form.append("ReOpenReason", data?.label),
-      form.append("ReOpenReasonID", data?.value),
-      form.append("ActionText", "ReOpen"),
-      axios
-        .post(apiUrls?.ApplyAction, form, { headers })
-        .then((res) => {
-          if (res?.data?.status === true) {
-            toast.success(res?.data?.message);
-            handleViewSearch();
-          } else {
-            toast.error(res?.data?.message);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls.ApplyAction, {
+        TicketIDs: String(tableData[index]?.TicketID),
+        ActionText: "ReOpen",
+        ActionId: "",
+        RCA: "",
+        ReferenceCode: "",
+        ManHour: "",
+        Summary: "",
+        ModuleID: "",
+        ModuleName: "",
+        PagesID: "",
+        PagesName: "",
+        ManHoursClient: "",
+        DeliveryDateClient: "",
+        ReOpenReasonID: String(data?.value),
+        ReOpenReason: String(data?.label),
+      })
+      .then((res) => {
+        if (res?.data?.success === true) {
+          toast.success(res?.data?.message);
+          handleViewSearch();
+        } else {
+          toast.error(res?.data?.message);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const updateReceivedDate = (details) => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("TicketIDs", details?.TicketID),
-      form.append("ActionText", "ResolveDate"),
-      form.append("ActionId", new Date().toISOString().split("T")[0]),
-      axios
-        .post(apiUrls?.ApplyAction, form, { headers })
-        .then((res) => {
-          if (res?.data?.status === true) {
-            toast.success(res?.data?.message);
-            handleViewSearch();
-          } else {
-            toast.error(res?.data?.message);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls.ApplyAction, {
+        TicketIDs: String(details?.TicketID),
+        ActionText: "ResolveDate",
+        ActionId: String(new Date().toISOString().split("T")[0]),
+        RCA: "",
+        ReferenceCode: "",
+        ManHour: "",
+        Summary: "",
+        ModuleID: "",
+        ModuleName: "",
+        PagesID: "",
+        PagesName: "",
+        ManHoursClient: "",
+        DeliveryDateClient: "",
+        ReOpenReasonID: String(""),
+        ReOpenReason: String(""),
+      })
+      .then((res) => {
+        if (res?.data?.success === true) {
+          toast.success(res?.data?.message);
+          handleViewSearch();
+        } else {
+          toast.error(res?.data?.message);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   function getTotalRecord(tableData) {
@@ -964,6 +903,7 @@ const ViewTicketClient = () => {
     getProject();
     getAssignTo();
     getReopen();
+    // handleGetFilter();
   }, []);
   return (
     <>
@@ -1295,21 +1235,56 @@ const ViewTicketClient = () => {
                     {t("ManuallyClosed")}
                   </span>
                 </div>
-
-                {/* <button
-                  className={`fa ${rowHandler.show ? "fa-arrow-up" : "fa-arrow-down"}`}
-                  onClick={() => {
-                    handlerow("show");
-                  }}
+                <div
+                  className="d-flex "
                   style={{
-                    cursor: "pointer",
-                    border: "none",
-                    color: "black",
-                    borderRadius: "2px",
-                    background: "none",
-                    marginLeft: "30px",
+                    justifyContent: "flex-start",
+                    alignItems: "center",
                   }}
-                ></button> */}
+                >
+                  <div
+                    style={{
+                      backgroundColor: "#fff000",
+                      cursor: "pointer",
+                      height: "11px",
+                      width: "18px",
+                      borderRadius: "50%",
+                      marginLeft: "4px",
+                    }}
+                    onClick={() => handleViewSearch("60", "0")}
+                  ></div>
+                  <span
+                    className="legend-label"
+                    style={{ width: "100%", textAlign: "left" }}
+                  >
+                    {t("Hold")}
+                  </span>
+                </div>
+                <div
+                  className="d-flex "
+                  style={{
+                    justifyContent: "flex-start",
+                    alignItems: "center",
+                  }}
+                >
+                  <div
+                    style={{
+                      backgroundColor: "#fff494",
+                      cursor: "pointer",
+                      height: "12px",
+                      width: "15px",
+                      borderRadius: "50%",
+                      marginLeft: "4px",
+                    }}
+                    onClick={() => handleViewSearch("40", "0")}
+                  ></div>
+                  <span
+                    className="legend-label"
+                    style={{ width: "100%", textAlign: "left" }}
+                  >
+                    {t("Confirmed")}
+                  </span>
+                </div>
               </div>
             </div>
           }
@@ -1324,7 +1299,7 @@ const ViewTicketClient = () => {
             handleChange={handleMultiSelectChange}
             value={formData?.ProjectID?.map((code) => ({
               code,
-              name: project.find((item) => item.code === code)?.name,
+              name: project?.find((item) => item?.code === code)?.name,
             }))}
           />
           {AllowAssign == 1 && (
@@ -1706,7 +1681,31 @@ const ViewTicketClient = () => {
                     fontSize: "12px",
                   }}
                 >
-                  {t("OnlyReOpen")}
+                  {t("Only ReOpen")}
+                </span>
+              </div>
+            </div>
+          </div>
+          <div className="d-flex">
+            <div className="search-col" style={{ marginLeft: "8px" }}>
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <label className="switch" style={{ marginTop: "7px" }}>
+                  <input
+                    type="checkbox"
+                    name="OnlyDelay"
+                    checked={formData?.OnlyDelay ? 1 : 0}
+                    onChange={handleCheckBox}
+                  />
+                  <span className="slider"></span>
+                </label>
+                <span
+                  style={{
+                    marginLeft: "3px",
+                    marginRight: "5px",
+                    fontSize: "12px",
+                  }}
+                >
+                  {t("Only Delay")}
                 </span>
               </div>
             </div>
@@ -1771,7 +1770,16 @@ const ViewTicketClient = () => {
                           respclass="col-xl-12 col-md-4 col-sm-6 col-12"
                         />
                       </div>
-                      <span style={{ fontWeight: "bold" }}>
+
+                      <span style={{ fontWeight: "bold", marginLeft: "10px" }}>
+                        {t("Total ManMinutes")} : &nbsp;{" "}
+                        {tableData?.reduce(
+                          (acc, curr) =>
+                            acc + (Number(curr?.ManHoursClient) || 0),
+                          0
+                        )}
+                      </span>
+                      <span style={{ fontWeight: "bold", marginLeft: "10px" }}>
                         {t("Total Record")} : &nbsp; {tableData[0]?.TotalRecord}
                       </span>
                     </div>
@@ -1795,84 +1803,86 @@ const ViewTicketClient = () => {
                 <div className="">
                   <Tables
                     style={{ width: "100%", height: "100%" }}
-                    thead={THEAD}
-                    // ref={(el) => (tdRefs.current[index] = el)}
-                    tbody={currentData?.map((ele, index) => ({
-                      "S.No.":
-                        (currentPage - 1) * formData?.PageSize + index + 1,
-                      Notes:
-                        ele?.NoteCount === 0 ? (
-                          <i
-                            className="fa fa-file"
-                            onClick={() => {
-                              setVisible({
-                                noteVisible: true,
-                                showData: ele,
-                                ele,
-                              });
-                            }}
-                            style={{
-                              cursor: "pointer",
-                              color: "black",
-                              marginLeft: "10px",
-                            }}
-                          ></i>
-                        ) : (
-                          <i
-                            className="fa fa-file"
-                            onClick={() => {
-                              setVisible({
-                                noteVisible: true,
-                                showData: ele,
-                                ele,
-                              });
-                            }}
-                            style={{
-                              cursor: "pointer",
-                              color: "green",
-                              marginLeft: "10px",
-                            }}
-                          ></i>
-                        ),
-                      Attach:
-                        ele?.AttachmentCount === 0 ? (
-                          <i
-                            className="fa fa-upload"
-                            onClick={() => {
-                              setVisible({
-                                docVisible: true,
-                                showData: ele,
-                                ele,
-                              });
-                            }}
-                            style={{
-                              cursor: "pointer",
-                              color: "black",
-                              marginLeft: "10px",
-                            }}
-                            title="Upload Document."
-                          ></i>
-                        ) : (
-                          <i
-                            className="fa fa-upload"
-                            onClick={() => {
-                              setVisible({
-                                docViewVisible: true,
-                                showData: ele,
-                                ele,
-                              });
-                            }}
-                            style={{
-                              cursor: "pointer",
-                              color: "green",
-                              marginLeft: "10px",
-                            }}
-                            title="View Documents"
-                          ></i>
-                        ),
-
-                      Select: (
-                        <>
+                    thead={
+                      formData?.ProjectID == "167"
+                        ? THEAD
+                        : THEAD.filter((head) => head !== "Assign To")
+                    }
+                    tbody={currentData?.map((ele, index) => {
+                      baseRow = {
+                        "S.No.":
+                          (currentPage - 1) * formData?.PageSize + index + 1,
+                        Notes:
+                          ele?.NoteCount === 0 ? (
+                            <i
+                              className="fa fa-file"
+                              onClick={() =>
+                                setVisible({
+                                  noteVisible: true,
+                                  showData: ele,
+                                  ele,
+                                })
+                              }
+                              style={{
+                                cursor: "pointer",
+                                color: "black",
+                                marginLeft: "10px",
+                              }}
+                            />
+                          ) : (
+                            <i
+                              className="fa fa-file"
+                              onClick={() =>
+                                setVisible({
+                                  noteVisible: true,
+                                  showData: ele,
+                                  ele,
+                                })
+                              }
+                              style={{
+                                cursor: "pointer",
+                                color: "green",
+                                marginLeft: "10px",
+                              }}
+                            />
+                          ),
+                        Attach:
+                          ele?.AttachmentCount === 0 ? (
+                            <i
+                              className="fa fa-upload"
+                              onClick={() =>
+                                setVisible({
+                                  docVisible: true,
+                                  showData: ele,
+                                  ele,
+                                })
+                              }
+                              style={{
+                                cursor: "pointer",
+                                color: "black",
+                                marginLeft: "10px",
+                              }}
+                              title="Upload Document."
+                            />
+                          ) : (
+                            <i
+                              className="fa fa-upload"
+                              onClick={() =>
+                                setVisible({
+                                  docViewVisible: true,
+                                  showData: ele,
+                                  ele,
+                                })
+                              }
+                              style={{
+                                cursor: "pointer",
+                                color: "green",
+                                marginLeft: "10px",
+                              }}
+                              title="View Documents"
+                            />
+                          ),
+                        Select: (
                           <Input
                             disabled={ele?.Status == "closed"}
                             type="checkbox"
@@ -1882,249 +1892,138 @@ const ViewTicketClient = () => {
                               handleDeliveryChangeCheckbox(e, index)
                             }
                           />
-                        </>
-                      ),
-                      "Ticket ID": (
-                        <div
-                          style={{
-                            padding: "0px",
-                            background: ele?.IsReOpen == 1 && "#c6fcff",
-                            border: "none",
-                            textAlign: "center",
-                            height: "25px",
-                          }}
-                        >
-                          {ele?.Status == "closed" ? (
-                            ele?.TicketID
-                          ) : (
-                            <Link
-                              onClick={() => {
-                                setVisible({
-                                  showVisible: true,
-                                  showData: ele,
-                                });
-                              }}
-                              title="Click to Show"
-                            >
-                              {ele?.TicketID}
-                            </Link>
-                          )}
-                        </div>
-                      ),
-
-                      "Project Name": (
-                        <Tooltip label={ele?.ProjectName}>
-                          <span
-                            id={`projectName-${index}`}
-                            targrt={`projectName-${index}`}
-                            style={{ textAlign: "center" }}
-                          >
-                            {shortenNamesummary(ele?.ProjectName)}
-                          </span>
-                        </Tooltip>
-                      ),
-
-                      "Category Name": ele?.Category,
-                      "Reporter Name": (
-                        <Tooltip label={ele?.ReporterName}>
-                          <span
-                            id={`projectName-${index}`}
-                            targrt={`projectName-${index}`}
-                            style={{ textAlign: "center" }}
-                          >
-                            {shortenNamesummary(ele?.ReporterName)}
-                          </span>
-                        </Tooltip>
-                      ),
-                      "Assign To": ele?.AssignTo,
-                      "Reported By Name": ele?.ReportedByName,
-                      "Machine Reference No.":ele?.OtherReferenceNo,
-                      Summary: (
-                        <div style={{ width: "178px" }}>
-                          <span
+                        ),
+                        "Ticket ID": (
+                          <div
                             style={{
-                              whiteSpace: "normal",
-                              cursor: "pointer",
+                              padding: "0px",
+                              background: ele?.IsReOpen == 1 && "#c6fcff",
+                              border: "none",
+                              textAlign: "center",
+                              height: "25px",
                             }}
-                            id={`summary-${index}`}
-                            targrt={`summary-${index}`}
-                            title={ele?.summary}
                           >
-                            {ele?.summary}
-                          </span>
-                        </div>
-                      ),
-                      Status: ele?.Status,
-                      "Submit Date": ele?.TicketRaisedDate,
-                      "Resolve Date": ele?.ResolvedDate,
-                      // Close:
-                      //   ele?.Status == "closed" ? (
-                      //     ""
-                      //   ) : (
-                      //     <button
-                      //       className="btn btn-xs btn-danger"
-                      //       style={{
-                      //         color: "white",
-                      //         backgroundColor: "red",
-                      //         borderColor: "red !important",
-                      //         border: "none",
-                      //       }}
-                      //       disabled={ele?.Status === "closed"}
-                      //       onClick={() => handleResolveElementClose(ele)}
-                      //     >
-                      //       Close
-                      //     </button>
-                      //   ),
-
-                      // Action: (
-                      //   <>
-                      //     {ele?.DClosedStatus == 1 ? (
-                      //       <>
-                      //         <button
-                      //           className="btn btn-xs btn-danger ml-2 mb-1"
-                      //           style={{
-                      //             color: "white",
-                      //             backgroundColor: "green",
-                      //             border: "none",
-                      //           }}
-                      //           onClick={() => handleClick(index)}
-                      //         >
-                      //           ReOpen
-                      //         </button>
-                      //       </>
-                      //     ) : (
-                      //       ""
-                      //     )}
-                      //     {showSelect === index && (
-                      //       <div
-                      //         style={{
-                      //           width: "100%",
-                      //           marginLeft: "3px",
-                      //           marginTop: "5px",
-                      //         }}
-                      //       >
-                      //         <ReactSelect
-                      //           name="ReOpenValue"
-                      //           id="ReOpenValue"
-                      //           placeholderName="Reason"
-                      //           dynamicOptions={reopen}
-                      //           value={ele?.ReOpenValue}
-                      //           handleChange={(name, value) => {
-                      //             handleAgainChange(name, value, index);
-                      //           }}
-                      //           respclass="width110px"
-                      //         />
-                      //       </div>
-                      //     )}
-                      //   </>
-                      // ),
-                      Action: (
-                        <>
-                          <ReactSelect
-                            style={{ width: "100%", marginLeft: "10px" }}
-                            height={"6px"}
-                            name="TableStatus"
-                            id="TableStatus"
-                            respclass="width110px"
-                            placeholderName="Select"
-                            dynamicOptions={dynamicOptionStatus}
-                            value={ele?.TableStatus}
-                            handleChange={(name, value) => {
-                              const ind =
-                                (currentPage - 1) * formData?.PageSize + index;
-                              handleDeliveryChangeValue(
-                                name,
-                                value?.value,
-                                ind,
-                                index,
-                                ele
-                              );
-                            }}
-                          />
-
-                          {ele?.TableStatus == "ReOpen" && (
-                            <>
-                              {ele?.DClosedStatus == 1 ? (
-                                <ReactSelect
-                                  style={{ width: "100%", marginLeft: "3px" }}
-                                  height={"6px"}
-                                  name="ReOpenValue"
-                                  respclass="width110px"
-                                  id="ReOpenValue"
-                                  placeholderName="Reason"
-                                  dynamicOptions={reopen}
-                                  value={ele?.ReOpenValue}
-                                  handleChange={(name, value) => {
-                                    handleAgainChange(name, value, index);
-                                  }}
-                                />
-                              ) : (
-                                <span
-                                  style={{
-                                    color: "Orange",
-                                    marginLeft: "5px",
-                                  }}
-                                >
-                                  Please Close Ticket<br></br>or &nbsp;Reopen
-                                  Date Over.
-                                </span>
-                              )}
-                            </>
-                          )}
-                          {/* {ele?.TableStatus == "Close" && (
-                    <>
-                      <button
-                        className="btn btn-xs btn-danger ml-2"
-                        style={{
-                          color: "white",
-                          backgroundColor: "red",
-                          borderColor: "red !important",
-                          border: "none",
-                        }}
-                        disabled={ele?.Status === "closed"}
-                        onClick={() => handleResolveElementClose(ele)}
-                      >
-                        Close
-                      </button>
-                    </>
-                  )} */}
-                          {/* {ele?.TableStatus == "Resolve" && (
-                    <>
-                      <div className="mt-2">
-                        {" "}
-                        <DatePicker
-                          placeholder={VITE_DATE_FORMAT}
-                          className="custom-calendar"
-                          id="ResolveDate"
-                          name="ResolveDate"
-                          lable={"Resolve Date"}
-                          value={formData?.ResolveDate}
-                          handleChange={(e) => {
-                            const { name, value } = e.target;
-                            searchHandleChangeTable(name, value, index, ele);
-                          }}
-                        />
-                      </div> */}
-                          {/* <button
-                              className="btn btn-sm btn-success ml-1 mb-1 mt-1"
+                            {ele?.Status == "closed" ? (
+                              ele?.TicketID
+                            ) : (
+                              <Link
+                                onClick={() =>
+                                  setVisible({
+                                    showVisible: true,
+                                    showData: ele,
+                                  })
+                                }
+                                title="Click to Show"
+                              >
+                                {ele?.TicketID}
+                              </Link>
+                            )}
+                          </div>
+                        ),
+                        "Project Name": (
+                          <Tooltip label={ele?.ProjectName}>
+                            <span style={{ textAlign: "center" }}>
+                              {shortenNamesummary(ele?.ProjectName)}
+                            </span>
+                          </Tooltip>
+                        ),
+                        "Category Name": ele?.Category,
+                        "Reporter Name": (
+                          <Tooltip label={ele?.ReporterName}>
+                            <span style={{ textAlign: "center" }}>
+                              {shortenNamesummary(ele?.ReporterName)}
+                            </span>
+                          </Tooltip>
+                        ),
+                        "Assign To":
+                          formData?.ProjectID == "167" ? ele?.AssignTo : null,
+                        "Reported By Name": ele?.ReportedByName,
+                        "Machine Reference No.": ele?.OtherReferenceNo,
+                        Summary: (
+                          <div style={{ width: "178px" }}>
+                            <span
                               style={{
-                                marginRight: "1px",
-                                marginLeft: "1px",
+                                whiteSpace: "normal",
+                                cursor: "pointer",
                               }}
-                              onClick={() => handleResolveElement(ele)}
+                              title={ele?.summary}
                             >
-                              Resolve
-                            </button> */}
-                          {/* </> */}
-                          {/* )} */}
-                        </>
-                      ),
-                      DeliveryDate: ele?.DeliveryDateClient,
-                      ManMinutes: ele?.ManHoursClient,
-                      ModuleName: ele?.ModuleName,
-                      PageName: ele?.PagesName,
-                      colorcode: ele?.rowColor,
-                    }))}
+                              {ele?.summary}
+                            </span>
+                          </div>
+                        ),
+                        Status: ele?.Status,
+                        "Submit Date": ele?.TicketRaisedDate,
+                        "Resolve Date": ele?.ResolvedDate,
+                        Action: (
+                          <>
+                            <ReactSelect
+                              style={{ width: "100%", marginLeft: "10px" }}
+                              height={"6px"}
+                              name="TableStatus"
+                              id="TableStatus"
+                              respclass="width110px"
+                              placeholderName="Select"
+                              dynamicOptions={dynamicOptionStatus}
+                              value={ele?.TableStatus}
+                              handleChange={(name, value) => {
+                                const ind =
+                                  (currentPage - 1) * formData?.PageSize +
+                                  index;
+                                handleDeliveryChangeValue(
+                                  name,
+                                  value?.value,
+                                  ind,
+                                  index,
+                                  ele
+                                );
+                              }}
+                            />
+                            {ele?.TableStatus == "ReOpen" && (
+                              <>
+                                {ele?.DClosedStatus == 1 ? (
+                                  <ReactSelect
+                                    style={{ width: "100%", marginLeft: "3px" }}
+                                    height={"6px"}
+                                    name="ReOpenValue"
+                                    respclass="width110px"
+                                    id="ReOpenValue"
+                                    placeholderName="Reason"
+                                    dynamicOptions={reopen}
+                                    value={ele?.ReOpenValue}
+                                    handleChange={(name, value) => {
+                                      handleAgainChange(name, value, index);
+                                    }}
+                                  />
+                                ) : (
+                                  <span
+                                    style={{
+                                      color: "Orange",
+                                      marginLeft: "5px",
+                                    }}
+                                  >
+                                    Please Close Ticket
+                                    <br />
+                                    or &nbsp;Reopen Date Over.
+                                  </span>
+                                )}
+                              </>
+                            )}
+                          </>
+                        ),
+                        DeliveryDate: ele?.DeliveryDateClient,
+                        ManMinutes: ele?.ManHoursClient,
+                        ModuleName: ele?.ModuleName,
+                        PageName: ele?.PagesName,
+                        colorcode: ele?.rowColor,
+                      };
+
+                      // ✅ only add "Assign To" if ProjectID = 167
+                      if (formData?.ProjectID != "167") {
+                        delete baseRow["Assign To"];
+                      }
+                      return baseRow;
+                    })}
                     tableHeight={"tableHeight"}
                   />
                 </div>

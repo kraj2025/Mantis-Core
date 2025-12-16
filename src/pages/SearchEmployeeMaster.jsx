@@ -69,45 +69,12 @@ const SearchEmployeeMaster = () => {
     AssignTo: "",
     Dashboard: "",
     ImageSignature: "",
+    BloodGroup: "",
   });
 
   /////////////////////////////////
 
   const SaveFilter = () => {
-    // let form = new FormData();
-
-    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-    // form.append(
-    //   "CrmEmpID",
-    //   useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-    // );
-    // form.append(
-    //   "LoginName",
-    //   useCryptoLocalStorage("user_Data", "get", "realname")
-    // );
-    // form.append("PageName", "SearchEmployeeMaster");
-
-    // // Example FilterData array
-    // const filterData = [
-    //   { header: "S.No", visible: true },
-    //   { header: "EmployeeName", visible: true },
-    //   { header: "MobileNo", visible: true },
-    //   { header: "Email", visible: true },
-    //   { header: "Role", visible: true },
-    //   { header: "Category", visible: true },
-    //   { header: "ProjectID", visible: true },
-    //   { header: "VerticalID", visible: true },
-    //   { header: "TeamID", visible: true },
-    //   { header: "WingID", visible: true },
-    //   { header: "Status", visible: true },
-    // ];
-
-    // // Append stringified FilterData
-    // form.append("FilterData", JSON.stringify(filterData));
-
-    // axios
-    //   .post(apiUrls?.SaveFilterTableReprintData, form, { headers })
-
     const filterData = [
       { header: "S.No", visible: true },
       { header: "EmployeeName", visible: true },
@@ -141,41 +108,6 @@ const SearchEmployeeMaster = () => {
   };
 
   const SaveTableFilter = () => {
-    // let form = new FormData();
-
-    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-    // form.append(
-    //   "CrmEmpID",
-    //   useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-    // );
-    // form.append(
-    //   "LoginName",
-    //   useCryptoLocalStorage("user_Data", "get", "realname")
-    // );
-    // form.append("PageName", "SearchEmployeeMasterTable");
-
-    // // Example FilterData array
-    // const filterData = [
-    //   { header: "S.No", visible: true },
-    //   { header: "EmployeeCode", visible: true },
-    //   { header: "EmployeeID", visible: true },
-    //   { header: "MantisID", visible: true },
-    //   { header: "User Name", visible: true },
-    //   { header: "Real Name", visible: true },
-    //   { header: "Email", visible: true },
-    //   { header: "Address", visible: true },
-    //   { header: "Mobile No.", visible: true },
-    //   { header: "Active", visible: true },
-    //   { header: "Profile Image", visible: true },
-    //   { header: "Edit", visible: true },
-    //   { header: "Action", visible: true },
-    // ];
-
-    // // Append stringified FilterData
-    // form.append("FilterData", JSON.stringify(filterData));
-
-    // axios
-    //   .post(apiUrls?.SaveFilterTableReprintData, form, { headers })
     const filterData = [
       { header: "S.No", visible: true },
       { header: "EmployeeName", visible: true },
@@ -209,19 +141,6 @@ const SearchEmployeeMaster = () => {
   };
 
   const SearchAmountSubmissionFilter = () => {
-    // let form = new FormData();
-    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-    //   form.append(
-    //     "CrmEmpID",
-    //     useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-    //   ),
-    //   form.append(
-    //     "LoginName",
-    //     useCryptoLocalStorage("user_Data", "get", "realname")
-    //   ),
-    //   form.append("PageName", "SearchEmployeeMaster"),
-    //   axios
-    //     .post(apiUrls?.GetFilterTableReprintData, form, { headers })
     axiosInstances
       .post(apiUrls?.GetFilterTableReprintData, {
         PageName: String("SearchEmployeeMaster"),
@@ -230,7 +149,7 @@ const SearchEmployeeMaster = () => {
         ),
       })
       .then((res) => {
-        console.log("SearchEmployeeMaster",res)
+        console.log("SearchEmployeeMaster", res);
         const data = res.data.data;
         if (res?.data.success === true) {
           setDynamicFilter(data);
@@ -243,19 +162,6 @@ const SearchEmployeeMaster = () => {
       });
   };
   const SearchAmountSubmissionTableFilter = () => {
-    // let form = new FormData();
-    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-    //   form.append(
-    //     "CrmEmpID",
-    //     useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-    //   ),
-    //   form.append(
-    //     "LoginName",
-    //     useCryptoLocalStorage("user_Data", "get", "realname")
-    //   ),
-    //   form.append("PageName", "SearchEmployeeMasterTable"),
-    //   axios
-    //     .post(apiUrls?.GetFilterTableReprintData, form, { headers })
     axiosInstances
       .post(apiUrls?.GetFilterTableReprintData, {
         PageName: String("SearchEmployeeMasterTable"),
@@ -290,14 +196,6 @@ const SearchEmployeeMaster = () => {
 
   ////////////////////////////////
   const getCategory = () => {
-    // let form = new FormData();
-    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-    //   form.append(
-    //     "RoleID",
-    //     useCryptoLocalStorage("user_Data", "get", "RoleID")
-    //   ),
-    //   axios
-    //     .post(apiUrls?.Category_Select, form, { headers })
     axiosInstances
       .post(apiUrls?.Category_Select, {})
       .then((res) => {
@@ -311,19 +209,13 @@ const SearchEmployeeMaster = () => {
       });
   };
   const getProject = () => {
-    // let form = new FormData();
-    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-    //   form.append(
-    //     "LoginName",
-    //     useCryptoLocalStorage("user_Data", "get", "realname")
-    //   ),
-    //   axios
-    //     .post(apiUrls?.ProjectSelect, form, { headers })
     axiosInstances
       .post(apiUrls.ProjectSelect, {
-        LoginName: String(
-          useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-        ),
+        ProjectID: 0,
+        IsMaster: String("0"),
+        VerticalID: 0,
+        TeamID: 0,
+        WingID: 0,
       })
       .then((res) => {
         const poc3s = res?.data.data.map((item) => {
@@ -336,49 +228,43 @@ const SearchEmployeeMaster = () => {
       });
   };
   const getVertical = () => {
-    let form = new FormData();
-    form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Vertical_Select, form, { headers })
-        .then((res) => {
-          const verticals = res?.data.data.map((item) => {
-            return { name: item?.Vertical, code: item?.VerticalID };
-          });
-          setVertical(verticals);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.Vertical_Select, {})
+      .then((res) => {
+        const verticals = res?.data.data.map((item) => {
+          return { name: item?.Vertical, code: item?.VerticalID };
         });
+        setVertical(verticals);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getTeam = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Team_Select, form, { headers })
-        .then((res) => {
-          const teams = res?.data.data.map((item) => {
-            return { name: item?.Team, code: item?.TeamID };
-          });
-          setTeam(teams);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.Team_Select, {})
+      .then((res) => {
+        const teams = res?.data.data.map((item) => {
+          return { name: item?.Team, code: item?.TeamID };
         });
+        setTeam(teams);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getWing = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Wing_Select, form, { headers })
-        .then((res) => {
-          const wings = res?.data.data.map((item) => {
-            return { name: item?.Wing, code: item?.WingID };
-          });
-          setWing(wings);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.Wing_Select, {})
+      .then((res) => {
+        const wings = res?.data.data.map((item) => {
+          return { name: item?.Wing, code: item?.WingID };
         });
+        setWing(wings);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const handleSelectChange = (e) => {
     const { name, value } = e.target;
@@ -388,7 +274,6 @@ const SearchEmployeeMaster = () => {
     });
   };
   const handleDeliveryChange = (name, e) => {
-    // debugger
     const { value } = e;
     setFormData({
       ...formData,
@@ -450,7 +335,6 @@ const SearchEmployeeMaster = () => {
     );
   };
 
-
   const handleSearch = (code) => {
     if (
       formData?.Name == "" &&
@@ -465,113 +349,93 @@ const SearchEmployeeMaster = () => {
     ) {
       toast.error("Please select atleast one searching criteria.");
     } else {
-    setLoading(true);
-    // let form = new FormData();
-    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-    // form.append(
-    //   "LoginName",
-    //   useCryptoLocalStorage("user_Data", "get", "realname")
-    // );
-    // form.append("EmployeeName", formData?.EmployeeName);
-    // form.append("IsActive", formData?.Status);
-    // form.append("MobileNo", formData?.MobileNo);
-    // form.append("EmailID", formData?.Email);
-    // form.append("RoleID", formData?.Role);
-    // form.append("CategoryID", formData?.Category);
-    // form.append("ProjectID", formData?.ProjectID);
-    // form.append("TeamID", formData?.TeamID);
-    // form.append("WingID", formData?.WingID);
-    // form.append("VerticalID", formData?.VerticalID);
-    // form.append("rowColor", code ? code : 0);
+      setLoading(true);
 
-    // axios
-    //   .post(apiUrls?.SearchEmployee_Name, form, {
-    //     headers,
-    //   })
-    axiosInstances
-      .post(apiUrls?.SearchEmployee_Name, {
-        EmployeeName: formData?.EmployeeName || "",
-        IsActive: String(formData?.Status) || "0",
-        MobileNo: String(formData?.MobileNo) || "",
-        EmailID: String(formData?.Email) || "",
-        RoleID: String(formData?.Role) || "0",
-        CategoryID: String(formData?.Category) || "0",
-        ProjectID: String(formData?.ProjectID) || "0",
-        TeamID: String(formData?.TeamID) || "0",
-        WingID: String(formData?.WingID) || "0",
-        VerticalID: String(formData?.VerticalID) || "0",
-        rowColor: code ? code : 0 || "0",
-      })
-      .then((res) => {
-        ///for employee error message
-        if (!res?.data?.success) {
-          notify(res?.data?.message, "error");
-        }
+      axiosInstances
+        .post(apiUrls?.SearchEmployee_Name, {
+          EmployeeName: String(formData?.EmployeeName || ""),
+          IsActive: String(formData?.Status || "0"),
+          MobileNo: String(formData?.MobileNo || ""),
+          EmailID: String(formData?.Email || ""),
+          RoleID: String(formData?.Role || "0"),
+          CategoryID: String(formData?.Category || "0"),
+          ProjectID: String(formData?.ProjectID || "0"),
+          TeamID: String(formData?.TeamID || "0"),
+          WingID: String(formData?.WingID || "0"),
+          VerticalID: String(formData?.VerticalID || "0"),
+          BloodGroup: String(formData?.BloodGroup || "0"),
+          rowColor: String(code ? code : 0 || "0"),
+        })
+        .then((res) => {
+          ///for employee error message
+          if (!res?.data?.success) {
+            notify(res?.data?.message, "error");
+          }
 
-        const data = res?.data?.data;
-        const updatedData = data?.map((ele, index) => {
-          return {
-            ...ele,
-            index: index,
-            IsActive: "0",
+          const data = res?.data?.data;
+          const updatedData = data?.map((ele, index) => {
+            return {
+              ...ele,
+              index: index,
+              IsActive: "0",
 
-            RoleDropDown: "",
-            RoleResolve: false,
-            RoleDropDownValue: "",
+              RoleDropDown: "",
+              RoleResolve: false,
+              RoleDropDownValue: "",
 
-            FlagDropDown: "",
-            FlagResolve: false,
-            FlagDropDownValue: "",
+              FlagDropDown: "",
+              FlagResolve: false,
+              FlagDropDownValue: "",
 
-            UpdateCategoryDropdown: "",
-            UpdateCategoryResolve: false,
-            UpdateCategoryValue: "",
+              UpdateCategoryDropdown: "",
+              UpdateCategoryResolve: false,
+              UpdateCategoryValue: "",
 
-            ProjectMappingDropdown: "",
-            ProjectMappingResolve: false,
-            ProjectMappingValue: "",
+              ProjectMappingDropdown: "",
+              ProjectMappingResolve: false,
+              ProjectMappingValue: "",
 
-            VerticalDropdown: "",
-            VerticalResolve: false,
-            VerticalValue: "",
+              VerticalDropdown: "",
+              VerticalResolve: false,
+              VerticalValue: "",
 
-            TeamDropdown: "",
-            TeamResolve: false,
-            TeamValue: "",
+              TeamDropdown: "",
+              TeamResolve: false,
+              TeamValue: "",
 
-            WingDropdown: "",
-            WingResolve: false,
-            WingValue: "",
+              WingDropdown: "",
+              WingResolve: false,
+              WingValue: "",
 
-            ModuleDropdown: "",
-            ModuleResolve: false,
-            ModuleValue: "",
+              ModuleDropdown: "",
+              ModuleResolve: false,
+              ModuleValue: "",
 
-            AssignToDropdown: "",
-            AssignToResolve: false,
-            AssignToValue: "",
+              AssignToDropdown: "",
+              AssignToResolve: false,
+              AssignToValue: "",
 
-            DashboardDropdown: "",
-            DashboardResolve: false,
-            DashboardValue: "",
+              DashboardDropdown: "",
+              DashboardResolve: false,
+              DashboardValue: "",
 
-            ImageSignatureDropdown: "",
-            ImageSignatureResolve: false,
-            ImageSignatureValue: "",
-          };
+              ImageSignatureDropdown: "",
+              ImageSignatureResolve: false,
+              ImageSignatureValue: "",
+            };
+          });
+          setTableData(updatedData);
+          setFilteredData(updatedData);
+          setLoading(false);
+        })
+        .catch((err) => {
+          toast.error(
+            err?.response?.data?.message
+              ? err?.response?.data?.message
+              : "Error Occured"
+          );
         });
-        setTableData(updatedData);
-        setFilteredData(updatedData);
-        setLoading(false);
-      })
-      .catch((err) => {
-        toast.error(
-          err?.response?.data?.message
-            ? err?.response?.data?.message
-            : "Error Occured"
-        );
-      });
-     }
+    }
   };
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -1169,6 +1033,25 @@ const SearchEmployeeMaster = () => {
               }))}
             />
           )}
+          <ReactSelect
+            name="BloodGroup"
+            respclass="col-xl-2 col-md-4 col-sm-6 col-12"
+            placeholderName="Blood Group"
+            searchable={true}
+            dynamicOptions={[
+              { label: "Select", value: "0" },
+              { label: "A+", value: "A+" },
+              { label: "A-", value: "A-" },
+              { label: "B+", value: "B+" },
+              { label: "B-", value: "B-" },
+              { label: "AB+", value: "AB+" },
+              { label: "AB-", value: "AB-" },
+              { label: "O+", value: "O+" },
+              { label: "O-", value: "O-" },
+            ]}
+            value={formData?.BloodGroup}
+            handleChange={handleDeliveryChange}
+          />
           {isVisible("Status") && (
             <ReactSelect
               name="Status"
@@ -1289,6 +1172,7 @@ const SearchEmployeeMaster = () => {
               MantisID: ele?.CrmEmployeeID,
               "User Name": ele?.username,
               "Real Name": ele?.realname,
+              "BloodGroup": ele?.BloodGroup,
               Email: ele?.email,
               Address: ele?.Address,
               "Mobile No.": ele?.mobileno,

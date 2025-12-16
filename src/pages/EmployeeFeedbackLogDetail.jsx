@@ -1,27 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { apiUrls } from "../networkServices/apiEndpoints";
-import { headers } from "../utils/apitools";
-import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
-import axios from "axios";
 import Tables from "../components/UI/customTable";
-import { DessertIcon } from "lucide-react";
 import { Rating } from "react-simple-star-rating";
 import NoRecordFound from "../components/formComponent/NoRecordFound";
 import excelimg from "../../src/assets/image/excel.png";
 import { ExportToExcel } from "../networkServices/Tools";
+import { axiosInstances } from "../networkServices/axiosInstance";
 const EmployeeFeedbackLogDetail = (showData) => {
-  console.log("data", showData);
   const [tableData, setTableData] = useState([]);
   const handleApprove = () => {
-    let form = new FormData();
-    form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      );
-    form.append("FeedbackID", showData?.visible?.showData?.FeedbackID);
-    axios
-      .post(apiUrls?.ShowFullFeedback, form, { headers })
+    axiosInstances
+      .post(apiUrls.ShowFullFeedback, {
+        FeedbackID: Number(showData?.visible?.showData?.FeedbackID),
+      })
+
       .then((res) => {
         setTableData(res?.data?.data);
       })
@@ -46,7 +38,7 @@ const EmployeeFeedbackLogDetail = (showData) => {
     <>
       <div className="card p-1">
         <div className="row ">
-          <span style={{ fontWeight: "bold",marginLeft:"7px" }}>
+          <span style={{ fontWeight: "bold", marginLeft: "7px" }}>
             Employee Name: &nbsp;
             {showData?.visible?.showData?.EmployeeName} &nbsp; &nbsp;
             &nbsp;&nbsp; &nbsp; FeedbackID:{" "}

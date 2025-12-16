@@ -1,10 +1,9 @@
 import React, { useState } from "react";
 import { toast } from "react-toastify";
-import axios from "axios";
-import { headers } from "../../../utils/apitools";
+
 import { apiUrls } from "../../../networkServices/apiEndpoints";
 import Loading from "../../loader/Loading";
-import { useCryptoLocalStorage } from "../../../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../../../networkServices/axiosInstance";
 const SummaryStatusModal = ({ visible, setVisible }) => {
   const [formData, setFormData] = useState({
     summary: visible?.ele?.summary,
@@ -12,27 +11,38 @@ const SummaryStatusModal = ({ visible, setVisible }) => {
   const [loading, setLoading] = useState(false);
   const handleSummaryTable = () => {
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("TicketIDs", visible?.ele?.TicketID),
-      form.append("ActionText", "Summary"),
-      form.append("Summary", formData?.summary),
-      axios
-        .post(apiUrls?.ApplyAction, form, { headers })
-        .then((res) => {
-          if (res?.data?.status === true) {
-            toast.success(res?.data?.message);
-            setLoading(false);
-            setVisible(false);
-          } else {
-            toast.error(res?.data?.message);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.ApplyAction, {
+        TicketIDs: String(visible?.ele?.TicketID),
+        ActionText: "Summary",
+        ActionId: "",
+        RCA: "",
+        ReferenceCode: "",
+        ManHour: "",
+        Summary: String(formData?.summary),
+        ModuleID: "",
+        ModuleName: "",
+        PagesID: "",
+        PagesName: "",
+        ManHoursClient: "",
+        DeliveryDateClient: "",
+        ReOpenReasonID: "",
+        ReOpenReason: "",
+      })
+
+      .then((res) => {
+        if (res?.success === true) {
+          toast.success(res?.data?.Success?.Success);
           setLoading(false);
-        });
+          setVisible(false);
+        } else {
+          toast.error(res?.data?.message);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
   };
 
   const handleSelectChange = (e) => {

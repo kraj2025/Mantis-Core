@@ -10,27 +10,24 @@ const PirntDocument = ({ data }) => {
   console.log(data);
 
   const handleSearch = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("RoleID", useCryptoLocalStorage("user_Data", "get", "RoleID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname") ),
-      form.append("VerticalID", ""),
-      form.append("TeamID", ""),
-      form.append("WingID", ""),
-      form.append("POC1", ""),
-      form.append("POC2", ""),
-      form.append("POC3", ""),
-      form.append("Status", ""),
-      form.append("ProjectID", data?.Id || data?.ProjectID),
-      // form.append("Title", "ClickToShift"),
-      axios
-        .post(apiUrls?.UploadDocument_Search, form, { headers })
-        .then((res) => {
-          setTableData(res?.data?.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+  // form.append("Title", "ClickToShift"),
+    axiosInstances
+      .post(apiUrls?.UploadDocument_Search, {
+        Status: String(),
+        ProjectID: String(data?.Id || data?.ProjectID),
+        VerticalID: String(),
+        TeamID: String(),
+        WingID: String(),
+        POC1: String(),
+        POC2: String(),
+        POC3: String(),
+      })
+      .then((res) => {
+        setTableData(res?.data?.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const [currentPage, setCurrentPage] = useState(1);

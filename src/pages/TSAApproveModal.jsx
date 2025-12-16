@@ -9,14 +9,16 @@ const TSAApproveModal = (showData) => {
   const [tableData, setTableData] = useState([]);
   const handleApprove = () => {
     let form = new FormData();
-    form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      );
-    form.append("AgreementID", showData?.visible?.showData?.TSAID);
-    axios
-      .post(apiUrls?.TSAAgreementVarification, form, { headers })
+    // form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append(
+    //     "LoginName",
+    //     useCryptoLocalStorage("user_Data", "get", "realname")
+    //   );
+    // form.append("AgreementID", showData?.visible?.showData?.TSAID);
+    // axios
+    //   .post(apiUrls?.TSAAgreementVarification, form, { headers })
+         axiosInstances
+      .post(apiUrls?.TSAAgreementVarification, {AgreementID:Number(showData?.visible?.showData?.TSAID)})
       .then((res) => {
         setTableData(res?.data?.data);
       })

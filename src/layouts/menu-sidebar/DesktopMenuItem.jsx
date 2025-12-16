@@ -46,7 +46,7 @@ const DesktopMenuItem = ({ filteredData }) => {
   });
 
   const { GetRoleList } = useSelector((state) => state?.CommonSlice);
-  console.log("GetRoleList", GetRoleList);
+  
   const search = (event) => {
     const filteredSuggestions = extractedData
       .flat()
@@ -173,14 +173,13 @@ const DesktopMenuItem = ({ filteredData }) => {
         [name]: value,
       });
     }
-
-    // console.log("value", value);
   };
 
   const getAssignTo = () => {
     axiosInstances
       .post(apiUrls.GetTeamMember, {
-        actionType: String("Child"),
+        ActionType: String("Child"),
+        // EmployeeId: Number(useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")),
       })
       .then((res) => {
         const assigntos = res?.data.data.map((item) => {

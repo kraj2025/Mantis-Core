@@ -22,8 +22,8 @@ const TATBarChart = () => {
   const handleFirstDashboardCount = () => {
     axiosInstances
       .post(apiUrls.DevDashboard_Summary, {
-        title: String("Delayed"),
-        developerID: String(memberID || "0"),
+        Title: String("Delayed"),
+        DeveloperID: String(memberID || "0"),
       })
       .then((res) => {
         setCountData(res?.data?.dtDelayed[0]);

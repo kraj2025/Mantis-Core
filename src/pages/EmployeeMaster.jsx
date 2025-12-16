@@ -25,6 +25,7 @@ import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
 import { useTranslation } from "react-i18next";
 import { Button } from "react-bootstrap";
 import { axiosInstances } from "../networkServices/axiosInstance";
+import Loading from "../components/loader/Loading";
 
 const EmployeeMaster = () => {
   const [t] = useTranslation();
@@ -42,7 +43,6 @@ const EmployeeMaster = () => {
   const { VITE_DATE_FORMAT } = import.meta.env;
   const [vertical, setVertical] = useState([]);
   const [team, setTeam] = useState([]);
-  const [wing, setWing] = useState([]);
   const [errors, setErros] = useState({});
   const [project, setProject] = useState([]);
   const [reporter, setReporter] = useState([]);
@@ -260,10 +260,6 @@ const EmployeeMaster = () => {
 
   const [getstate, setGetState] = useState([]);
   const getState = (value) => {
-    // let form = new FormData();
-    // form.append("CountryID", "14"),
-    //   axios
-    //     .post(apiUrls?.GetState, form, { headers })
     axiosInstances
       .post(apiUrls.GetState, {
         CountryID: String("14"),
@@ -280,25 +276,20 @@ const EmployeeMaster = () => {
   };
 
   const getVertical = () => {
-    let form = new FormData();
-    form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Vertical_Select, form, { headers })
-        .then((res) => {
-          const verticals = res?.data.data.map((item) => {
-            return { label: item?.Vertical, value: item?.VerticalID };
-          });
-          setVertical(verticals);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls?.Vertical_Select, {})
+      .then((res) => {
+        const verticals = res?.data.data.map((item) => {
+          return { label: item?.Vertical, value: item?.VerticalID };
         });
+        setVertical(verticals);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
+
   const getTeam = () => {
-    // let form = new FormData();
-    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-    //   axios
-    //     .post(apiUrls?.Old_Mantis_Team_Select, form, { headers })
     axiosInstances
       .post(apiUrls?.Old_Mantis_Team_Select, {})
       .then((res) => {
@@ -311,21 +302,7 @@ const EmployeeMaster = () => {
         console.log(err);
       });
   };
-  const getWing = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Wing_Select, form, { headers })
-        .then((res) => {
-          const wings = res?.data.data.map((item) => {
-            return { label: item?.Wing, value: item?.WingID };
-          });
-          setWing(wings);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-  };
+
   const handleSelectChange = (e) => {
     const { name, value, checked, type } = e.target;
     setFormData((prevState) => {
@@ -367,37 +344,13 @@ const EmployeeMaster = () => {
     }
   }, [category]);
 
-  const handlemuliSelctSelected = (data, dropdownData) => {
-    const responseData = data.split(",");
-    const returnData = dropdownData.filter((ele) =>
-      responseData.includes(String(ele?.code))
-    );
-    return returnData;
-  };
-
-  const handleSinglelect = (data, dropdowndata) => {
-    const returnItem = dropdowndata?.find((ele) => {
-      return ele.value == data;
-    });
-    return returnItem;
-  };
-
   const fetchDatabyId = (id) => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-    form.append(
-      "LoginName",
-      useCryptoLocalStorage("user_Data", "get", "realname")
-    );
-    form.append("EmployeeID", id);
-
-    axios
-      .post(apiUrls?.SearchEmployee_EmployeeID, form, {
-        headers,
+    axiosInstances
+      .post(apiUrls?.SearchEmployee_EmployeeID, {
+        EmployeeId: Number(id),
       })
       .then((res) => {
-        const datas = res?.data?.data[0];
-        // console.log("res kamal", datas?.teamname);
+        const datas = res?.data?.data?.Employee[0];
         setFormData({
           ...formData,
           Name: datas?.realname,
@@ -481,7 +434,7 @@ const EmployeeMaster = () => {
           AccountNumber: datas?.AccountNumber,
           IFSCCode: datas?.IFSCCode,
           AccountHolderName: datas?.AccountHolderName,
-          SubTeamID: datas?.SubTeamID,
+          SubTeamID: Number(datas?.subteam),
           IsProfile: datas?.ProfileImage,
           IsSiganture: datas?.SignatureURL,
           EmployeeID: "",
@@ -603,174 +556,81 @@ const EmployeeMaster = () => {
       toast.error("Please Select MaximumWeekoffs.");
     } else {
       setLoading(true);
-      let form = new FormData();
-      form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      );
-      form.append("UserName", formData?.Username);
-      form.append("RealName", formData?.Name);
-      form.append("Email", formData?.ContactEmail);
-      form.append("Password", formData?.Password);
-      form.append("MobileNo", formData?.ContactMobile);
-      form.append("DOB", moment(formData?.DOB).format("YYYY-MM-DD"));
-      form.append("DOJ", moment(formData?.JoiningDate).format("YYYY-MM-DD"));
-      form.append("DesignationID", formData?.OfficeDesignation);
-      form.append(
-        "DesignationName",
-        getlabel(formData?.OfficeDesignation, designation)
-      );
-      form.append("Access_level", formData?.AccessLevel);
-      form.append("TeamLeaderID", formData?.ReporterTo);
-      form.append("FatherName", formData?.FatherName);
-      form.append("MotherName", formData?.MotherName);
-      form.append("Qualification", formData?.Qualification);
-      form.append("AlternateMobileNo", formData?.AlternateMobile);
-      form.append("Address", formData?.CurrentAddress);
-      form.append("PinCode", formData?.CurrentPinCode);
-      form.append("Country", "14");
-      form.append("City", formData?.CurrentCity);
-      form.append("EmergencyContactNo", formData?.EmergencyMobile);
-      form.append("EmergencyContactPerson", formData?.EmergencyName);
-      form.append("Relation", formData?.Relation);
-      form.append("StateID", formData?.CurrentState);
-      form.append("State", getlabel(formData?.CurrentState, getstate));
-      form.append("ContactMobile", formData?.ContactMobile);
-      form.append("TeamID", formData?.TeamID);
-      form.append("TeamName", getlabel(formData?.TeamID, team));
-      form.append(
-        "NextAppraisalDate",
-        moment(formData?.NextAppraisalDate).format("YYYY-MM-DD")
-      );
-      form.append("EmployeeCode", formData?.EmployeeCode);
-      form.append("Grade", formData?.Grade);
-      form.append("EmployeeEmail", formData?.EmployeeEmail);
-      form.append("BankName", formData?.BankName);
-      form.append("AccountNumber", formData?.AccountNumber);
-      form.append("IFSCCode", formData?.IFSCCode);
-      form.append("AccountHolderName", formData?.AccountHolderName);
-      form.append("MaximumWeekoffs", formData?.MaximumWeekoffs);
-      form.append("IsActive", formData?.IsActive);
-      form.append("Locality", formData?.CurrentLocality);
-      form.append("PLocality", formData?.PermanentLocality);
-      form.append("PPincode", formData?.PermanentPinCode);
-      form.append("Coursename", formData?.Course);
-      form.append("BloodGroup", formData?.BloodGroup);
-      form.append("GovtIdentityType", formData?.GovtID);
-      form.append("GovtIdentityNo", formData?.GovtIDNo);
-      form.append("PStateID", formData?.PermanentState);
-      form.append("PState", getlabel(formData?.PermanentState, getstate));
-      form.append("PCity", formData?.PermanentCity);
-      form.append("Paddress", formData?.PermanentAddress);
-      form.append("Subteam", formData?.SubTeamID);
-      // form.append("WorkStation", formData?.WorkStation);
-      form.append("Title", formData?.Title);
 
-      form.append("ProfileDetail", ImageJson);
-      form.append("SignatureDetails", SignatureJson);
-
-      axios
-        .post(apiUrls?.CreateEmployee, form, {
-          headers,
+      axiosInstances
+        .post(apiUrls.CreateEmployee, {
+          UserName: String(formData?.Username),
+          RealName: String(formData?.Name),
+          Email: String(formData?.ContactEmail),
+          Password: String(formData?.Password),
+          AccessLevel: String(formData?.AccessLevel),
+          MobileNo: String(formData?.ContactMobile),
+          DOB: String(moment(formData?.DOB).format("YYYY-MM-DD")),
+          DesignationID: String(formData?.OfficeDesignation),
+          DesignationName: String(
+            getlabel(formData?.OfficeDesignation, designation)
+          ),
+          DOJ: String(moment(formData?.JoiningDate).format("YYYY-MM-DD")),
+          TeamLeaderID: String(formData?.ReporterTo),
+          FatherName: String(formData?.FatherName),
+          MotherName: String(formData?.MotherName),
+          Qualification: String(formData?.Qualification),
+          AlternateMobileNo: String(formData?.AlternateMobile),
+          Address: String(formData?.CurrentAddress),
+          PinCode: String(formData?.CurrentPinCode),
+          Country: String("14"),
+          State: String(formData?.CurrentState),
+          District: String(""),
+          City: String(formData?.CurrentCity),
+          EmergencyContactNo: String(formData?.EmergencyMobile),
+          EmergencyContactPerson: String(formData?.EmergencyName),
+          Relation: String(formData?.Relation),
+          TeamName: String(getlabel(formData?.TeamID, team)),
+          TeamID: String(formData?.TeamID),
+          BankName: String(formData?.BankName),
+          AccountNumber: String(formData?.AccountNumber),
+          AccountHolderName: String(formData?.AccountHolderName),
+          IFSCCode: String(formData?.IFSCCode),
+          Title: String(formData?.Title),
+          EmployeeCode: String(formData?.EmployeeCode),
+          Locality: String(formData?.CurrentLocality),
+          PLocality: String(formData?.PermanentLocality),
+          PPincode: String(formData?.PermanentPinCode),
+          Coursename: String(formData?.Course),
+          BloodGroup: String(formData?.BloodGroup),
+          appriasaldate: String(
+            moment(formData?.NextAppraisalDate).format("YYYY-MM-DD")
+          ),
+          companyemail: String(formData?.EmployeeEmail),
+          govtIdentityType: String(formData?.GovtID),
+          govtIdentityNo: String(formData?.GovtIDNo),
+          PStateID: String(formData?.PermanentState),
+          PCity: String(formData?.PermanentCity),
+          grade: String(formData?.Grade),
+          Paddress: String(formData?.PermanentAddress),
+          subteam: String(formData?.SubTeamID),
+          MaxWeekOffs: String(formData?.MaximumWeekoffs),
+          WorkStation: String(""),
+          Wing: String(""),
+          EmployeeCodeSmartoffice: String(""),
+          ProfileDetail: [
+            {
+              Document_Base64: String(formData?.Document_Base64),
+              FileExtension: String(formData?.FileExtension),
+            },
+          ],
+          SignatureDetails: [
+            {
+              Document_Base64: String(formData?.SigDocument_Base64),
+              FileExtension: String(formData?.FileExtensionSig),
+            },
+          ],
         })
         .then((res) => {
           if (res?.data?.status === true) {
             toast.success(res?.data?.message);
             setLoading(false);
             navigate("/SearchEmployeeMaster");
-            // setFormData({
-            //   ...formData,
-            //   Name: "",
-            //   DOB: new Date(),
-            //   Mobile: "",
-            //   ContactMobile: "",
-            //   Email: "",
-            //   ContactEmail: "",
-            //   EmployeeEmail: "",
-            //   Username: "",
-            //   Password: "",
-            //   IsActive: "",
-            //   Designation: "",
-            //   OfficeDesignation: "",
-            //   AccessLevel: "",
-            //   Category: "",
-            //   Project: "",
-            //   Manager: "",
-            //   AlternateMobile: "",
-            //   FatherName: "",
-            //   MotherName: "",
-            //   Qualification: "",
-            //   AadharCard: "",
-            //   PanCard: "",
-            //   Address: "",
-            //   CurrentAddress: "",
-            //   PermanentAddress: "",
-            //   Country: "",
-            //   State: "",
-            //   CurrentState: "",
-            //   PermanentState: "",
-            //   City: "",
-            //   CurrentCity: "",
-            //   PermanentCity: "",
-            //   District: "",
-            //   PinCode: "",
-            //   CurrentPinCode: "",
-            //   PermanentPinCode: "",
-            //   Locality: "",
-            //   CurrentLocality: "",
-            //   PermanentLocality: "",
-            //   Relation: "",
-            //   EmergencyMobile: "",
-            //   EmergencyName: "",
-            //   TeamLeaderID: "",
-            //   UpdatePassword: "",
-            //   Title: "Mr",
-            //   Course: "",
-            //   BloodGroup: "",
-            //   GovtID: "Aadhar Card",
-            //   GovtIDNo: "",
-            //   SameAsCurrent: "",
-            //   VerticalID: "",
-            //   TeamID: "",
-            //   WingID: "",
-            //   ReporterTo: "",
-            //   JoiningDate: new Date(),
-            //   NextAppraisalDate: new Date(),
-            //   EmployeeCode: "",
-            //   Grade: "",
-            //   Salary: "",
-            //   SalaryAccountBank: "",
-            //   SalaryAccountNumber: "",
-            //   RegisteredSalesEnquiry: "",
-            //   IsSalesTeamMember: "",
-            //   ApproveLeaveRequest: "",
-            //   MaximumWeekoffs: "",
-            //   WorkingDays: "",
-            //   BiometricEmployeeCode: "",
-            //   EmployeeID: "",
-            //   DocumentType: "",
-
-            //   SelectFile: "",
-            //   SelectFileSig: "",
-
-            //   Document_Base64: "",
-            //   FileExtension: "",
-
-            //   SigDocument_Base64: "",
-            //   FileExtensionSig: "",
-
-            //   BankName: "",
-            //   AccountNumber: "",
-            //   IFSCCode: "",
-            //   AccountHolderName: "",
-            //   SubTeamID: "",
-            //   IsProfile: "",
-            //   IsSiganture: "",
-
-            //   EmployeeID: "",
-            //   OldMantisID: "",
-            // });
           } else {
             toast.error(res?.data?.message);
             setLoading(false);
@@ -783,22 +643,19 @@ const EmployeeMaster = () => {
   };
 
   const getReporter = () => {
-    // let form = new FormData();
-    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-    // form.append("RoleID", useCryptoLocalStorage("user_Data", "get", "RoleID")),
-    // form.append("CrmID", useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")),
-    //   axios
-    //     .post(apiUrls?.Reporter_Select_Employee, form, { headers })
     axiosInstances
       .post(apiUrls?.Reporter_Select_Employee, {
-        CrmID: Number(useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")),
+        CrmID: Number(
+          useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+        ),
         IsMaster: 0,
-        RoleID:0,
+        RoleID: 0,
         OnlyItdose: 0,
       })
       .then((res) => {
-        const reporters = res?.data.data.map((item) => {
-          return { label: item?.NAME, value: item?.CrmID };
+        const datas = res?.data?.data;
+        const reporters = datas?.map((item) => {
+          return { label: item?.Name, value: item?.CrmID };
         });
         setReporter(reporters);
       })
@@ -807,57 +664,35 @@ const EmployeeMaster = () => {
       });
   };
   const getDesignation = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      axios
-        .post(apiUrls?.ViewDesignation, form, { headers })
-        .then((res) => {
-          const reporters = res?.data.data.map((item) => {
-            return { label: item?.DesignationName, value: item?.ID };
-          });
-          setDesignation(reporters);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls?.ViewDesignation, {})
+      .then((res) => {
+        const reporters = res?.data.data.map((item) => {
+          return { label: item?.DesignationName, value: item?.ID };
         });
+        setDesignation(reporters);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getSubTeam = (item) => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("TeamName", item?.label || item),
-      axios
-        .post(apiUrls?.Old_Mantis_Sub_Team_Select, form, { headers })
-        .then((res) => {
-          const teams = res?.data?.data?.map((item) => {
-            return { label: item?.SubTeam, value: item?.ID };
-          });
-          setSubTeam(teams);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls?.Old_Mantis_Sub_Team_Select, {
+        TeamName: String(item?.label || item),
+      })
+      .then((res) => {
+        const teams = res?.data?.data?.map((item) => {
+          return { label: item?.SubTeam, value: item?.ID };
         });
+        setSubTeam(teams);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const getProject = () => {
-    // let form = new FormData();
-
-    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-    //   form.append(
-    //     "LoginName",
-    //     useCryptoLocalStorage("user_Data", "get", "realname")
-    //   ),
-    //   axios
-    //     .post(apiUrls?.ProjectSelect, form, { headers })
-    //  axiosInstances
-    //   .post(apiUrls.ProjectSelect, {
-    //     LoginName: String(
-    //       useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-    //     ),
-    //   })
     axiosInstances
       .post(apiUrls.ProjectSelect, {})
       .then((res) => {
@@ -866,7 +701,6 @@ const EmployeeMaster = () => {
         });
         getCategory(poc3s[0]?.value);
         setProject(poc3s);
-        // setFormData({ ...formData, Project: [poc3s[0]?.code] });
       })
       .catch((err) => {
         console.log(err);
@@ -874,16 +708,10 @@ const EmployeeMaster = () => {
   };
 
   const getCategory = (proj) => {
-    // let form = new FormData();
-    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-    //   form.append("ProjectID", proj),
-    //   axios
-    //     .post(apiUrls?.Category_Select, form, { headers })
     axiosInstances
       .post(apiUrls.Category_Select, {
-        LoginName: String(
-          useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-        ),
+        ProjectID: Number(proj),
+        RoleID: Number(useCryptoLocalStorage("user_Data", "get", "RoleID")),
       })
       .then((res) => {
         const poc3s = res?.data.data.map((item) => {
@@ -897,14 +725,6 @@ const EmployeeMaster = () => {
   };
 
   const getAccessLevel = () => {
-    let form = new FormData();
-    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-    //   form.append(
-    //     "LoginName",
-    //     useCryptoLocalStorage("user_Data", "get", "realname")
-    //   ),
-    //   axios
-    //     .post(apiUrls?.Accesslevel, form, { headers })
     axiosInstances
       .post(apiUrls.Accesslevel, {})
       .then((res) => {
@@ -979,81 +799,87 @@ const EmployeeMaster = () => {
       toast.error("Please Select MaximumWeekoffs.");
     } else {
       setLoading(true);
-      let form = new FormData();
-      form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      );
-      form.append("UserName", formData?.Username);
-      form.append("RealName", formData?.Name);
-      form.append("Email", formData?.ContactEmail);
-      form.append("Password", formData?.Password);
-      form.append("MobileNo", formData?.ContactMobile);
-      form.append("DOB", moment(formData?.DOB).format("YYYY-MM-DD"));
-      form.append("DOJ", moment(formData?.JoiningDate).format("YYYY-MM-DD"));
-      form.append("DesignationID", formData?.OfficeDesignation);
-      form.append(
-        "DesignationName",
-        getlabel(formData?.OfficeDesignation, designation)
-      );
-      form.append("Access_level", formData?.AccessLevel);
-      form.append("TeamLeaderID", formData?.ReporterTo);
-      form.append("FatherName", formData?.FatherName);
-      form.append("MotherName", formData?.MotherName);
-      form.append("Qualification", formData?.Qualification);
-      form.append("AlternateMobileNo", formData?.AlternateMobile);
-      form.append("Address", formData?.CurrentAddress);
-      form.append("PinCode", formData?.CurrentPinCode);
-      form.append("Country", "14");
-      form.append("City", formData?.CurrentCity);
-      form.append("EmergencyContactNo", formData?.EmergencyMobile);
-      form.append("EmergencyContactPerson", formData?.EmergencyName);
-      form.append("Relation", formData?.Relation);
-      form.append("StateID", formData?.CurrentState);
-      form.append("State", getlabel(formData?.CurrentState, getstate));
-      form.append("ContactMobile", formData?.ContactMobile);
-      form.append("TeamName", getlabel(formData?.TeamID, team));
-      form.append("TeamID", formData?.TeamID);
-      form.append(
-        "NextAppraisalDate",
-        moment(formData?.NextAppraisalDate).format("YYYY-MM-DD")
-      );
-      form.append("EmployeeCode", formData?.EmployeeCode);
-      form.append("Grade", formData?.Grade);
-      form.append("EmployeeEmail", formData?.EmployeeEmail);
-      form.append("BankName", formData?.BankName);
-      form.append("AccountNumber", formData?.AccountNumber);
-      form.append("IFSCCode", formData?.IFSCCode);
-      form.append("AccountHolderName", formData?.AccountHolderName);
-      form.append("MaximumWeekoffs", formData?.MaximumWeekoffs);
-      form.append("Enabled", formData?.IsActive || "0");
-      form.append("Locality", formData?.CurrentLocality);
-      form.append("PLocality", formData?.PermanentLocality);
-      form.append("PPincode", formData?.PermanentPinCode);
-      form.append("Coursename", formData?.Course);
-      form.append("BloodGroup", formData?.BloodGroup);
-      form.append("GovtIdentityType", formData?.GovtID);
-      form.append("GovtIdentityNo", formData?.GovtIDNo);
-      form.append("PStateID", formData?.PermanentState);
-      form.append("PState", getlabel(formData?.PermanentState, getstate));
-      form.append("PCity", formData?.PermanentCity);
-      form.append("Paddress", formData?.PermanentAddress);
-      form.append("Subteam", formData?.SubTeamID);
-      form.append("Title", formData?.Title);
-      form.append("UpdatePasswordKey", formData?.UpdatePassword);
-      form.append("EmployeeID", state?.data);
-      form.append("OldMantisEmpID", formData?.OldMantisID);
 
-      form.append("ProfileDetail", ImageJson);
-      form.append("SignatureDetails", SignatureJson);
-
-      axios
-        .post(apiUrls?.UpdateEmployee, form, {
-          headers,
+      axiosInstances
+        .post(apiUrls.UpdateEmployee, {
+          ID: String(useCryptoLocalStorage("user_Data", "get", "ID")),
+          LoginName: String(
+            useCryptoLocalStorage("user_Data", "get", "realname")
+          ),
+          EmployeeID: String(state?.data),
+          OldMantisEmpID: String(formData?.OldMantisID),
+          UserName: String(formData?.Username),
+          RealName: String(formData?.Name),
+          Email: String(formData?.ContactEmail),
+          Enabled: String(formData?.IsActive || "0"),
+          Password: String(formData?.Password),
+          Access_level: String(formData?.AccessLevel),
+          MobileNo: String(formData?.ContactMobile),
+          DOB: String(moment(formData?.DOB).format("YYYY-MM-DD")),
+          DesignationID: String(formData?.OfficeDesignation),
+          DesignationName: String(
+            getlabel(formData?.OfficeDesignation, designation)
+          ),
+          DOJ: String(moment(formData?.JoiningDate).format("YYYY-MM-DD")),
+          TeamLeaderID: String(formData?.ReporterTo),
+          UpdatePasswordKey: String(formData?.UpdatePassword),
+          FatherName: String(formData?.FatherName),
+          MotherName: String(formData?.MotherName),
+          Qualification: String(formData?.Qualification),
+          AlternateMobileNo: String(formData?.AlternateMobile),
+          Address: String(formData?.CurrentAddress),
+          PinCode: String(formData?.CurrentPinCode),
+          Country: String("14"),
+          State: String(formData?.CurrentState),
+          District: String(""),
+          City: String(formData?.CurrentCity),
+          EmergencyContactNo: String(formData?.EmergencyMobile),
+          EmergencyContactPerson: String(formData?.EmergencyName),
+          Relation: String(formData?.Relation),
+          TeamName: String(getlabel(formData?.TeamID, team)),
+          TeamID: String(formData?.TeamID),
+          BankName: String(formData?.BankName),
+          AccountNumber: String(formData?.AccountNumber),
+          AccountHolderName: String(formData?.AccountHolderName),
+          IFSCCode: String(formData?.IFSCCode),
+          Title: String(formData?.Title),
+          EmployeeCode: String(formData?.EmployeeCode),
+          Locality: String(formData?.CurrentLocality),
+          PLocality: String(formData?.PermanentLocality),
+          PPincode: String(formData?.PermanentPinCode),
+          Coursename: String(formData?.Course),
+          BloodGroup: String(formData?.BloodGroup),
+          appriasaldate: String(
+            moment(formData?.NextAppraisalDate).format("YYYY-MM-DD")
+          ),
+          companyemail: String(formData?.EmployeeEmail),
+          EmployeeEmail: String(formData?.EmployeeEmail),
+          govtIdentityType: String(formData?.GovtID),
+          govtIdentityNo: String(formData?.GovtIDNo),
+          PStateID: String(formData?.PermanentState),
+          PCity: String(formData?.PermanentCity),
+          grade: String(formData?.Grade),
+          Paddress: String(formData?.PermanentAddress),
+          subteam: String(formData?.SubTeamID),
+          MaxWeekOffs: String(formData?.MaximumWeekoffs),
+          WorkStation: String(""),
+          Wing: String(""),
+          EmployeeCodeSmartoffice: String(""),
+          ProfileDetail: [
+            {
+              Document_Base64: String(formData?.Document_Base64),
+              FileExtension: String(formData?.FileExtension),
+            },
+          ],
+          SignatureDetails: [
+            {
+              Document_Base64: String(formData?.SigDocument_Base64),
+              FileExtension: String(formData?.FileExtensionSig),
+            },
+          ],
         })
         .then((res) => {
-          if (res?.data?.status === true) {
+          if (res?.data?.success === true) {
             toast.success(res?.data?.message);
             setLoading(false);
             navigate("/SearchEmployeeMaster");
@@ -1068,8 +894,6 @@ const EmployeeMaster = () => {
     }
   };
 
-  // console.log("formdata", formData);
-
   useEffect(() => {
     getProject();
     getAccessLevel();
@@ -1077,7 +901,6 @@ const EmployeeMaster = () => {
     getDesignation();
     getVertical();
     getTeam();
-    getWing();
     getState();
   }, []);
   return (
@@ -2139,6 +1962,7 @@ const EmployeeMaster = () => {
                 handleChange={handleDeliveryChange}
                 requiredClassName="required-fields"
               />
+
               <ReactSelect
                 name="ReporterTo"
                 respclass="col-xl-2 col-md-4 col-sm-6 col-12"
@@ -2243,7 +2067,7 @@ const EmployeeMaster = () => {
                 dynamicOptions={[
                   { label: "Kotak", value: "Kotak" },
                   { label: "ICICI", value: "ICICI" },
-                  { label: "Cash", value: "Cash" },
+                  { label: "Delta", value: "Cash" },
                 ]}
                 value={formData?.SalaryAccountBank}
                 handleChange={handleDeliveryChange}

@@ -102,6 +102,7 @@ const Welcome = () => {
     "get",
     "ProfileImage"
   );
+  console.log("ProfilePhoto",ProfilePhoto)
   return (
     <>
       {visible?.birthdayShow && (

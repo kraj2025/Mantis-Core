@@ -2,86 +2,113 @@ import React, { useEffect, useState } from "react";
 import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
+  BarElement,
   CategoryScale,
   LinearScale,
   Title,
-  BarElement,
   Tooltip,
+  Legend,
 } from "chart.js";
-import { useTranslation } from "react-i18next";
 import axios from "axios";
 import { apiUrls } from "../networkServices/apiEndpoints";
 import { headers } from "../utils/apitools";
 import { useSelector } from "react-redux";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../networkServices/axiosInstance";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
+const currentDate = new Date();
+const currentMonth = currentDate.getMonth() + 1; // Months are 0-indexed, so add 1
+const currentYear = currentDate.getFullYear();
 
 const ClientFeedbackSaleChart = () => {
-  const { t } = useTranslation();
-  const { memberID, developerSearchType } = useSelector(
-    (state) => state?.loadingSlice
-  );
-  const [chartData, setChartData] = useState([]);
+  const { memberID } = useSelector((state) => state?.loadingSlice);
+  const { developerSearchType } = useSelector((state) => state?.loadingSlice);
 
-  const handleFetchSalesData = (developerId, searchType) => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-    form.append("DeveloperID", "0");
-    form.append("SearchType","3");
-    axios
-      .post(apiUrls?.CoorDashboard_NewSales, form, { headers })
+  const [chartRawData, setChartRawData] = useState([]);
+
+  const fetchSalesData = () => {
+   
+    axiosInstances
+      .post(apiUrls.ClientFeedbackStatsGraph, {
+        Month: currentMonth,
+        Year: currentYear,
+      })
       .then((res) => {
-        setChartData(res?.data?.data || []);
+        setChartRawData(res?.data?.data || []);
       })
       .catch((err) => {
-        console.log(err);
+        console.error(err);
       });
   };
 
   useEffect(() => {
-    handleFetchSalesData(memberID, developerSearchType);
-    }, [memberID, developerSearchType]);
-  
+    fetchSalesData();
+  }, []);
 
-  ChartJS.register(CategoryScale, LinearScale, Title, BarElement, Tooltip);
+  const transformData = (data) => {
+    const labels = data.map((item) => item.MonthName.slice(0, 3));
 
-  const data = {
-    labels: chartData.map((item) => item.NewSaleMonth),
-    datasets: [
-      {
-        label: t("Total Sales"),
-        borderRadius: 0,
-        data: chartData.map((item) => item.TotalAmount),
-        backgroundColor: "#8bd6ad",
-        borderColor: "#8bd6ad",
-        borderWidth: 1,
-      },
-    ],
+    return {
+      labels,
+      datasets: [
+        {
+          label: "All Feedback",
+          data: data.map((item) => item.TotalFeedbackCount),
+          backgroundColor: "#85bbf1ff",
+        },
+
+        {
+          label: "Pending Feedback",
+          data: data.map((item) => item.NotReviveFeedbackCount),
+          backgroundColor: "#f1ee99ff",
+        },
+        {
+          label: "Received Feedback",
+          data: data.map((item) => item.ReviveFeedbackCount),
+          backgroundColor: "#66ffabff",
+        },
+        {
+          label: "Negative Comments",
+          data: data.map((item) => item.CommentAvailableCount),
+          backgroundColor: "#f77777",
+        },
+      ],
+    };
   };
 
+  const chartData = transformData(chartRawData);
+
   const options = {
-    maintainAspectRatio: false,
-    responsive: true,
     plugins: {
-      title: {
-        display: false,
-      },
       legend: {
-        display: false,
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        ticks: {
-          precision: 0,
+        display: true,
+        labels: {
+          font: {
+            size: 10,
+          },
+          color: "black",
+          usePointStyle: false,
+          pointStyle: "circle",
         },
       },
+      datalabels: {
+        display: false,
+      },
     },
+    responsive: true,
   };
 
   return (
-    <div style={{ width: "100%", height: "150px" }}>
-      <Bar data={data} options={options} />
+    <div style={{ minHeight: "320px" }}>
+      <Bar data={chartData} options={options} />
     </div>
   );
 };

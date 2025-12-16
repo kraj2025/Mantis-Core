@@ -11,6 +11,7 @@ import MultiSelectComp from "../../components/formComponent/MultiSelectComp";
 import Input from "../../components/formComponent/Input";
 import NoRecordFound from "../../components/formComponent/NoRecordFound";
 import { useCryptoLocalStorage } from "../../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../../networkServices/axiosInstance";
 
 const ProjectMappingModal = (ele) => {
   const [loading, setLoading] = useState(false);
@@ -32,31 +33,44 @@ const ProjectMappingModal = (ele) => {
   };
 
   const getProject = () => {
-    let form = new FormData();
-    form.append("ID",  useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("IsMaster", "1"),
-      axios
-        .post(apiUrls?.ProjectSelect, form, { headers })
-        .then((res) => {
-          const poc3s = res?.data.data.map((item) => {
-            return { name: item?.Project, code: item?.ProjectId };
-          });
-          setProject(poc3s);
-        })
-        .catch((err) => {
-          console.log(err);
+    // let form = new FormData();
+    // form.append("ID",  useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
+    //   form.append("IsMaster", "1"),
+    //   axios
+    //     .post(apiUrls?.ProjectSelect, form, { headers })
+    axiosInstances
+      .post(apiUrls?.ProjectSelect, {
+        ProjectID: 0,
+        IsMaster: "",
+        VerticalID: 0,
+        TeamID: 0,
+        WingID: 0,
+      })
+      .then((res) => {
+        const poc3s = res?.data.data.map((item) => {
+          return { name: item?.Project, code: item?.ProjectId };
         });
+        setProject(poc3s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const handleSearch = () => {
-    let form = new FormData();
-    form.append("ID",  useCryptoLocalStorage("user_Data", "get", "ID"));
-    form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname"));
-    form.append("UserID", ele?.visible?.showData?.id);
-    axios
-      .post(apiUrls?.UserVsProject_Select, form, {
-        headers,
-      })
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
+    // form.append(
+    //   "LoginName",
+    //   useCryptoLocalStorage("user_Data", "get", "realname")
+    // );
+    // form.append("UserID", ele?.visible?.showData?.id);
+    // axios
+    //   .post(apiUrls?.UserVsProject_Select, form, {
+    //     headers,
+    //   })
+    axiosInstances
+      .post(apiUrls?.UserVsProject_Select, {})
       .then((res) => {
         const data = res?.data?.data;
         setTableData(data);
@@ -67,7 +81,7 @@ const ProjectMappingModal = (ele) => {
       });
   };
   const [currentPage, setCurrentPage] = useState(1);
-  const rowsPerPage =1000;
+  const rowsPerPage = 1000;
   const totalPages = Math.ceil(tableData?.length / rowsPerPage);
   const currentData = tableData?.slice(
     (currentPage - 1) * rowsPerPage,
@@ -80,43 +94,55 @@ const ProjectMappingModal = (ele) => {
   };
   const handleusermapping = () => {
     setLoading(true);
+    const selectedIds = tableData
+      .filter((row) => row.remove)
+      .map((row) => row.ProjectID);
+
     if (formData?.Project == "") {
       toast.error("Please Select Project.");
       setLoading(false);
-    }
-  else  if (formData?.AccessType == "") {
+    } else if (formData?.AccessType == "") {
       toast.error("Please Select AccessType.");
       setLoading(false);
-    }
-    else {
-      let form = new FormData();
-      form.append("ID",  useCryptoLocalStorage("user_Data", "get", "ID")),
-        form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-        form.append("UserID", ele?.visible?.showData?.id),
-        form.append("Status", "Add"),
-        form.append("TargetUserID", ""),
-        form.append("ProjectID", formData?.Project),
-        form.append("AccessType", formData?.AccessType),
-        axios
-          .post(apiUrls?.UserVsProjectMapping, form, { headers })
-          .then((res) => {
-            if (res?.data?.status === true) {
-              toast.success(res?.data?.message);
-              setFormData({ ...formData, Project: [] });
-              handleSearch();
-              setLoading(false);
-            } else {
-              toast.error(res?.data?.message);
-              setLoading(false);
-            }
-          })
-          .catch((err) => {
-            console.log(err);
+    } else {
+      // let form = new FormData();
+      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+      //   form.append(
+      //     "LoginName",
+      //     useCryptoLocalStorage("user_Data", "get", "realname")
+      //   ),
+      //   form.append("UserID", ele?.visible?.showData?.id),
+      //   form.append("Status", "Add"),
+      //   form.append("TargetUserID", ""),
+      //   form.append("ProjectID", formData?.Project),
+      //   form.append("AccessType", formData?.AccessType),
+      //   axios
+      //     .post(apiUrls?.UserVsProjectMapping, form, { headers })
+      axiosInstances
+        .post(apiUrls?.UserVsProjectMapping, {
+          AccessType: String(formData?.AccessType),
+          // ProjectIDs: (formData?.Project).join(","),
+          ProjectIDs: formData?.Project,
+          Status: "Add",
+          TargetUserID: Number("0"),
+        })
+        .then((res) => {
+          if (res?.data?.success === true) {
+            toast.success(res?.data?.message);
+            setFormData({ ...formData, Project: [] });
+            handleSearch();
             setLoading(false);
-          });
+          } else {
+            toast.error(res?.data?.message);
+            setLoading(false);
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+          setLoading(false);
+        });
     }
   };
-
 
   useEffect(() => {
     getProject();
@@ -131,6 +157,7 @@ const ProjectMappingModal = (ele) => {
   };
 
   const [selectAll, setSelectAll] = useState(false);
+
   const handleCheckBox = (e, index) => {
     const { name, checked } = e?.target;
     if (name === "selectAll") {
@@ -169,13 +196,12 @@ const ProjectMappingModal = (ele) => {
         name="selectAll"
         checked={selectAll}
         onChange={handleCheckBox}
-      />{" "}
+      />
       &nbsp;All
     </label>,
   ];
 
   const handleDeleteSelected = () => {
-   
     setLoading(true);
     const selectedIds = tableData
       .filter((row) => row.remove)
@@ -186,27 +212,34 @@ const ProjectMappingModal = (ele) => {
       setLoading(false);
       return;
     }
-    const form = new FormData();
-    form.append("ID",  useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("UserID", ele?.visible?.showData?.id),
-      form.append("ProjectID", selectedIds.join(",")),
-      axios
-        .post(apiUrls?.Remove_UserVsProjectMapping, form, { headers })
-        .then((res) => {
-          if (res?.data?.status === true) {
-            toast.success(res?.data?.message);
-            setLoading(false);
-            handleSearch();
-          } else {
-            toast.error(res?.data?.message);
-            setLoading(false);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
+    // const form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append(
+    //     "LoginName",
+    //     useCryptoLocalStorage("user_Data", "get", "realname")
+    //   ),
+    //   form.append("UserID", ele?.visible?.showData?.id),
+    //   form.append("ProjectID", selectedIds.join(",")),
+    //   axios
+    //     .post(apiUrls?.Remove_UserVsProjectMapping, form, { headers })
+    axiosInstances
+      .post(apiUrls?.Remove_UserVsProjectMapping, {
+        ProjectIDs: selectedIds.map((id) => Number(id)),
+      })
+      .then((res) => {
+        if (res?.data?.success === true) {
+          toast.success(res?.data?.message);
           setLoading(false);
-        });
+          handleSearch();
+        } else {
+          toast.error(res?.data?.message);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
   };
 
   const normalizeString = (str) => str.toLowerCase().replace(/\s+/g, "").trim();
@@ -244,7 +277,7 @@ const ProjectMappingModal = (ele) => {
   //   const endIdx = currentPage * rowsPerPage;
   //   const currentPageData = tableData.slice(startIdx, endIdx);
   //   const allChecked = currentPageData.every((item) => item.remove);
-  
+
   //   setSelectAll(allChecked);
   // }, [currentPage, tableData]);
   return (
@@ -303,7 +336,10 @@ const ProjectMappingModal = (ele) => {
         </div>
       </div>
       {tableData?.length > 0 ? (
-        <div className="card patient_registration_card mt-3 my-2" style={{height:"350px"}}>
+        <div
+          className="card patient_registration_card mt-3 my-2"
+          style={{ height: "350px" }}
+        >
           <Heading
             title={<span style={{ fontWeight: "bold" }}>Search Details</span>}
             secondTitle={

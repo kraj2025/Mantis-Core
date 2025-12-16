@@ -33,6 +33,7 @@ import gmaillogo from "../../src/assets/image/Gmail_Logo.png";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
 import SearchLotusFilter from "./SearchLotusFilter";
 import Accordion from "./Accordion";
+import { axiosInstances } from "../networkServices/axiosInstance";
 const SearchQuotationBooking = ({ data }) => {
   const [t] = useTranslation();
   const QuotationApproved = useCryptoLocalStorage(
@@ -89,21 +90,6 @@ const SearchQuotationBooking = ({ data }) => {
   });
 
   const SaveFilter = () => {
-    let form = new FormData();
-
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-    form.append(
-      "CrmEmpID",
-      useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-    );
-    form.append(
-      "LoginName",
-      useCryptoLocalStorage("user_Data", "get", "realname")
-    );
-    form.append("PageName", "SearchQuotationBooking");
-
-    // Example FilterData array
-
     const filterData = [
       { header: "S.No", visible: true },
       { header: "ProjectID", visible: true },
@@ -119,11 +105,35 @@ const SearchQuotationBooking = ({ data }) => {
       { header: "Status", visible: true },
       { header: "PageSize", visible: true },
     ];
-    // Append stringified FilterData
-    form.append("FilterData", JSON.stringify(filterData));
 
-    axios
-      .post(apiUrls?.SaveFilterTableReprintData, form, { headers })
+    axiosInstances
+      .post(apiUrls.SaveFilterTableReprintData, {
+        CrmEmpID: String(
+          useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+        ),
+        FilterData: JSON.stringify(filterData),
+        PageName: "SearchQuotationBooking",
+      })
+      // let form = new FormData();
+
+      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
+      // form.append(
+      //   "CrmEmpID",
+      //   useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+      // );
+      // form.append(
+      //   "LoginName",
+      //   useCryptoLocalStorage("user_Data", "get", "realname")
+      // );
+      // form.append("PageName", "SearchQuotationBooking");
+
+      // // Example FilterData array
+
+      // // Append stringified FilterData
+      // form.append("FilterData", JSON.stringify(filterData));
+
+      // axios
+      //   .post(apiUrls?.SaveFilterTableReprintData, form, { headers })
       .then((res) => {
         console.log(res.data.message);
       })
@@ -134,20 +144,6 @@ const SearchQuotationBooking = ({ data }) => {
   };
 
   const SaveTableFilter = () => {
-    let form = new FormData();
-
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-    form.append(
-      "CrmEmpID",
-      useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-    );
-    form.append(
-      "LoginName",
-      useCryptoLocalStorage("user_Data", "get", "realname")
-    );
-    form.append("PageName", "SearchQuotationBookingTable");
-
-    // Example FilterData array
     const filterData = [
       { header: "S.No", visible: true },
       { header: "Project Name", visible: true },
@@ -171,10 +167,32 @@ const SearchQuotationBooking = ({ data }) => {
     ];
 
     // Append stringified FilterData
-    form.append("FilterData", JSON.stringify(filterData));
+    form.append("FilterData");
+    axiosInstances
+      .post(apiUrls.SaveFilterTableReprintData, {
+        CrmEmpID: String(
+          useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+        ),
+        FilterData: JSON.stringify(filterData),
+        PageName: "SearchQuotationBookingTable",
+      })
+      // let form = new FormData();
 
-    axios
-      .post(apiUrls?.SaveFilterTableReprintData, form, { headers })
+      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
+      // form.append(
+      //   "CrmEmpID",
+      //   useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+      // );
+      // form.append(
+      //   "LoginName",
+      //   useCryptoLocalStorage("user_Data", "get", "realname")
+      // );
+      // form.append("PageName", "SearchQuotationBookingTable");
+
+      // // Example FilterData array
+
+      // axios
+      //   .post(apiUrls?.SaveFilterTableReprintData, form, { headers })
       .then((res) => {
         console.log(res.data.message);
       })
@@ -185,56 +203,70 @@ const SearchQuotationBooking = ({ data }) => {
   };
 
   const SearchAmountSubmissionFilter = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "CrmEmpID",
-        useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-      ),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("PageName", "SearchQuotationBooking"),
-      axios
-        .post(apiUrls?.GetFilterTableReprintData, form, { headers })
-        .then((res) => {
-          const data = res.data.data;
-          if (res?.data.status === true) {
-            setDynamicFilter(data);
-          } else {
-            SaveFilter();
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls.GetFilterTableReprintData, {
+        PageName: "SearchQuotationBooking",
+        CrmEmpID: String(
+          useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+        ),
+      })
+      // let form = new FormData();
+      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+      //   form.append(
+      //     "CrmEmpID",
+      //     useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+      //   ),
+      //   form.append(
+      //     "LoginName",
+      //     useCryptoLocalStorage("user_Data", "get", "realname")
+      //   ),
+      //   form.append("PageName", "SearchQuotationBooking"),
+      //   axios
+      //     .post(apiUrls?.GetFilterTableReprintData, form, { headers })
+      .then((res) => {
+        const data = res.data.data;
+        if (res?.data.success === true) {
+          setDynamicFilter(data);
+        } else {
+          SaveFilter();
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const SearchAmountSubmissionTableFilter = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "CrmEmpID",
-        useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-      ),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("PageName", "SearchQuotationBookingTable"),
-      axios
-        .post(apiUrls?.GetFilterTableReprintData, form, { headers })
-        .then((res) => {
-          const data = res.data.data;
-          if (res?.data.status === true) {
-            setColumnConfig(data);
-          } else {
-            SaveTableFilter();
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls.GetFilterTableReprintData, {
+        PageName: "SearchQuotationBookingTable",
+        CrmEmpID: String(
+          useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+        ),
+      })
+      // let form = new FormData();
+      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+      //   form.append(
+      //     "CrmEmpID",
+      //     useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+      //   ),
+      //   form.append(
+      //     "LoginName",
+      //     useCryptoLocalStorage("user_Data", "get", "realname")
+      //   ),
+      //   form.append("PageName", "SearchQuotationBookingTable"),
+      //   axios
+      //     .post(apiUrls?.GetFilterTableReprintData, form, { headers })
+      .then((res) => {
+        const data = res.data.data;
+        if (res?.data.status === true) {
+          setColumnConfig(data);
+        } else {
+          SaveTableFilter();
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const isVisible = (header) =>
@@ -323,51 +355,51 @@ const SearchQuotationBooking = ({ data }) => {
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(" ");
   }
-  const handleSaveFilter = () => {
-    localStorage.setItem("formData", JSON.stringify(formData));
-    const savedData = localStorage.getItem("formData");
-    if (savedData) {
-      setFormData(JSON.parse(savedData));
-    }
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("Type", "QuotationBooking"),
-      form.append("FilterData", savedData),
-      axios
-        .post(apiUrls?.SaveFilterDataSubmission, form, { headers })
-        .then((res) => {
-          toast.success(res?.data?.message);
-          setFormData({
-            ...formData,
+  // const handleSaveFilter = () => {
+  //   localStorage.setItem("formData", JSON.stringify(formData));
+  //   const savedData = localStorage.getItem("formData");
+  //   if (savedData) {
+  //     setFormData(JSON.parse(savedData));
+  //   }
+  //   let form = new FormData();
+  //   form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+  //     form.append("Type", "QuotationBooking"),
+  //     form.append("FilterData", savedData),
+  //     axios
+  //       .post(apiUrls?.SaveFilterDataSubmission, form, { headers })
+  //       .then((res) => {
+  //         toast.success(res?.data?.message);
+  //         setFormData({
+  //           ...formData,
 
-            ProjectName: "",
-            ProjectID: [],
-            VerticalID: [],
-            TeamID: [],
-            WingID: [],
-            POC1: [],
-            POC2: [],
-            POC3: [],
-            Status: "0",
-            DateType: "EntryDate",
-            FromDate: new Date(
-              new Date().getFullYear(),
-              new Date().getMonth(),
-              1
-            ),
-            ToDate: new Date(),
-            ReceivedDate: "",
-            PaymentMode: "",
-            Remark: "",
-            EntryDate: "",
-            PageSize: 50,
-            PageNo: "",
-          });
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-  };
+  //           ProjectName: "",
+  //           ProjectID: [],
+  //           VerticalID: [],
+  //           TeamID: [],
+  //           WingID: [],
+  //           POC1: [],
+  //           POC2: [],
+  //           POC3: [],
+  //           Status: "0",
+  //           DateType: "EntryDate",
+  //           FromDate: new Date(
+  //             new Date().getFullYear(),
+  //             new Date().getMonth(),
+  //             1
+  //           ),
+  //           ToDate: new Date(),
+  //           ReceivedDate: "",
+  //           PaymentMode: "",
+  //           Remark: "",
+  //           EntryDate: "",
+  //           PageSize: 50,
+  //           PageNo: "",
+  //         });
+  //       })
+  //       .catch((err) => {
+  //         console.log(err);
+  //       });
+  // };
   const handleMultiSelectChange = (name, selectedOptions) => {
     const selectedValues = selectedOptions.map((option) => option.code);
     setFormData((prev) => ({
@@ -398,171 +430,195 @@ const SearchQuotationBooking = ({ data }) => {
     setFormData({ ...formData, [name]: value });
   };
   const getVertical = () => {
-    let form = new FormData();
-    form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Vertical_Select, form, { headers })
-        .then((res) => {
-          const verticals = res?.data.data.map((item) => {
-            return { name: item?.Vertical, code: item?.VerticalID };
-          });
-          setVertical(verticals);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.Vertical_Select, {})
+      // let form = new FormData();
+      // form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
+      //   axios
+      //     .post(apiUrls?.Vertical_Select, form, { headers })
+      .then((res) => {
+        const verticals = res?.data.data.map((item) => {
+          return { name: item?.Vertical, code: item?.VerticalID };
         });
+        setVertical(verticals);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getTeam = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Team_Select, form, { headers })
-        .then((res) => {
-          const teams = res?.data.data.map((item) => {
-            return { name: item?.Team, code: item?.TeamID };
-          });
-          setTeam(teams);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.Team_Select, {})
+      // let form = new FormData();
+      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+      //   axios
+      //     .post(apiUrls?.Team_Select, form, { headers })
+      .then((res) => {
+        const teams = res?.data.data.map((item) => {
+          return { name: item?.Team, code: item?.TeamID };
         });
+        setTeam(teams);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getWing = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Wing_Select, form, { headers })
-        .then((res) => {
-          const wings = res?.data.data.map((item) => {
-            return { name: item?.Wing, code: item?.WingID };
-          });
-          setWing(wings);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.Wing_Select, {})
+      // let form = new FormData();
+      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+      //   axios
+      //     .post(apiUrls?.Wing_Select, form, { headers })
+      .then((res) => {
+        const wings = res?.data.data.map((item) => {
+          return { name: item?.Wing, code: item?.WingID };
         });
+        setWing(wings);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getPOC1 = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.POC_1_Select, form, { headers })
-        .then((res) => {
-          const poc1s = res?.data.data.map((item) => {
-            return { name: item?.POC_1_Name, code: item?.POC_1_ID };
-          });
-          setPoc1(poc1s);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.POC_1_Select, {})
+      // let form = new FormData();
+      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+      //   axios
+      //     .post(apiUrls?.POC_1_Select, form, { headers })
+      .then((res) => {
+        const poc1s = res?.data.data.map((item) => {
+          return { name: item?.POC_1_Name, code: item?.POC_1_ID };
         });
+        setPoc1(poc1s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getPOC2 = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.POC_2_Select, form, { headers })
-        .then((res) => {
-          const poc2s = res?.data.data.map((item) => {
-            return { name: item?.POC_2_Name, code: item?.POC_2_ID };
-          });
-          setPoc2(poc2s);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.POC_2_Select, {})
+      // let form = new FormData();
+      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+      //   axios
+      //     .post(apiUrls?.POC_2_Select, form, { headers })
+      .then((res) => {
+        const poc2s = res?.data.data.map((item) => {
+          return { name: item?.POC_2_Name, code: item?.POC_2_ID };
         });
+        setPoc2(poc2s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getPOC3 = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.POC_3_Select, form, { headers })
-        .then((res) => {
-          const poc3s = res?.data.data.map((item) => {
-            return { name: item?.POC_3_Name, code: item?.POC_3_ID };
-          });
-          setPoc3(poc3s);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.POC_3_Select, {})
+      // let form = new FormData();
+      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+      //   axios
+      //     .post(apiUrls?.POC_3_Select, form, { headers })
+      .then((res) => {
+        const poc3s = res?.data.data.map((item) => {
+          return { name: item?.POC_3_Name, code: item?.POC_3_ID };
         });
+        setPoc3(poc3s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getProject = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      axios
-        .post(apiUrls?.ProjectSelect, form, { headers })
-        .then((res) => {
-          const poc3s = res?.data.data.map((item) => {
-            return { name: item?.Project, code: item?.ProjectId };
-          });
-          setProject(poc3s);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.ProjectSelect, {
+        ProjectID: 0,
+        IsMaster: "0",
+        VerticalID: 0,
+        TeamID: 0,
+        WingID: 0,
+      })
+      // let form = new FormData();
+      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+      //   form.append(
+      //     "LoginName",
+      //     useCryptoLocalStorage("user_Data", "get", "realname")
+      //   ),
+      //   axios
+      //     .post(apiUrls?.ProjectSelect, form, { headers })
+      .then((res) => {
+        const poc3s = res?.data.data.map((item) => {
+          return { name: item?.Project, code: item?.ProjectId };
         });
+        setProject(poc3s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const [isApproved, setIsApproved] = useState(false);
   const [isSold, setIsSold] = useState(false);
 
   const handleApprove = (ele) => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("QuotationID", ele),
-      axios
-        .post(apiUrls?.Quotation_Approved, form, { headers })
-        .then((res) => {
-          toast.success(res?.data?.message);
-          setIsApproved(true);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls.Quotation_Approved, {
+        QuotationID: String(ele),
+      })
+      // let form = new FormData();
+      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+      //   form.append(
+      //     "LoginName",
+      //     useCryptoLocalStorage("user_Data", "get", "realname")
+      //   ),
+      //   form.append("QuotationID", ele),
+      //   axios
+      //     .post(apiUrls?.Quotation_Approved, form, { headers })
+      .then((res) => {
+        toast.success(res?.data?.message);
+        setIsApproved(true);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
-  const handleSaleConvert = (ele) => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("QuotationID", ele),
-      axios
-        .post(apiUrls?.Quotation_SalesConvert, form, { headers })
-        .then((res) => {
-          toast.success(res?.data?.message);
-          setIsSold(true);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-  };
-  const handleReject = (ele) => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("QuotationID", ele),
-      axios
-        .post(apiUrls?.Quotation_SalesConvert, form, { headers })
-        .then((res) => {
-          toast.success(res?.data?.message);
-          // setIsSold(true)
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-  };
+  // const handleSaleConvert = (ele) => {
+  //   let form = new FormData();
+  //   form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+  //     form.append(
+  //       "LoginName",
+  //       useCryptoLocalStorage("user_Data", "get", "realname")
+  //     ),
+  //     form.append("QuotationID", ele),
+  //     axios
+  //       .post(apiUrls?.Quotation_SalesConvert, form, { headers })
+  //       .then((res) => {
+  //         toast.success(res?.data?.message);
+  //         setIsSold(true);
+  //       })
+  //       .catch((err) => {
+  //         console.log(err);
+  //       });
+  // };
+  // const handleReject = (ele) => {
+  //   let form = new FormData();
+  //   form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+  //     form.append(
+  //       "LoginName",
+  //       useCryptoLocalStorage("user_Data", "get", "realname")
+  //     ),
+  //     form.append("QuotationID", ele),
+  //     axios
+  //       .post(apiUrls?.Quotation_SalesConvert, form, { headers })
+  //       .then((res) => {
+  //         toast.success(res?.data?.message);
+  //         // setIsSold(true)
+  //       })
+  //       .catch((err) => {
+  //         console.log(err);
+  //       });
+  // };
 
   function formatDate(dateString) {
     let date = new Date(dateString);
@@ -574,164 +630,205 @@ const SearchQuotationBooking = ({ data }) => {
   const handleSearch = (page, project, Status = formData?.Status) => {
     // console.log("project project", project?.length);
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append(
-        "ProjectID",
-        project?.length > 0 && project !== "0" ? project : formData?.ProjectID
-      ),
-      form.append("VerticalID", formData?.VerticalID),
-      form.append("TeamID", formData?.TeamID),
-      form.append("WingID", formData?.WingID),
-      form.append("POC1", formData?.POC1),
-      form.append("POC2", formData?.POC2),
-      form.append("POC3", formData?.POC3),
-      form.append("Status", Status),
-      form.append("DateType", formData?.DateType),
-      form.append("FromDate", formatDate(formData?.FromDate)),
-      form.append("ToDate", formatDate(formData?.ToDate)),
-      form.append("SearchType", "OnScreen"),
-      form.append("IsExcel", "0"),
-      form.append("PageSize", formData?.PageSize),
-      form.append("PageNo", page ?? currentPage - 1),
-      axios
-        .post(apiUrls?.Quotation_Search, form, { headers })
-        .then((res) => {
-          if (res?.data?.status === true) {
-            setTableData(res?.data?.data);
-            // const datas = res?.data?.data?.map((val) => {
-            //   val.QuotationApproved = false;
-            //   val.QuotationUpdate = false;
-            //   val.QuotationReject = false;
-            //   return val;
-            // });
-            // setTableData(datas);
-            setLoading(false);
-          } else {
-            toast.error(res?.data?.message);
-            setLoading(false);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append(
+    //     "LoginName",
+    //     useCryptoLocalStorage("user_Data", "get", "realname")
+    //   ),
+    //   form.append(
+    //     "ProjectID",
+    //     project?.length > 0 && project !== "0" ? project : formData?.ProjectID
+    //   ),
+    //   form.append("VerticalID", formData?.VerticalID),
+    //   form.append("TeamID", formData?.TeamID),
+    //   form.append("WingID", formData?.WingID),
+    //   form.append("POC1", formData?.POC1),
+    //   form.append("POC2", formData?.POC2),
+    //   form.append("POC3", formData?.POC3),
+    //   form.append("Status", Status),
+    //   form.append("DateType", formData?.DateType),
+    //   form.append("FromDate", formatDate(formData?.FromDate)),
+    //   form.append("ToDate", formatDate(formData?.ToDate)),
+    //   form.append("SearchType", "OnScreen"),
+    //   form.append("IsExcel", "0"),
+    //   form.append("PageSize", formData?.PageSize),
+    //   form.append("PageNo", page ?? currentPage - 1),
+    //   axios
+    //     .post(apiUrls?.Quotation_Search, form, { headers })
+    axiosInstances
+      .post(apiUrls.Quotation_Search, {
+        DateType: String(formData?.DateType),
+        FromDate: String(formatDate(formData?.FromDate)),
+        ToDate: String(formatDate(formData?.ToDate)),
+        Status: String(Status),
+        SearchType: String("OnScreen"),
+        PageSize: Number(formData?.PageSize),
+        PageNo: Number(page ?? currentPage - 1),
+        IsExcel: Number(0),
+        ProjectID: String(
+          project?.length > 0 && project !== "0" ? project : formData?.ProjectID
+        ),
+        VerticalID: String(formData?.VerticalID),
+        TeamID: String(formData?.TeamID),
+        WingID: String(formData?.WingID),
+        POC1: String(formData?.POC1),
+        POC2: String(formData?.POC2),
+        POC3: String(formData?.POC3),
+      })
+      .then((res) => {
+        if (res?.data?.success === true) {
+          setTableData(res?.data?.data);
+          // const datas = res?.data?.data?.map((val) => {
+          //   val.QuotationApproved = false;
+          //   val.QuotationUpdate = false;
+          //   val.QuotationReject = false;
+          //   return val;
+          // });
+          // setTableData(datas);
           setLoading(false);
-        });
+        } else {
+          toast.error(res?.data?.message);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
   };
   const handleExcel = (page) => {
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("ProjectID", formData?.ProjectID),
-      form.append("VerticalID", formData?.VerticalID),
-      form.append("TeamID", formData?.TeamID),
-      form.append("WingID", formData?.WingID),
-      form.append("POC1", formData?.POC1),
-      form.append("POC2", formData?.POC2),
-      form.append("POC3", formData?.POC3),
-      form.append("Status", formData?.Status),
-      form.append("DateType", formData?.DateType),
-      form.append("FromDate", formatDate(formData?.FromDate)),
-      form.append("ToDate", formatDate(formData?.ToDate)),
-      form.append("SearchType", "OnScreen"),
-      form.append("IsExcel", "1"),
-      form.append("PageSize", formData?.PageSize),
-      form.append("PageNo", page ?? currentPage - 1),
-      axios
-        .post(apiUrls?.Quotation_Search, form, { headers })
+    const payloadData = {
+  DateType: formData?.DateType || "",
+  FromDate: formatDate(formData?.FromDate) || "",
+  ToDate: formatDate(formData?.ToDate) || "",
+  Status: formData?.Status || "",
+  SearchType: "OnScreen", // fixed value
+  PageSize: Number(formData?.PageSize) || 0,
+  PageNo: Number(page ?? currentPage - 1) || 0,
+  IsExcel: 1, // from your FormData
+  ProjectID: formData?.ProjectID || "",
+  VerticalID: formData?.VerticalID || "",
+  TeamID: formData?.TeamID || "",
+  WingID: formData?.WingID || "",
+  POC1: formData?.POC1 || "",
+  POC2: formData?.POC2 || "",
+  POC3: formData?.POC3 || "",
+};
+
+     axiosInstances
+      .post(apiUrls.Quotation_Search, payloadData)
+
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append(
+    //     "LoginName",
+    //     useCryptoLocalStorage("user_Data", "get", "realname")
+    //   ),
+    //   form.append("ProjectID", formData?.ProjectID),
+    //   form.append("VerticalID", formData?.VerticalID),
+    //   form.append("TeamID", formData?.TeamID),
+    //   form.append("WingID", formData?.WingID),
+    //   form.append("POC1", formData?.POC1),
+    //   form.append("POC2", formData?.POC2),
+    //   form.append("POC3", formData?.POC3),
+    //   form.append("Status", formData?.Status),
+    //   form.append("DateType", formData?.DateType),
+    //   form.append("FromDate", formatDate(formData?.FromDate)),
+    //   form.append("ToDate", formatDate(formData?.ToDate)),
+    //   form.append("SearchType", "OnScreen"),
+    //   form.append("IsExcel", "1"),
+    //   form.append("PageSize", formData?.PageSize),
+    //   form.append("PageNo", page ?? currentPage - 1),
+    //   axios
+    //     .post(apiUrls?.Quotation_Search, form, { headers })
         .then((res) => {
           // console.log("dataatata", res?.data?.data);
           const datas = res?.data?.data;
 
-          if (!datas || datas.length === 0) {
-            console.error("No data available for download.");
-            alert("No data available for download.");
-            setLoading(false);
-            return;
-          }
-
-          const username =
-            useCryptoLocalStorage("user_Data", "get", "realname") || "User";
-          const now = new Date();
-          const currentDate = now.toLocaleDateString("en-GB", {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-          });
-          const currentTime = now.toLocaleTimeString("en-GB", {
-            hour: "2-digit",
-            minute: "2-digit",
-            second: "2-digit",
-          });
-          const titleRow = [
-            { title: `${username} - ${currentDate} ${currentTime}` },
-          ];
-          const dataWithTitle = [...titleRow, ...datas];
-          const fileType =
-            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
-          const fileExtension = ".xlsx";
-          const ws = XLSX.utils.json_to_sheet(datas, { skipHeader: false });
-          const wb = { Sheets: { data: ws }, SheetNames: ["data"] };
-          const excelBuffer = XLSX.write(wb, {
-            bookType: "xlsx",
-            type: "array",
-          });
-          const data = new Blob([excelBuffer], { type: fileType });
-
-          // Save the file with the title as username, current date, and time
-          FileSaver.saveAs(
-            data,
-            `${username}_${currentDate}_${currentTime}` + fileExtension
-          );
+        if (!datas || datas.length === 0) {
+          console.error("No data available for download.");
+          alert("No data available for download.");
           setLoading(false);
-        })
-        .catch((err) => {
-          console.error("Error downloading the file:", err);
-          alert("Failed to download the file. Please try again.");
-          setLoading(false);
+          return;
+        }
+
+        const username =
+          useCryptoLocalStorage("user_Data", "get", "realname") || "User";
+        const now = new Date();
+        const currentDate = now.toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
         });
+        const currentTime = now.toLocaleTimeString("en-GB", {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        });
+        const titleRow = [
+          { title: `${username} - ${currentDate} ${currentTime}` },
+        ];
+        const dataWithTitle = [...titleRow, ...datas];
+        const fileType =
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
+        const fileExtension = ".xlsx";
+        const ws = XLSX.utils.json_to_sheet(datas, { skipHeader: false });
+        const wb = { Sheets: { data: ws }, SheetNames: ["data"] };
+        const excelBuffer = XLSX.write(wb, {
+          bookType: "xlsx",
+          type: "array",
+        });
+        const data = new Blob([excelBuffer], { type: fileType });
+
+        // Save the file with the title as username, current date, and time
+        FileSaver.saveAs(
+          data,
+          `${username}_${currentDate}_${currentTime}` + fileExtension
+        );
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("Error downloading the file:", err);
+        alert("Failed to download the file. Please try again.");
+        setLoading(false);
+      });
   };
   const shortenName = (name) => {
     return name.length > 15 ? name.substring(0, 25) + "..." : name;
   };
-  const handleSearchFilter = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("Type", "QuotationBooking"),
-      axios
-        .post(apiUrls?.SearchFilterDataSubmission, form, { headers })
-        .then((res) => {
-          setFormData({
-            ProjectID: res?.data?.ProjectID || [],
-            VerticalID: res?.data?.VerticalID || [],
-            TeamID: res?.data?.TeamID || [],
-            WingID: res?.data?.WingID || [],
-            POC1: res?.data?.POC1 || [],
-            POC2: res?.data?.POC2 || [],
-            POC3: res?.data?.POC3 || [],
-            Status: res?.data?.Status || "All",
-            DateType: res?.data?.DateType || "EntryDate",
-            FromDate: new Date(res?.data?.FromDate),
-            ToDate: new Date(res?.data?.ToDate),
-            ReceivedDate: res?.data?.ReceivedDate || "",
-            PaymentMode: res?.data?.PaymentMode || "",
-            Remark: res?.data?.Remark || "",
-            EntryDate: res?.data?.EntryDate || "",
-            PageSize: res?.data?.PageSize || 50,
-            PageNo: res?.data?.PageNo || "",
-          });
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-  };
+  // const handleSearchFilter = () => {
+  //   let form = new FormData();
+  //   form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+  //     form.append("Type", "QuotationBooking"),
+  //     axios
+  //       .post(apiUrls?.SearchFilterDataSubmission, form, { headers })
+  //       .then((res) => {
+  //         setFormData({
+  //           ProjectID: res?.data?.ProjectID || [],
+  //           VerticalID: res?.data?.VerticalID || [],
+  //           TeamID: res?.data?.TeamID || [],
+  //           WingID: res?.data?.WingID || [],
+  //           POC1: res?.data?.POC1 || [],
+  //           POC2: res?.data?.POC2 || [],
+  //           POC3: res?.data?.POC3 || [],
+  //           Status: res?.data?.Status || "All",
+  //           DateType: res?.data?.DateType || "EntryDate",
+  //           FromDate: new Date(res?.data?.FromDate),
+  //           ToDate: new Date(res?.data?.ToDate),
+  //           ReceivedDate: res?.data?.ReceivedDate || "",
+  //           PaymentMode: res?.data?.PaymentMode || "",
+  //           Remark: res?.data?.Remark || "",
+  //           EntryDate: res?.data?.EntryDate || "",
+  //           PageSize: res?.data?.PageSize || 50,
+  //           PageNo: res?.data?.PageNo || "",
+  //         });
+  //       })
+  //       .catch((err) => {
+  //         console.log(err);
+  //       });
+  // };
   useEffect(() => {
     getProject();
     getVertical();

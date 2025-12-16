@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { Bar } from "react-chartjs-2";
 import {
@@ -15,6 +14,7 @@ import { apiUrls } from "../networkServices/apiEndpoints";
 import { headers } from "../utils/apitools";
 import { useSelector } from "react-redux";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../networkServices/axiosInstance";
 
 ChartJS.register(
   CategoryScale,
@@ -32,12 +32,18 @@ const OldSaleChart = () => {
   const [chartRawData, setChartRawData] = useState([]);
 
   const fetchSalesData = (developerId, searchType) => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-    form.append("DeveloperID", developerId);
-    form.append("SearchType", searchType == "" ? "0" : searchType);
-    axios
-      .post(apiUrls?.CoorDashboard_Open_Dead_Sales, form, { headers })
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
+    // form.append("DeveloperID", developerId);
+    // form.append("SearchType", searchType == "" ? "0" : searchType);
+    // axios
+    //   .post(apiUrls?.CoorDashboard_Open_Dead_Sales, form, { headers })
+    axiosInstances
+      .post(apiUrls.CoorDashboard_Open_Dead_Sales, {
+        CoordinatorID: Number(useCryptoLocalStorage("user_Data", "get", "ID")),
+        DeveloperID: Number(developerId),
+        SearchType: Number(searchType == "" ? "0" : searchType),
+      })
       .then((res) => {
         setChartRawData(res?.data?.data || []);
       })
@@ -47,9 +53,8 @@ const OldSaleChart = () => {
   };
 
   useEffect(() => {
-  fetchSalesData(memberID, developerSearchType);
+    fetchSalesData(memberID, developerSearchType);
   }, [memberID, developerSearchType]);
-
 
   const transformData = (data) => {
     const labels = data.map((item) => item.MonthYear);
@@ -89,6 +94,9 @@ const OldSaleChart = () => {
           pointStyle: "circle",
         },
       },
+      datalabels: {
+        display: false, // 👈 disables value labels on bars
+      },
     },
     responsive: true,
     scales: {
@@ -106,7 +114,7 @@ const OldSaleChart = () => {
   };
 
   return (
-    <div style={{ width: "100%", height: "126px",marginLeft:"10px" }}>
+    <div style={{ width: "100%", height: "126px", marginLeft: "10px" }}>
       <Bar
         data={chartData}
         options={options}

@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import { apiUrls } from "../../networkServices/apiEndpoints";
 import { headers } from "../../utils/apitools";
 import { useCryptoLocalStorage } from "../../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../../networkServices/axiosInstance";
 
 const ManageFlagModal = (ele) => {
   const [flagdata, setFlagdata] = useState([]);
@@ -85,54 +86,83 @@ const ManageFlagModal = (ele) => {
   };
 
   const getNotfication = (updatedFormData) => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-    form.append("RoleID", useCryptoLocalStorage("user_Data", "get", "RoleID"));
-    form.append(
-      "LoginName",
-      useCryptoLocalStorage("user_Data", "get", "realname")
-    );
-    form.append("UserID", ele?.visible?.showData?.id);
-    form.append("DotNetMantis", updatedFormData?.DotNetMantis);
-    form.append("AllowLockUnLock", updatedFormData?.LockUnLock);
-    form.append(
-      "AllowAmountSubmissionCancel",
-      updatedFormData?.AllowPaymentCancel
-    );
-    form.append("AllowQuotaionCreate", updatedFormData?.AllowQuotaionCreate);
-    form.append("AllowQuotationUpdate", updatedFormData?.AllowQuotationUpdate);
-    form.append(
-      "AllowQuotationApproved",
-      updatedFormData?.AllowQuotationApproved
-    );
-    form.append("AllowQuotationReject", updatedFormData?.AllowQuotationReject);
-    form.append("AllowSalesBooking", updatedFormData?.AllowSalesBooking);
-    form.append("AllowSalesUpdate", updatedFormData?.AllowSalesUpdate);
-    form.append("AllowSalesReject", updatedFormData?.AllowSalesReject);
-    form.append("AllowPICreate", updatedFormData?.AllowPICreate);
-    form.append("AllowDeleteTicket", updatedFormData?.AllowDeleteTicket);
-    form.append("IsActive", updatedFormData?.IsActive);
-    form.append("AllowSentCircular", updatedFormData?.AllowSentCircular);
-    form.append("AllowAddModule", updatedFormData?.AllowAddModule);
-    form.append("AllowAddPages", updatedFormData?.AllowAddPages);
-    form.append(
-      "AllowDeliveryDateEdit",
-      updatedFormData?.AllowDeliveryDateEdit
-    );
-    form.append("AllowManHourEdit", updatedFormData?.AllowManHourEdit);
-    form.append(
-      "ShowClientDeliveryDate",
-      updatedFormData?.ShowClientDeliveryDate
-    );
-    form.append("ShowClientManHour", updatedFormData?.ShowClientManHour);
-    form.append("AllowExpenseApprove", updatedFormData?.AllowExpenseApprove);
-    form.append("AllowTicketAssignTo", updatedFormData?.AllowTicketAssignTo);
-    form.append("AllowAutobackup", updatedFormData?.AllowAutobackup);
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
+    // form.append("RoleID", useCryptoLocalStorage("user_Data", "get", "RoleID"));
+    // form.append(
+    //   "LoginName",
+    //   useCryptoLocalStorage("user_Data", "get", "realname")
+    // );
+    // form.append("UserID", ele?.visible?.showData?.id);
+    // form.append("DotNetMantis", updatedFormData?.DotNetMantis);
+    // form.append("AllowLockUnLock", updatedFormData?.LockUnLock);
+    // form.append(
+    //   "AllowAmountSubmissionCancel",
+    //   updatedFormData?.AllowPaymentCancel
+    // );
+    // form.append("AllowQuotaionCreate", updatedFormData?.AllowQuotaionCreate);
+    // form.append("AllowQuotationUpdate", updatedFormData?.AllowQuotationUpdate);
+    // form.append(
+    //   "AllowQuotationApproved",
+    //   updatedFormData?.AllowQuotationApproved
+    // );
+    // form.append("AllowQuotationReject", updatedFormData?.AllowQuotationReject);
+    // form.append("AllowSalesBooking", updatedFormData?.AllowSalesBooking);
+    // form.append("AllowSalesUpdate", updatedFormData?.AllowSalesUpdate);
+    // form.append("AllowSalesReject", updatedFormData?.AllowSalesReject);
+    // form.append("AllowPICreate", updatedFormData?.AllowPICreate);
+    // form.append("AllowDeleteTicket", updatedFormData?.AllowDeleteTicket);
+    // form.append("IsActive", updatedFormData?.IsActive);
+    // form.append("AllowSentCircular", updatedFormData?.AllowSentCircular);
+    // form.append("AllowAddModule", updatedFormData?.AllowAddModule);
+    // form.append("AllowAddPages", updatedFormData?.AllowAddPages);
+    // form.append(
+    //   "AllowDeliveryDateEdit",
+    //   updatedFormData?.AllowDeliveryDateEdit
+    // );
+    // form.append("AllowManHourEdit", updatedFormData?.AllowManHourEdit);
+    // form.append(
+    //   "ShowClientDeliveryDate",
+    //   updatedFormData?.ShowClientDeliveryDate
+    // );
+    // form.append("ShowClientManHour", updatedFormData?.ShowClientManHour);
+    // form.append("AllowExpenseApprove", updatedFormData?.AllowExpenseApprove);
+    // form.append("AllowTicketAssignTo", updatedFormData?.AllowTicketAssignTo);
+    // form.append("AllowAutobackup", updatedFormData?.AllowAutobackup);
 
-    axios
-      .post(apiUrls?.UpdateFlag, form, { headers })
+    // axios
+    //   .post(apiUrls?.UpdateFlag, form, { headers })
+    axiosInstances
+      .post(apiUrls?.UpdateFlag, {
+        UserID: Number(ele?.visible?.showData?.id),
+        DotNetMantis: Number(updatedFormData?.DotNetMantis),
+        AllowLockUnLock: Number(updatedFormData?.LockUnLock),
+        AllowAmountSubmissionCancel: Number(
+          updatedFormData?.AllowPaymentCancel
+        ),
+        AllowQuotaionCreate: Number(updatedFormData?.AllowQuotaionCreate),
+        AllowQuotationUpdate: Number(updatedFormData?.AllowQuotationUpdate),
+        AllowQuotationApproved: Number(updatedFormData?.AllowQuotationApproved),
+        AllowQuotationReject: Number(updatedFormData?.AllowQuotationReject),
+        AllowSalesBooking: Number(updatedFormData?.AllowSalesBooking),
+        AllowSalesUpdate: Number(updatedFormData?.AllowSalesUpdate),
+        AllowSalesReject: Number(updatedFormData?.AllowSalesReject),
+        AllowPICreate: Number(updatedFormData?.AllowPICreate),
+        AllowDeleteTicket: Number(updatedFormData?.AllowDeleteTicket),
+        IsActive: Number(updatedFormData?.IsActive),
+        AllowSentCircular: Number(updatedFormData?.AllowSentCircular),
+        AllowAddModule: Number(updatedFormData?.AllowAddModule),
+        AllowAddPages: Number(updatedFormData?.AllowAddPages),
+        AllowDeliveryDateEdit: Number(updatedFormData?.AllowDeliveryDateEdit),
+        AllowManHourEdit: Number(updatedFormData?.AllowManHourEdit),
+        ShowClientDeliveryDate: Number(updatedFormData?.ShowClientDeliveryDate),
+        ShowClientManHour: Number(updatedFormData?.ShowClientManHour),
+        AllowExpenseApprove: Number(updatedFormData?.AllowExpenseApprove),
+        AllowTicketAssignTo: Number(updatedFormData?.AllowTicketAssignTo),
+        AllowAutobackup: Number(updatedFormData?.AllowAutobackup),
+      })
       .then((res) => {
-        if (res?.data?.status === true) {
+        if (res?.data?.success === true) {
           toast.success(res?.data?.message);
         } else {
           toast.error(res?.data?.message);
@@ -144,17 +174,10 @@ const ManageFlagModal = (ele) => {
   };
 
   const getFlagData = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-    form.append("RoleID", useCryptoLocalStorage("user_Data", "get", "RoleID"));
-    form.append(
-      "LoginName",
-      useCryptoLocalStorage("user_Data", "get", "realname")
-    );
-    form.append("UserID", ele?.visible?.showData?.id);
-
-    axios
-      .post(apiUrls?.GetFlag, form, { headers })
+    axiosInstances
+      .post(apiUrls?.GetFlag, {
+        UserID: Number(ele?.visible?.showData?.id),
+      })
       .then((res) => {
         setFlagdata(res?.data?.data);
       })

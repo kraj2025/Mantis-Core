@@ -4,8 +4,6 @@ import DatePicker from "../../components/formComponent/DatePicker";
 import ReactSelect from "../../components/formComponent/ReactSelect";
 import Input from "../../components/formComponent/Input";
 import { apiUrls } from "../../networkServices/apiEndpoints";
-import { headers } from "../../utils/apitools";
-import axios from "axios";
 import { toast } from "react-toastify";
 import NoRecordFound from "../../components/formComponent/NoRecordFound";
 import Loading from "../../components/loader/Loading";
@@ -21,6 +19,7 @@ import ShortBreakLogModal from "../ShortBreakLogModal";
 import LongBreakLogModal from "../LongBreakLogModal";
 import ShortLongBreakModal from "../ShortLongBreakModal";
 import ReactSelectIcon from "../../components/formComponent/ReactSelectIcon";
+import { axiosInstances } from "../../networkServices/axiosInstance";
 const Attendance = () => {
   const [t] = useTranslation();
   const ReportingManager = useCryptoLocalStorage(
@@ -63,16 +62,14 @@ const Attendance = () => {
     { label: "Office+Client", value: "Office+Client" },
   ];
 
-  const getAssignTo = (value) => {
-    let form = new FormData();
-    form.append(
-      "CrmEmployeeID",
-      useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-    );
-    form.append("RoleID", useCryptoLocalStorage("user_Data", "get", "RoleID"));
-    // form.append("ManagerID", value);
-    axios
-      .post(apiUrls?.EmployeeEmail, form, { headers })
+  const getAssignTo = () => {
+    axiosInstances
+      .post(apiUrls.EmployeeEmail, {
+        CrmEmployeeID: Number(
+          useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+        ),
+        RoleID: Number(useCryptoLocalStorage("user_Data", "get", "RoleID")),
+      })
       .then((res) => {
         const assigntos = res?.data?.data?.map((item) => {
           return { label: item?.EmployeeName, value: item?.Employee_ID };
@@ -85,24 +82,16 @@ const Attendance = () => {
   };
   const [notFound, setNotFound] = useState("");
   const LoginLogoutButton = () => {
-    let form = new FormData();
-    form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID"));
-    form.append(
-      "EmailID",
-      useCryptoLocalStorage("user_Data", "get", "EmailId")
-    );
-    form.append(
-      "LoginName",
-      useCryptoLocalStorage("user_Data", "get", "realname")
-    );
-    form.append("SearchType", "LogInStatus");
-
-    axios
-      .post(apiUrls?.Attendence_Select, form, { headers })
+    axiosInstances
+      .post(apiUrls.Attendence_Select, {
+        EmailID: String(useCryptoLocalStorage("user_Data", "get", "EmailId")),
+        SearchType: String("LogInStatus"),
+      })
       .then((res) => {
-        const data = res?.data?.data?.[0];
-        setNotFound(res?.data?.message === "No Record Found");
-        // Ensure only one logic path determines isLogin
+        console.log("data data data", res?.data?.message);
+        const data = res?.data?.data;
+        // console.log("data data", data);
+        // setNotFound(res?.data?.message == "Found");
         if (data?.IsLoggedIn === 1 && data?.IsLogout === 0) {
           setIsLogin(true);
           localStorage.setItem("isLogin", "true");
@@ -133,76 +122,69 @@ const Attendance = () => {
   }
   const handleTableSearch = (code) => {
     setLoading(true);
-    let form = new FormData();
-    form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID"));
-    form.append(
-      "LoginName",
-      useCryptoLocalStorage("user_Data", "get", "realname")
-    );
-    form.append("rowColor", code ? code : "0");
-    form.append("ManagerID", formData?.ReportingTo);
-    form.append("EmployeeID", formData?.AssignedTo);
-    form.append("Date", formatDate(formData?.FromDate)),
-      axios
-        .post(apiUrls?.Attendence_Search, form, { headers })
-        .then((res) => {
-          const data = res?.data?.data;
-          if (res?.data?.status === true) {
-            const updatedData = data?.map((ele, index) => {
-              return {
-                ...ele,
-                index: index,
-                IsActive: "0",
+    axiosInstances
+      .post(apiUrls.Attendence_Search, {
+        EmployeeID: Number(formData?.AssignedTo),
+        SearchType: String(code ? code : "0"),
+        Date: String(formatDate(formData?.FromDate)),
+        ManagerID: Number(formData?.ReportingTo),
+      })
+      .then((res) => {
+        const data = res?.data?.data;
+        if (res?.data?.success === true) {
+          const updatedData = data?.map((ele, index) => {
+            return {
+              ...ele,
+              index: index,
+              IsActive: "0",
 
-                ShortLogDropDown: "",
-                ShortLogResolve: false,
-                ShortLogDropDownValue: "",
+              ShortLogDropDown: "",
+              ShortLogResolve: false,
+              ShortLogDropDownValue: "",
 
-                BreakLogDropDown: "",
-                BreakLogResolve: false,
-                BreakLogDropDownValue: "",
+              BreakLogDropDown: "",
+              BreakLogResolve: false,
+              BreakLogDropDownValue: "",
 
-                ShortDropDown: "",
-                ShortResolve: false,
-                ShortDropDownValue: "",
+              ShortDropDown: "",
+              ShortResolve: false,
+              ShortDropDownValue: "",
 
-                LongDropDown: "",
-                LongResolve: false,
-                LongDropDownValue: "",
-              };
-            });
-            setTableData(updatedData);
-            setLoading(false);
-          } else {
-            toast.error(res?.data?.message);
-            // setTableData([]);
-            setLoading(false);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
+              LongDropDown: "",
+              LongResolve: false,
+              LongDropDownValue: "",
+            };
+          });
+          setTableData(updatedData);
           setLoading(false);
-        });
+        } else {
+          toast.error(res?.data?.message);
+          // setTableData([]);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
   };
   const handleTableSearchEmployee = (code) => {
     setLoading(true);
-    let form = new FormData();
-    form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID"));
-    form.append(
-      "LoginName",
-      useCryptoLocalStorage("user_Data", "get", "realname")
-    );
-    form.append("Date", formatDate(formData?.FromDate)),
-      axios
-        .post(apiUrls?.Attendence_Search, form, { headers })
-        .then((res) => {
-          setTableData(res?.data?.data);
-          setLoading(false);
-        })
-        .catch((err) => {
-          console.log(err);
-          setLoading(false);
-        });
+    axiosInstances
+      .post(apiUrls.Attendence_Search, {
+        EmployeeID: Number(formData?.AssignedTo),
+        SearchType: String(code ? code : "0"),
+        Date: String(formatDate(formData?.FromDate)),
+        ManagerID: Number(formData?.ReportingTo ? formData?.ReportingTo : "0"),
+      })
+      .then((res) => {
+        setTableData(res?.data?.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
   };
 
   const handleDateChange = (e) => {
@@ -305,7 +287,6 @@ const Attendance = () => {
   };
 
   const calculateStatusCounts = (data) => {
-   
     let total = data.length;
     let online = data.filter((member) => member.OrderSequence === 3).length;
     let offline = data.filter((member) => member.OrderSequence === 1).length;
@@ -338,63 +319,38 @@ const Attendance = () => {
 
   const statusCounts = calculateStatusCounts(tableData);
 
-  // console.log("statusCounts", statusCounts);
-
-  // useEffect(() => {
-  //   MyLocation()
-  //     .then((currentLocation) => {
-  //       setFormData((prev) => ({
-  //         ...prev,
-  //         Latitude: currentLocation.split(",")[0].split(":")[1].trim(),
-  //         Longitude: currentLocation.split(",")[1].split(":")[1].trim(),
-  //       }));
-
-  //     })
-  //     .catch((error) => {
-  //       console.error("Error fetching location:", error);
-  //     });
-  // }, []);
   const getReporter = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.GetReportingTo_Employee, form, { headers })
-        .then((res) => {
-          const reporters = res?.data.data.map((item) => {
-            return { label: item?.NAME, value: item?.Employee_ID };
-          });
-          setReporter(reporters);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.GetReportingTo_Employee, {})
+      .then((res) => {
+        const reporters = res?.data.data.map((item) => {
+          return { label: item?.NAME, value: item?.Employee_ID };
         });
+        setReporter(reporters);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const RoleID = useCryptoLocalStorage("user_Data", "get", "RoleID");
+
   const handleLogin = async () => {
     // if (!formData?.LocationID) {
     //   toast.error("Location is required");
     //   return;
     // }
     setLoading(true);
-    let form = new FormData();
-    form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID") || "");
-    form.append(
-      "LoginName",
-      useCryptoLocalStorage("user_Data", "get", "realname") || ""
-    );
-    form.append("CrmEmpID", CRMID);
-    form.append("Location", formData?.LocationID);
-    form.append("Latitude", formData?.Latitude || "");
-    form.append("Longitude", formData?.Longitude || "");
-    form.append("Remarks", formData?.Remarks || "");
-    form.append("StatusType", "LogIn");
-
     try {
-      const res = await axios.post(apiUrls?.Attendence_Login, form, {
-        headers,
+      const res = await axiosInstances.post(apiUrls.Attendence_Login, {
+        CrmEmpID: Number(CRMID),
+        Location: String(formData?.LocationID || ""),
+        Latitude: String(formData?.Latitude || ""),
+        Longitude: String(formData?.Longitude || ""),
+        Remarks: String(formData?.Remarks || ""),
+        StatusType: String("LogIn"),
       });
-      if (res?.data?.status === true) {
+      if (res?.data?.success === true) {
         toast.success(res?.data?.message);
         setIsLogin(true);
         localStorage.setItem("isLogin", "true");
@@ -415,24 +371,16 @@ const Attendance = () => {
     //   return;
     // }
     setLoading(true);
-    let form = new FormData();
-    form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID") || "");
-    form.append(
-      "LoginName",
-      useCryptoLocalStorage("user_Data", "get", "realname") || ""
-    );
-    form.append("CrmEmpID", CRMID);
-    form.append("Location", formData?.LocationID);
-    form.append("Latitude", formData?.Latitude || "");
-    form.append("Longitude", formData?.Longitude || "");
-    form.append("Remarks", formData?.Remarks || "");
-    form.append("StatusType", "LogOut");
-
     try {
-      const res = await axios.post(apiUrls?.Attendence_Login, form, {
-        headers,
+      const res = await axiosInstances.post(apiUrls.Attendence_Login, {
+        CrmEmpID: Number(CRMID),
+        Location: String(formData?.LocationID || ""),
+        Latitude: String(formData?.Latitude || ""),
+        Longitude: String(formData?.Longitude || ""),
+        Remarks: String(formData?.Remarks || ""),
+        StatusType: String("LogOut"),
       });
-      if (res?.data?.status === true) {
+      if (res?.data?.success === true) {
         toast.success(res?.data?.message);
         setIsLogin(false);
         localStorage.setItem("isLogin", "false");
@@ -793,7 +741,7 @@ const Attendance = () => {
 
       {tableData?.length > 0 ? (
         <div className="card mt-1">
-          <div className="row"  style={{ height: "auto", width: "100%" }}>
+          <div className="row" style={{ height: "auto", width: "100%" }}>
             <table
               className="styled-table ml-2"
               style={{ height: "auto", width: "100%" }}

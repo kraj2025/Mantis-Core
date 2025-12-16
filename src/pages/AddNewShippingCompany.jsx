@@ -14,6 +14,7 @@ import { toast } from "react-toastify";
 import Tables from "../components/UI/customTable";
 import Tooltip from "./Tooltip";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../networkServices/axiosInstance";
 
 const AddNewShippingCompany = (projectid, visible) => {
   // console.log(visible);
@@ -52,39 +53,37 @@ const AddNewShippingCompany = (projectid, visible) => {
     const ele = dropdownData.filter((item) => item.value === id);
     return ele.length > 0 ? ele[0].label : "";
   }
-  const getState = (value) => {
-    let form = new FormData();
-    form.append("CountryID", "14"),
-      axios
-        .post(apiUrls?.GetState, form, { headers })
-        .then((res) => {
-          const states = res?.data.data.map((item) => {
-            return { label: item?.StateName, value: item?.StateID };
-          });
-          setState(states);
-        })
-        .catch((err) => {
-          console.log(err);
+  const getState = () => {
+    axiosInstances
+      .post(apiUrls?.GetState, { CountryID: "14" })
+      .then((res) => {
+        const states = res?.data.data.map((item) => {
+          return { label: item?.StateName, value: item?.StateID };
         });
+        setState(states);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getProject = (proj) => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      axios
-        .post(apiUrls?.ProjectSelect, form, { headers })
-        .then((res) => {
-          const poc3s = res?.data.data.map((item) => {
-            return { label: item?.Project, value: item?.ProjectId };
-          });
-          setProject(poc3s);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls?.ProjectSelect, {
+        ProjectID: proj,
+        IsMaster: "string",
+        VerticalID: 0,
+        TeamID: 0,
+        WingID: 0,
+      })
+      .then((res) => {
+        const poc3s = res?.data.data.map((item) => {
+          return { label: item?.Project, value: item?.ProjectId };
         });
+        setProject(poc3s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const handleSave = () => {
     if (formData?.Project == "") {
@@ -98,49 +97,17 @@ const AddNewShippingCompany = (projectid, visible) => {
     } else if (formData?.GST == "") {
       toast.error("Please Enter GST.");
     } else {
-      let form = new FormData();
-      form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-        form.append(
-          "LoginName",
-          useCryptoLocalStorage("user_Data", "get", "realname")
-        ),
-        form.append("ProjectID", formData?.Project),
-        form.append("BillingCompanyName", formData?.BillingCompnayName),
-        form.append("BillingAddress", formData?.Address),
-        form.append("GSTNo", formData?.GST),
-        form.append("PanCardNo", formData?.PanCardNo),
-        form.append("PanCardNo", formData?.PanCardNo),
-        form.append("StateID", formData?.State),
-        form.append("State", getlabel(formData?.State, state)),
-        axios
-          .post(apiUrls?.CreateBilling, form, { headers })
-          .then((res) => {
-            toast.success(res?.data?.message);
-            handleSearch();
-          })
-          .catch((err) => {
-            console.log(err);
-          });
-    }
-  };
-  const handleUpdate = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("ProjectID", formData?.Project),
-      form.append("BillingCompanyName", formData?.BillingCompnayName),
-      form.append("BillingId", formData?.BillingID),
-      form.append("BillingAddress", formData?.Address),
-      form.append("GSTNo", formData?.GST),
-      form.append("PanCardNo", formData?.PanCardNo),
-      form.append("PanCardNo", formData?.PanCardNo),
-      form.append("StateID", formData?.State),
-      form.append("State", getlabel(formData?.State, state)),
-      axios
-        .post(apiUrls?.UpdateBilling, form, { headers })
+      axiosInstances
+        .post(apiUrls.CreateBilling, {
+          ProjectID: Number(formData?.Project),
+          BillingCompanyName: String(formData?.BillingCompnayName),
+          BillingAddress: String(formData?.Address),
+          StateID: String(formData?.State),
+          State: String(getlabel(formData?.State, state)),
+          GSTNo: String(formData?.GST),
+          PanCardNo: String(formData?.PanCardNo),
+        })
+
         .then((res) => {
           toast.success(res?.data?.message);
           handleSearch();
@@ -148,6 +115,29 @@ const AddNewShippingCompany = (projectid, visible) => {
         .catch((err) => {
           console.log(err);
         });
+    }
+  };
+  const handleUpdate = () => {
+    axiosInstances
+      .post(apiUrls.UpdateBilling, {
+        ProjectID: Number(formData?.Project),
+        BillingId: Number(formData?.BillingID),
+        BillingCompanyName: String(formData?.BillingCompnayName),
+        BillingAddress: String(formData?.Address),
+        StateID: String(formData?.State),
+        State: String(getlabel(formData?.State, state)),
+        GSTNo: String(formData?.GST),
+        PanCardNo: String(formData?.PanCardNo),
+        IsActive: 0,
+      })
+
+      .then((res) => {
+        toast.success(res?.data?.message);
+        handleSearch();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   useEffect(() => {
@@ -190,15 +180,12 @@ const AddNewShippingCompany = (projectid, visible) => {
     "Edit",
   ];
   const handleSearch = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("ProjectID", projectid?.projectid);
-    axios
-      .post(apiUrls?.BillingCompany_Select, form, { headers })
+    axiosInstances
+      .post(apiUrls.BillingCompany_Select, {
+        ProjectID: Number(projectid?.projectid),
+        IsActive: "0",
+      })
+
       .then((res) => {
         setTableData(res?.data?.data);
       })

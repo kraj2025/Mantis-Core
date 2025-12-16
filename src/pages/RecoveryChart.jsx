@@ -1,5 +1,3 @@
-
-
 import React, { useEffect, useState } from "react";
 import { Bar } from "react-chartjs-2";
 import {
@@ -17,6 +15,7 @@ import { headers } from "../utils/apitools";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../networkServices/axiosInstance";
 
 ChartJS.register(
   CategoryScale,
@@ -36,12 +35,13 @@ const RecoveryChart = () => {
   );
 
   const handleFirstDashboardCount = (developerId, searchType) => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-    form.append("DeveloperID", developerId);
-    form.append("SearchType", searchType == ""? "0" : searchType);
-    axios
-      .post(apiUrls?.CoorDashboard_Received_Recovery, form, { headers })
+   
+    axiosInstances
+      .post(apiUrls.CoorDashboard_Received_Recovery, {
+        CoordinatorID: Number(useCryptoLocalStorage("user_Data", "get", "ID")),
+        DeveloperID: Number(developerId),
+        SearchType: Number(searchType == "" ? "0" : searchType),
+      })
       .then((res) => {
         const response = res?.data?.data;
         if (Array.isArray(response) && response.length > 0) {
@@ -92,6 +92,9 @@ const RecoveryChart = () => {
       },
       legend: {
         display: false,
+      },
+      datalabels: {
+        display: false, // 👈 disables value labels on bars
       },
     },
     scales: {

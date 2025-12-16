@@ -2,16 +2,12 @@ import React, { useEffect, useState } from "react";
 import Input from "../../components/formComponent/Input";
 import Heading from "../../components/UI/Heading";
 import Tables from "../../components/UI/customTable";
-import {
-  menumasterTHEAD,
-  rolemasterTHEAD,
-} from "../../components/modalComponent/Utils/HealperThead";
-import { Link } from "react-router-dom";
+import { menumasterTHEAD } from "../../components/modalComponent/Utils/HealperThead";
+
 import { apiUrls } from "../../networkServices/apiEndpoints";
-import axios from "axios";
+
 import { toast } from "react-toastify";
-import { headers } from "../../../src/utils/apitools";
-import { useCryptoLocalStorage } from "../../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../../networkServices/axiosInstance";
 
 const MenuMaster = () => {
   const [tableData, setTableData] = useState([]);
@@ -50,91 +46,101 @@ const MenuMaster = () => {
     setEditMode(true);
   };
   const handleSave = () => {
-    setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("MenuName", formData?.MenuName),
-      form.append("ActiveStatus", formData?.IsActive),
-      axios
-        .post(apiUrls?.CreateMenu, form, { headers })
-        .then((res) => {
-          toast.success(res?.data?.message);
-          setLoading(false);
-          handleTableData();
-        })
-        .catch((err) => {
-          console.log(err);
-          setLoading(false);
-        });
+    // setLoading(true);
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append(
+    //     "LoginName",
+    //     useCryptoLocalStorage("user_Data", "get", "realname")
+    //   ),
+    //   form.append("MenuName", formData?.MenuName),
+    //   form.append("ActiveStatus", formData?.IsActive),
+    //   axios
+    //     .post(apiUrls?.CreateMenu, form, { headers })
+    axiosInstances
+      .post(apiUrls.CreateMenu, {
+        MenuName: String(formData?.MenuName),
+        ActiveStatus: Number(formData?.IsActive),
+      })
+      .then((res) => {
+        toast.success(res?.data?.message);
+        setLoading(false);
+        handleTableData();
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
   };
 
   const handleUpdate = () => {
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("MenuName", formData?.MenuName),
-      form.append("ActiveStatus", formData?.IsActive),
-      form.append("MenuID", tableData[0]?.ID),
-      axios
-        .post(apiUrls?.UpdateMenu, form, { headers })
-        .then((res) => {
-          toast.success(res?.data?.message);
-          setLoading(false);
-          handleTableData();
-        })
-        .catch((err) => {
-          console.log(err);
-          setLoading(false);
-        });
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append(
+    //     "LoginName",
+    //     useCryptoLocalStorage("user_Data", "get", "realname")
+    //   ),
+    //   form.append("MenuName", formData?.MenuName),
+    //   form.append("ActiveStatus", formData?.IsActive),
+    //   form.append("MenuID", tableData[0]?.ID),
+    //   axios
+    //     .post(apiUrls?.UpdateMenu, form, { headers })
+    axiosInstances
+      .post(apiUrls.UpdateMenu, {
+        MenuID: Number(tableData[0]?.ID),
+        MenuName: String(formData?.MenuName),
+        ActiveStatus: Number(formData?.IsActive),
+      })
+      .then((res) => {
+        toast.success(res?.data?.message);
+        setLoading(false);
+        handleTableData();
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
   };
   const handleTableData = () => {
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("MenuName", ""),
-      form.append("ActiveStatus", "2"),
-      axios
-        .post(apiUrls?.SearchMenu, form, { headers })
-        .then((res) => {
-          setTableData(res?.data?.data);
-          setLoading(false);
-        })
-        .catch((err) => {
-          console.log(err);
-          setLoading(false);
-        });
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append(
+    //     "LoginName",
+    //     useCryptoLocalStorage("user_Data", "get", "realname")
+    //   ),
+    //   form.append("MenuName", ""),
+    //   form.append("ActiveStatus", "2"),
+    //   axios
+    //     .post(apiUrls?.SearchMenu, form, { headers })
+    axiosInstances
+      .post(apiUrls.SearchMenu, {
+        MenuName: "",
+      })
+      .then((res) => {
+        setTableData(res?.data?.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
   };
   const handleEmployeeView = (ele) => {
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("RoleID", ele.ID),
-      axios
-        .post(apiUrls?.EmployeeView, form, { headers })
-        .then((res) => {
-          toast.success(res?.data?.message);
-          setLoading(false);
-        })
-        .catch((err) => {
-          console.log(err);
-          setLoading(false);
-        });
+    axiosInstances
+      .post(apiUrls.EmployeeView, {
+        RoleID: Number(ele?.ID),
+      })
+      .then((res) => {
+        toast.success(res?.data?.message);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
   };
   useEffect(() => {
     handleTableData();

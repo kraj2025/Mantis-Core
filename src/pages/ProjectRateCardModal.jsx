@@ -1,12 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { headers } from "../utils/apitools";
-import axios from "axios";
 import { apiUrls } from "../networkServices/apiEndpoints";
 import { toast } from "react-toastify";
 import Input from "../components/formComponent/Input";
-import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../networkServices/axiosInstance";
 const ProjectRateCardModal = ({ data }) => {
-  const [project, setProject] = useState([]);
   const [formData, setFormData] = useState({
     ProjectID: "",
     Mandays: "",
@@ -16,25 +13,21 @@ const ProjectRateCardModal = ({ data }) => {
     ProjectName: "",
   });
   const handleSaveDesignation = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname") ),
-      form.append("ProjectID", formData?.ProjectID || data?.ProjectID),
-      form.append("Mandays", formData?.Mandays),
-      form.append("Onsitecharges", formData?.Onsitecharges),
-      form.append("MachineChargesUNI", formData?.MachineChargesUNI),
-      form.append("MachineChargesBI", formData?.MachineChargesBI),
-      // form.append("ProjectName",formData?.ProjectName)
-
-      axios
-        .post(apiUrls?.UpdateProjectRateCard, form, { headers })
-        .then((res) => {
-          toast.success(`RateCard for ${formData?.ProjectName} Updated`);
-          showData?.setVisible();
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls?.UpdateProjectRateCard, {
+        ProjectID: Number(formData?.ProjectID || data?.ProjectID),
+        Mandays: Number(formData?.Mandays),
+        Onsitecharges: Number(formData?.Onsitecharges),
+        MachineChargesUNI: Number(formData?.MachineChargesUNI),
+        MachineChargesBI: Number(formData?.MachineChargesBI),
+      })
+      .then((res) => {
+        toast.success(res.data.message);
+        showData?.setVisible();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   function getlabel(id, dropdownData) {
     const ele = dropdownData.filter((item) => item.value === id);
@@ -68,7 +61,9 @@ const ProjectRateCardModal = ({ data }) => {
   return (
     <>
       <div className="card p-2">
-        <span style={{ fontWeight: "bold" }}>Project Name : {data?.NAME || data?.ProjectName}</span>
+        <span style={{ fontWeight: "bold" }}>
+          Project Name : {data?.NAME || data?.ProjectName}
+        </span>
       </div>
       <div className="card ProjectRateCard border p-2">
         <div className="row ">

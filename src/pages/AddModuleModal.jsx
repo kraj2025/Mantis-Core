@@ -13,10 +13,11 @@ import TransferModuleModal from "../components/UI/customTable/TransferModuleModa
 import Input from "../components/formComponent/Input";
 import MultiSelectComp from "../components/formComponent/MultiSelectComp";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../networkServices/axiosInstance";
 
 const AddModuleModal = ({ visible, setVisible }) => {
   const [tableData, setTableData] = useState([]);
-  const tabVis= visible?.showData?.id
+  const tabVis = visible?.showData?.id;
   const [searchQuery, setSearchQuery] = useState("");
   const [filteredData, setFilteredData] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
@@ -39,73 +40,65 @@ const AddModuleModal = ({ visible, setVisible }) => {
     setEditMode(true);
   };
   const getModule = () => {
-    let form = new FormData();
-    form.append("ID",  useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("RoleID",  useCryptoLocalStorage("user_Data", "get", "RoleID")),
-      form.append("ProjectID", "0"),
-      form.append("IsActive", "1"),
-      form.append("IsMaster", "1"),
-      axios
-        .post(apiUrls?.Module_Select, form, { headers })
-        .then((res) => {
-          const poc3s = res?.data.data.map((item) => {
-            return { name: item?.ModuleName, code: item?.ModuleID };
-          });
-          setModuleName(poc3s);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls?.Module_Select, {
+        RoleID: Number(useCryptoLocalStorage("user_Data", "get", "RoleID")),
+        ProjectID: Number(0),
+        IsActive: Number(1),
+        IsMaster: Number(1),
+      })
+      .then((res) => {
+        const poc3s = res?.data.data.map((item) => {
+          return { name: item?.ModuleName, code: item?.ModuleID };
         });
+        setModuleName(poc3s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
-  function getlabel(id, dropdownData) {
-    const ele = dropdownData.filter((item) => item.value === id);
-    return ele.length > 0 ? ele[0].label : "";
-  }
+
   const handleSave = () => {
     if (formData?.ModuleName == "") {
       toast.error("Please Select Module");
     } else {
       setLoading(true);
-      let form = new FormData();
-      form.append("ID",  useCryptoLocalStorage("user_Data", "get", "ID")),
-        form.append("RoleID",  useCryptoLocalStorage("user_Data", "get", "RoleID")),
-        form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-        form.append("EmployeeID", visible?.showData?.id),
-        form.append("ModuleID", formData?.ModuleName),
-        axios
-          .post(apiUrls?.CreateEmployeeModule, form, { headers })
-          .then((res) => {
-            if (res?.data?.status === true) {
-              toast.success(res?.data?.message);
-              getModuleSearch();
-              setLoading(false);
-              setFormData((prev) => ({ ...prev, ModuleName: [] }));
-            } else {
-              toast.error(res?.data?.message);
-              setLoading(false);
-            }
-          })
-          .catch((err) => {
-            console.log(err);
+      axiosInstances
+        .post(apiUrls?.CreateEmployeeModule, {
+          ModuleID: String(formData?.ModuleName),
+          EmployeeID: String(visible?.showData?.id),
+        })
+        .then((res) => {
+          if (res?.data?.success === true) {
+            toast.success(res?.data?.message);
+            getModuleSearch();
             setLoading(false);
-          });
+            setFormData((prev) => ({ ...prev, ModuleName: [] }));
+          } else {
+            toast.error(res?.data?.message);
+            setLoading(false);
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+          setLoading(false);
+        });
     }
   };
 
   const getModuleSearch = () => {
-    let form = new FormData();
-    form.append("ID",  useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("RoleID",  useCryptoLocalStorage("user_Data", "get", "RoleID")),
-      form.append("EmployeeID", visible?.showData?.id),
-      axios
-        .post(apiUrls?.GetEmployeeModule, form, { headers })
-        .then((res) => {
-          setTableData(res?.data?.data);
-          setFilteredData(res?.data?.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls?.GetEmployeeModule, {
+        ModuleId: String("0"),
+        EmployeeID: Number(visible?.showData?.id),
+      })
+      .then((res) => {
+        setTableData(res?.data?.data);
+        setFilteredData(res?.data?.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const handleMultiSelectChange = (name, selectedOptions) => {
     const selectedValues = selectedOptions.map((option) => option.code);
@@ -143,27 +136,36 @@ const AddModuleModal = ({ visible, setVisible }) => {
       setLoading(false);
       return;
     }
-    const form = new FormData();
-    form.append("ID",  useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("EmployeeID", visible?.showData?.id),
-      form.append("ModuleID", selectedIds.join(",")),
-      axios
-        .post(apiUrls?.DeleteEmployeeModule, form, { headers })
-        .then((res) => {
-          if (res?.data?.status === true) {
-            toast.success(res?.data?.message);
-            setLoading(false);
-            getModuleSearch();
-          } else {
-            toast.error(res?.data?.message);
-            setLoading(false);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
+    // const form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append(
+    //     "LoginName",
+    //     useCryptoLocalStorage("user_Data", "get", "realname")
+    //   ),
+    //   form.append("EmployeeID", visible?.showData?.id),
+    //   form.append("ModuleID", selectedIds.join(",")),
+    //   axios
+    //     .post(apiUrls?.DeleteEmployeeModule, form, { headers })
+    axiosInstances
+      .post(apiUrls?.DeleteEmployeeModule, {
+        ModuleID: selectedIds.map((id) => Number(id)),
+        EmployeeID: Number(visible?.showData?.id),
+      })
+      .then((res) => {
+        console.log("check check", res.data);
+        if (res?.data?.status === true) {
+          toast.success(res?.data?.message);
           setLoading(false);
-        });
+          getModuleSearch();
+        } else {
+          toast.error(res?.data?.message);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
   };
 
   const normalizeString = (str) => str.toLowerCase().replace(/\s+/g, "").trim();
@@ -263,7 +265,7 @@ const AddModuleModal = ({ visible, setVisible }) => {
           userData={tableData}
         />
       </Modal>
-   
+
       <div className="card p-2">
         <span style={{ fontWeight: "bold" }}>
           Employee Name: &nbsp; {visible?.showData?.realname}
@@ -288,7 +290,6 @@ const AddModuleModal = ({ visible, setVisible }) => {
             <Loading />
           ) : (
             <div className="col-2">
-           
               <button className="btn btn-sm btn-info ml-2" onClick={handleSave}>
                 {t("Add Module")}
               </button>
@@ -305,7 +306,6 @@ const AddModuleModal = ({ visible, setVisible }) => {
           >
             Transfer Module
           </button> */}
-       
         </div>
       </div>
 
@@ -351,8 +351,11 @@ const AddModuleModal = ({ visible, setVisible }) => {
             }))}
             tableHeight={"tableHeight"}
           />
-          <div className="pagination" style={{justifyContent:"space-between"}}>
-            <div >
+          <div
+            className="pagination"
+            style={{ justifyContent: "space-between" }}
+          >
+            <div>
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
@@ -370,13 +373,14 @@ const AddModuleModal = ({ visible, setVisible }) => {
               </button>
             </div>
             <div>
-            <button
-              className="btn btn-sm btn-primary"
-              style={{ marginRight: "145px" }}
-              onClick={handleDeleteSelected}
-            >
-              Delete
-            </button></div>
+              <button
+                className="btn btn-sm btn-primary"
+                style={{ marginRight: "145px" }}
+                onClick={handleDeleteSelected}
+              >
+                Delete
+              </button>
+            </div>
           </div>
         </div>
       )}

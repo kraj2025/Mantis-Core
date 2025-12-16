@@ -9,6 +9,8 @@ import Input from "../components/formComponent/Input";
 import { useTranslation } from "react-i18next";
 import { inputBoxValidation } from "../utils/utils";
 import { MOBILE_NUMBER_VALIDATION_REGX } from "../utils/constant";
+import { axiosInstances } from "../networkServices/axiosInstance";
+import { formatDate } from "date-fns";
 
 const FeedbackWhatsappModal = (showData) => {
   console.log("showdata", showData);
@@ -19,33 +21,29 @@ const FeedbackWhatsappModal = (showData) => {
   });
   const handleConfirm = () => {
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("FeedbackID", showData?.visible?.showData?.FeedbackID),
-      form.append("ProjectID", showData?.visible?.showData?.ProjectID),
-      form.append("ProjectName", showData?.visible?.showData?.ProjectName),
-      form.append("MobileNo", formData?.WhatsappNumber),
-      form.append("Content", showData?.visible?.showData?.Content),
-      axios
-        .post(apiUrls?.ResendFeedbackWhatsapp, form, { headers })
-        .then((res) => {
-          if (res?.data?.status === true) {
-            toast.success(res?.data?.message);
-            showData.setVisible(false);
-            showData.handleSearchFeedback();
-            setLoading(false);
-          } else {
-            toast.error(res?.data?.message);
-            setLoading(false);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls.ResendFeedbackWhatsapp, {
+        FeedbackID: Number(showData?.visible?.showData?.FeedbackID),
+        ProjectID: Number(showData?.visible?.showData?.ProjectID),
+        ProjectName: String(showData?.visible?.showData?.ProjectName),
+        MobileNo: String(formData?.WhatsappNumber),
+        Content: String(showData?.visible?.showData?.Content),
+      })
+
+      .then((res) => {
+        if (res?.data?.success === true) {
+          toast.success(res?.data?.message);
+          showData.setVisible(false);
+          showData.handleSearchFeedback();
+          setLoading(false);
+        } else {
+          toast.error(res?.data?.message);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const handleChange = (e) => {
     const { name, value, type, checked } = e?.target;
@@ -91,7 +89,7 @@ const FeedbackWhatsappModal = (showData) => {
           ) : (
             <button
               className="btn btn-sm btn-danger ml-2"
-                onClick={handleConfirm}
+              onClick={handleConfirm}
             >
               Send
             </button>

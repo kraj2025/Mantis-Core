@@ -11,6 +11,7 @@ import ReactSelect from "../components/formComponent/ReactSelect";
 import Tooltip from "./Tooltip";
 import videopng from "../../src/assets/image/videopng.png";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../networkServices/axiosInstance";
 const VideoPlayerMaster = () => {
   const [showVideo, setShowVideo] = useState(false);
   const [videoLink, setVideoLink] = useState("");
@@ -51,9 +52,11 @@ const VideoPlayerMaster = () => {
   }
   const getVertical = () => {
     let form = new FormData();
-    form.append("Id",  useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Vertical_Select, form, { headers })
+    // form.append("Id",  useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   axios
+    //     .post(apiUrls?.Vertical_Select, form, { headers })
+    axiosInstances
+      .post(apiUrls.Vertical_Select)
         .then((res) => {
           const verticals = res?.data.data.map((item) => {
             return { label: item?.Vertical, value: item?.VerticalID };
@@ -82,26 +85,37 @@ const VideoPlayerMaster = () => {
     // }
     else {
       setLoading(true);
-      let form = new FormData();
-      form.append("ID",  useCryptoLocalStorage("user_Data", "get", "ID")),
-        form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-        form.append("ActionType", "Insert"),
-        form.append("VerticalID", formData?.VerticalID),
-        form.append("Vertical", getlabel(formData?.VerticalID, vertical)),
-        form.append("Title", formData?.TitleName),
-        form.append("VedioLink", formData?.VideoLink),
-        form.append("DocumentTypeID", formData?.DocumentType),
-        // form.append(
-        //   "DocumentTypeName",
-        //   documenttype.find((item) => item?.value === formData?.DocumentType)
-        //     ?.label
-        // ),
-        form.append("Document_Base64", formData?.Document_Base64),
-        form.append("FileExtension", formData?.FileExtension),
-        axios
-          .post(apiUrls?.TrainingVedio, form, { headers })
+      // let form = new FormData();
+      // form.append("ID",  useCryptoLocalStorage("user_Data", "get", "ID")),
+      //   form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
+      //   form.append("ActionType", "Insert"),
+      //   form.append("VerticalID", formData?.VerticalID),
+      //   form.append("Vertical", getlabel(formData?.VerticalID, vertical)),
+      //   form.append("Title", formData?.TitleName),
+      //   form.append("VedioLink", formData?.VideoLink),
+      //   form.append("DocumentTypeID", formData?.DocumentType),
+      //   // form.append(
+      //   //   "DocumentTypeName",
+      //   //   documenttype.find((item) => item?.value === formData?.DocumentType)
+      //   //     ?.label
+      //   // ),
+      //   form.append("Document_Base64", formData?.Document_Base64),
+      //   form.append("FileExtension", formData?.FileExtension),
+      //   axios
+      //     .post(apiUrls?.TrainingVedio, form, { headers })
+      axiosInstances
+      .post(apiUrls.TrainingVedio, {
+          ActionType: "Insert",                                   
+        VerticalID: formData?.VerticalID || 0,                  
+        Vertical: getlabel(formData?.VerticalID, vertical) || "", 
+        Title: formData?.TitleName || "",                     
+        VedioLink: formData?.VideoLink || "string",                 
+        VedioLinkID: formData?.VedioLinkID || 0,              
+        IsActive: 1,  
+      
+      })
           .then((res) => {
-            if (res?.data?.status === true) {
+            if (res?.data?.success) {
               toast.success(res?.data?.message);
               setLoading(false);
               setFormData({ TitleName: "", VideoLink: "", VerticalID: "" });
@@ -119,18 +133,27 @@ const VideoPlayerMaster = () => {
   };
   const handleVideoUpdate = () => {
     setLoading(true);
-    let form = new FormData();
-    form.append("ID",  useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("ActionType", "Update"),
-      form.append("VerticalID", formData?.VerticalID),
-      form.append("Vertical", getlabel(formData?.VerticalID, vertical)),
-      form.append("Title", formData?.TitleName),
-      form.append("VedioLink", formData?.VideoLink),
-      form.append("IsActive", formData?.isActive),
-      form.append("VedioLinkID", formData?.VedioLinkID),
-      axios
-        .post(apiUrls?.TrainingVedio, form, { headers })
+    // let form = new FormData();
+    // form.append("ID",  useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
+    //   form.append("ActionType", "Update"),
+    //   form.append("VerticalID", formData?.VerticalID),
+    //   form.append("Vertical", getlabel(formData?.VerticalID, vertical)),
+    //   form.append("Title", formData?.TitleName),
+    //   form.append("VedioLink", formData?.VideoLink),
+    //   form.append("IsActive", formData?.isActive),
+    //   form.append("VedioLinkID", formData?.VedioLinkID),
+    //   axios
+    //     .post(apiUrls?.TrainingVedio, form, { headers })
+       axiosInstances
+      .post(apiUrls.TrainingVedio, {
+          ActionType: "Insert",                                   
+        VerticalID: formData?.VerticalID || 0,                  
+        Vertical: getlabel(formData?.VerticalID, vertical) || "", 
+        Title: formData?.TitleName || "",                     
+        VedioLink: formData?.VideoLink || "",                 
+        VedioLinkID: formData?.VedioLinkID || 0,              
+        IsActive: 1, })
         .then((res) => {
           if (res?.data?.status === true) {
             toast.success(res?.data?.message);
@@ -151,16 +174,25 @@ const VideoPlayerMaster = () => {
 
   const handleVideoSearch = () => {
     setLoading(true);
-    let form = new FormData();
-    form.append("ID",  useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("ActionType", "Search"),
-      form.append("VerticalID", ""),
-      form.append("Title", ""),
-      form.append("VedioLink", ""),
-      form.append("VedioLinkID", ""),
-      axios
-        .post(apiUrls?.TrainingVedio, form, { headers })
+    // let form = new FormData();
+    // form.append("ID",  useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
+    //   form.append("ActionType", "Search"),
+    //   form.append("VerticalID", ""),
+    //   form.append("Title", ""),
+    //   form.append("VedioLink", ""),
+    //   form.append("VedioLinkID", ""),
+    //   axios
+    //     .post(apiUrls?.TrainingVedio, form, { headers })
+       axiosInstances
+      .post(apiUrls.TrainingVedio, {
+          ActionType: "Insert",                                   
+        VerticalID: formData?.VerticalID || 0,                  
+        Vertical: getlabel(formData?.VerticalID, vertical) || "", 
+        Title: formData?.TitleName || "",                     
+        VedioLink: formData?.VideoLink || "",                 
+        VedioLinkID: formData?.VedioLinkID || 0,              
+        IsActive: 1, })
         .then((res) => {
           const dataset = res?.data?.data;
           setTableData(dataset);

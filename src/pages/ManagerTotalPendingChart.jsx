@@ -15,6 +15,7 @@ import { headers } from "../utils/apitools";
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../networkServices/axiosInstance";
 
 ChartJS.register(
   CategoryScale,
@@ -34,55 +35,57 @@ const ManagerTotalPendingChart = () => {
   );
 
   const handleFirstDashboardCount = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-
-    axios
-      .post(apiUrls?.ManagerDashboard_Total_Pending, form, { headers })
+    axiosInstances
+      .post(apiUrls?.ManagerDashboard_Total_Pending, {
+        DeveloperID: String(useCryptoLocalStorage("user_Data", "get", "ID")),
+        SearchType: String(""),
+      })
       .then((res) => {
         const response = res?.data?.data;
 
         if (Array.isArray(response) && response.length > 0) {
-            const labels = response.map((item) => {
-              const [month, year] = item.Month_Year.split("-");
-              const shortMonth = new Date(`${month} 1, ${year}`).toLocaleString("default", {
+          const labels = response.map((item) => {
+            const [month, year] = item.Month_Year.split("-");
+            const shortMonth = new Date(`${month} 1, ${year}`).toLocaleString(
+              "default",
+              {
                 month: "short",
-              });
-              return `${shortMonth}-${year.slice(-2)}`;
-            });
-          
-            const totalData = response.map((item) => item.Total);
-            const receivedData = response.map((item) => item.Received);
-            const balanceData = response.map((item) => item.BalanceAmount);
-          
-            const datasets = [
-              {
-                label: "Total",
-                data: totalData,
-                backgroundColor: "#7f8bf5",
-                borderColor: "#fff",
-                borderWidth: 1,
-              },
-              {
-                label: "Received",
-                data: receivedData,
-                backgroundColor: "#9bed95",
-                borderColor: "#fff",
-                borderWidth: 1,
-              },
-              {
-                label: "Balance",
-                data: balanceData,
-                backgroundColor: "#fc7ea6",
-                borderColor: "#fff",
-                borderWidth: 1,
-              },
-            ];
-          
-            setChartLabels(labels);
-            setChartData(datasets);
-          }
-          
+              }
+            );
+            return `${shortMonth}-${year.slice(-2)}`;
+          });
+
+          const totalData = response.map((item) => item.Total);
+          const receivedData = response.map((item) => item.Received);
+          const balanceData = response.map((item) => item.BalanceAmount);
+
+          const datasets = [
+            {
+              label: "Total",
+              data: totalData,
+              backgroundColor: "#7f8bf5",
+              borderColor: "#fff",
+              borderWidth: 1,
+            },
+            {
+              label: "Received",
+              data: receivedData,
+              backgroundColor: "#9bed95",
+              borderColor: "#fff",
+              borderWidth: 1,
+            },
+            {
+              label: "Balance",
+              data: balanceData,
+              backgroundColor: "#fc7ea6",
+              borderColor: "#fff",
+              borderWidth: 1,
+            },
+          ];
+
+          setChartLabels(labels);
+          setChartData(datasets);
+        }
       })
       .catch((err) => {
         console.error("API error:", err);
@@ -115,6 +118,9 @@ const ManagerTotalPendingChart = () => {
           usePointStyle: true,
           pointStyle: "circle",
         },
+      },
+      datalabels: {
+        display: false, // 👈 disables value labels on bars
       },
     },
     scales: {

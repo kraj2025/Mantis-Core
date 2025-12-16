@@ -1,23 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { apiUrls } from "../networkServices/apiEndpoints";
-import { headers } from "../utils/apitools";
-import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
-import axios from "axios";
 import Tables from "../components/UI/customTable";
 import NoRecordFound from "../components/formComponent/NoRecordFound";
+import { axiosInstances } from "../networkServices/axiosInstance";
 const FeedbackGmailDetail = (showData) => {
-  //   console.log("data", showData);
   const [tableData, setTableData] = useState([]);
   const handleApprove = () => {
-    let form = new FormData();
-    form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      );
-    form.append("FeedbackID", showData?.visible?.showData?.FeedbackID);
-    axios
-      .post(apiUrls?.ClientFeedbackTransaction, form, { headers })
+    axiosInstances
+      .post(apiUrls.ClientFeedbackTransaction, {
+        FeedbackID: Number(showData?.visible?.showData?.FeedbackID),
+      })
+
       .then((res) => {
         setTableData(res?.data?.data);
       })

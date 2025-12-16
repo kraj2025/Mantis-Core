@@ -14,6 +14,7 @@ import Loading from "../components/loader/Loading";
 import TextEditor from "../components/formComponent/TextEditor";
 import Heading from "../components/UI/Heading";
 import PrimeTextEditor from "../components/formComponent/PrimeTextEditor";
+import { axiosInstances } from "../networkServices/axiosInstance";
 
 const TSACreateModal = (showData) => {
   const [t] = useTranslation();
@@ -88,91 +89,105 @@ const TSACreateModal = (showData) => {
   };
   const getAMCTYPE = () => {
     let form = new FormData();
-    form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      axios
-        .post(apiUrls?.AMCType_Select, form, { headers })
-        .then((res) => {
-          const verticals = res?.data.data.map((item) => {
-            return { label: item?.NAME, value: item?.ID };
-          });
-          setAmcType(verticals);
-        })
-        .catch((err) => {
-          console.log(err);
+    // form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append(
+    //     "LoginName",
+    //     useCryptoLocalStorage("user_Data", "get", "realname")
+    //   ),
+    //   axios
+    //     .post(apiUrls?.AMCType_Select, form, { headers })
+    axiosInstances
+      .post(apiUrls?.AMCType_Select, {})
+      .then((res) => {
+        const verticals = res?.data.data.map((item) => {
+          return { label: item?.NAME, value: item?.ID };
         });
+        setAmcType(verticals);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getProjectTSA = (value) => {
-    let form = new FormData();
-    form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("ProjectID", value),
-      axios
-        .post(apiUrls?.ProjectVsAMCMapping, form, { headers })
-        .then((res) => {
-          setFormData((prev) => ({
-            ...prev,
-            AmcType: res?.data?.data[0]?.AMCID,
-            AMC_Start_Month: res?.data?.data[0]?.AMCStartmonth,
-            AMC_Amount: res?.data?.data[0]?.AMCAmount,
-            FromDate: new Date(res?.data?.data[0]?.AMC_StartDate),
-            ToDate: new Date(res?.data?.data[0]?.AMCToDate),
-            ProjectID: res?.data?.data[0]?.ProjectID,
-            ProjectName: res?.data?.data[0]?.ProjectName,
-          }));
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    // let form = new FormData();
+    // form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append(
+    //     "LoginName",
+    //     useCryptoLocalStorage("user_Data", "get", "realname")
+    //   ),
+    //   form.append("ProjectID", value),
+    // axios
+    //   .post(apiUrls?.ProjectVsAMCMapping, form, { headers })
+    axiosInstances
+      .post(apiUrls?.ProjectVsAMCMapping, { ProjectID: Number(value) })
+      .then((res) => {
+        setFormData((prev) => ({
+          ...prev,
+          AmcType: res?.data?.data[0]?.AMCID,
+          AMC_Start_Month: res?.data?.data[0]?.AMCStartmonth,
+          AMC_Amount: res?.data?.data[0]?.AMCAmount,
+          FromDate: new Date(res?.data?.data[0]?.AMC_StartDate?.Value),
+          ToDate: new Date(res?.data?.data[0]?.AMCToDate),
+          ProjectID: res?.data?.data[0]?.ProjectID,
+          ProjectName: res?.data?.data[0]?.ProjectName,
+        }));
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getHtmlConvert = () => {
-    let form = new FormData();
-    form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      axios
-        .post(apiUrls?.Tsa_Agreement_Format, form, { headers })
-        .then((res) => {
-          setTableData(res?.data?.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    // let form = new FormData();
+    // form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append(
+    //     "LoginName",
+    //     useCryptoLocalStorage("user_Data", "get", "realname")
+    //   ),
+    //   axios
+    //     .post(apiUrls?.Tsa_Agreement_Format, form, { headers })
+    axiosInstances
+      .post(apiUrls?.Tsa_Agreement_Format, {})
+      .then((res) => {
+        setTableData(res?.data?.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getProject = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      axios
-        .post(apiUrls?.ProjectSelect, form, { headers })
-        .then((res) => {
-          const datas = res?.data.data;
-          const poc3s = datas.map((item) => {
-            return { label: item?.Project, value: item?.ProjectId };
-          });
-          setProject(poc3s);
-          //   if (datas.length > 0) {
-          //     const singleProject = datas[0]?.ProjectId;
-          //     setFormData((prev) => ({
-          //       ...prev,
-          //       ProjectID: singleProject,
-          //     }));
-          //   }
-        })
-        .catch((err) => {
-          console.log(err);
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append(
+    //     "LoginName",
+    //     useCryptoLocalStorage("user_Data", "get", "realname")
+    //   ),
+    //   axios
+    //     .post(apiUrls?.ProjectSelect, form, { headers })
+    axiosInstances
+      .post(apiUrls?.ProjectSelect, {
+        ProjectID: 0,
+        IsMaster: "",
+        VerticalID: 0,
+        TeamID: 0,
+        WingID: 0,
+      })
+      .then((res) => {
+        const datas = res?.data.data;
+        const poc3s = datas.map((item) => {
+          return { label: item?.Project, value: item?.ProjectId };
         });
+        setProject(poc3s);
+        //   if (datas.length > 0) {
+        //     const singleProject = datas[0]?.ProjectId;
+        //     setFormData((prev) => ({
+        //       ...prev,
+        //       ProjectID: singleProject,
+        //     }));
+        //   }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   function getlabel(id, dropdownData) {
@@ -182,33 +197,58 @@ const TSACreateModal = (showData) => {
 
   const handleConfirm = () => {
     setLoading(true);
-    let form = new FormData();
-    form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      );
-    form.append("Email", useCryptoLocalStorage("user_Data", "get", "EmailId"));
-    form.append("ProjectID", formData?.ProjectID);
-    form.append("AMCID", "0");
-    form.append("AMC", "TSA");
-    // form.append("AMCID", formData?.AmcType);
-    // form.append("AMC", getlabel(formData?.AmcType, acctype));
-    form.append(
-      "AMCStartDate",
-      moment(formData?.FromDate).format("YYYY-MM-DD")
-    );
-    form.append("AMCToDate", moment(formData?.ToDate).format("YYYY-MM-DD"));
-    form.append("AMCStartMonth", formData?.AMC_Start_Month);
-    form.append("AMCAmount", formData?.AMC_Amount);
-    form.append("IsEdited", formData?.DateType);
-    const updatedHTML = editRef?.current?.innerHTML;
-    console.log("updatedHTML", updatedHTML);
-    form.append("AgreementHTML", updatedHTML);
-    axios
-      .post(apiUrls?.CreateTechnicalSupportAgreement, form, { headers })
+    // let form = new FormData();
+    // form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append(
+    //     "LoginName",
+    //     useCryptoLocalStorage("user_Data", "get", "realname")
+    //   );
+    // form.append("Email", useCryptoLocalStorage("user_Data", "get", "EmailId"));
+    // form.append("ProjectID", formData?.ProjectID);
+    // form.append("AMCID", "0");
+    // form.append("AMC", "TSA");
+    // // form.append("AMCID", formData?.AmcType);
+    // // form.append("AMC", getlabel(formData?.AmcType, acctype));
+    // form.append(
+    //   "AMCStartDate",
+    //   moment(formData?.FromDate).format("YYYY-MM-DD")
+    // );
+    // form.append("AMCToDate", moment(formData?.ToDate).format("YYYY-MM-DD"));
+    // form.append("AMCStartMonth", formData?.AMC_Start_Month);
+    // form.append("AMCAmount", formData?.AMC_Amount);
+    // form.append("IsEdited", formData?.DateType);
+    // const updatedHTML = editRef?.current?.innerHTML;
+    // console.log("updatedHTML", updatedHTML);
+    // form.append("AgreementHTML", updatedHTML);
+    // axios
+    //   .post(apiUrls?.CreateTechnicalSupportAgreement, form, { headers })
+    const payload = {
+      Email: String(useCryptoLocalStorage("user_Data", "get", "EmailId") || ""),
+      ProjectID: String(formData?.ProjectID || 0),
+
+      // If AMC details are static → use fixed values
+      AMCID: String(formData?.AmcType || 0), // or "0" if fixed
+      AMC: String(getlabel(formData?.AmcType, acctype) || "TSA"),
+
+      // Dates in YYYY-MM-DD
+      AMCStartDate: moment(formData?.FromDate).isValid()
+        ? moment(formData?.FromDate).format("YYYY-MM-DD")
+        : "",
+      AMCToDate: moment(formData?.ToDate).isValid()
+        ? moment(formData?.ToDate).format("YYYY-MM-DD")
+        : "",
+
+      AMCStartMonth: String(formData?.AMC_Start_Month || ""),
+      AMCAmount: String(formData?.AMC_Amount || 0),
+      IsEdited: String(formData?.DateType || false),
+
+      AgreementHTML: String(editRef?.current?.innerHTML || ""),
+    };
+
+    axiosInstances
+      .post(apiUrls?.CreateTechnicalSupportAgreement, payload)
       .then((res) => {
-        if (res?.data?.status === true) {
+        if (res?.data?.success === true) {
           toast.success(res?.data?.message);
           setLoading(false);
           showData?.setVisible(false);
@@ -247,17 +287,25 @@ const TSACreateModal = (showData) => {
     return ele.length > 0 ? ele[0].label : "";
   }
   const handleRun = () => {
-    let form = new FormData();
-    form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("ProjectID", formData?.ProjectID),
-      form.append("ProjectName", getlabel(formData?.ProjectID, project));
-    form.append("AgreementHTML", formData?.Description);
-    axios
-      .post(apiUrls?.Change_Tsa_Agreement_Format, form, { headers })
+    // let form = new FormData();
+    // form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append(
+    //     "LoginName",
+    //     useCryptoLocalStorage("user_Data", "get", "realname")
+    //   ),
+    //   form.append("ProjectID", formData?.ProjectID),
+    //   form.append("ProjectName", getlabel(formData?.ProjectID, project));
+    // form.append("AgreementHTML", formData?.Description);
+    // axios
+    //   .post(apiUrls?.Change_Tsa_Agreement_Format, form, { headers })
+    const payload = {
+      ProjectID: Number(formData?.ProjectID || 0),
+      ProjectName: String(getlabel(formData?.ProjectID, project) || ""),
+      AgreementHTML: String(formData?.Description || ""),
+    };
+
+    axiosInstances
+      .post(apiUrls?.Change_Tsa_Agreement_Format, payload)
       .then((res) => {
         if (res?.data?.status === true) {
           toast.success(res?.data?.message);

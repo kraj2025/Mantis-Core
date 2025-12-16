@@ -31,14 +31,10 @@ const TicketByStatus = () => {
   const [countData, setCountData] = useState([]);
 
   const handleFirstDashboardCount = () => {
-    // let form = new FormData();
-    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-    // form.append("DeveloperID", memberID || 0),
-    //   axios
-    //     .post(apiUrls?.DevDashboard_Welcome_PriorityID, form, { headers })
+  
     axiosInstances
       .post(apiUrls.DevDashboard_Welcome_PriorityID, {
-        developerID: String(memberID || "0"),
+        DeveloperID: String(memberID || "0"),
       })
       .then((res) => {
         setCountData(res?.data?.dtPriority);
@@ -142,6 +138,9 @@ const TicketByStatus = () => {
           usePointStyle: true, // Use dot instead of rectangle
           pointStyle: "circle", // Set legend symbol to a circle
         },
+      },
+      datalabels: {
+        display: false, // 👈 disables value labels on bars
       },
     },
     responsive: true,

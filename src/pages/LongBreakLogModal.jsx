@@ -5,31 +5,44 @@ import { apiUrls } from "../networkServices/apiEndpoints";
 import { headers } from "../utils/apitools";
 import NoRecordFound from "../components/formComponent/NoRecordFound";
 import Tables from "../components/UI/customTable";
+import { axiosInstances } from "../networkServices/axiosInstance";
 
 const LongBreakLogModal = ({ visible }) => {
-  console.log("visisble", visible);
- const [selectedImageUrl, setSelectedImageUrl] = useState(null);
-   const [isModalOpen, setIsModalOpen] = useState(false);
+  // console.log("visisble", visible);
+  const [selectedImageUrl, setSelectedImageUrl] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [tableData, setTableData] = useState([]);
   const handleSearch = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("AttType", "LongBreak"),
-      form.append("AttSummaryID", visible?.showData?.breakSummaryLogId),
-      axios
-        .post(apiUrls?.ForceFullyShortBreakAttendanceSearch, form, { headers })
-        .then((res) => {
-          setTableData(res?.data?.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append(
+    //     "LoginName",
+    //     useCryptoLocalStorage("user_Data", "get", "realname")
+    //   ),
+    //   form.append("AttType", "LongBreak"),
+    //   form.append("AttSummaryID", visible?.showData?.breakSummaryLogId),
+    //   axios
+    //     .post(apiUrls?.ForceFullyShortBreakAttendanceSearch, form, { headers })
+    axiosInstances
+      .post(apiUrls.ForceFullyShortBreakAttendanceSearch, {
+        AttType: String("LongBreak"),
+        AttSummaryID: Number(visible?.showData?.breakSummaryLogId),
+      })
+      .then((res) => {
+        setTableData(res?.data?.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
-  const shortTHEAD = ["S.No.", "Name", "ClosedBy","Closed Date" ,"Reason","Image"];
+  const shortTHEAD = [
+    "S.No.",
+    "Name",
+    "ClosedBy",
+    "Closed Date",
+    "Reason",
+    "Image",
+  ];
   useEffect(() => {
     handleSearch();
   }, []);
@@ -44,9 +57,10 @@ const LongBreakLogModal = ({ visible }) => {
               "S.No.": index + 1,
               Name: ele?.EmployeeName,
               ClosedBy: ele?.CloseByName,
-              "Closed Date":ele?.dtClose,
-               Reason:ele?.Reason,
-                 Image:(  <>
+              "Closed Date": ele?.dtClose,
+              Reason: ele?.Reason,
+              Image: (
+                <>
                   {ele?.DocumentUrl && (
                     <i
                       className="fa fa-eye"
@@ -138,7 +152,8 @@ const LongBreakLogModal = ({ visible }) => {
                       </div>
                     </div>
                   )}
-                </>)
+                </>
+              ),
             }))}
             tableHeight={"tableHeight"}
           />

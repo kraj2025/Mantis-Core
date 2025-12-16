@@ -12,6 +12,7 @@ import { toast } from "react-toastify";
 import ReactSelect from "../components/formComponent/ReactSelect";
 import Loading from "../components/loader/Loading";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../networkServices/axiosInstance";
 const ManageOrdering = () => {
   const [t] = useTranslation();
 
@@ -76,14 +77,11 @@ const ManageOrdering = () => {
                         <td>{index + 1}</td>
                         <td>{ele.ProjectID}</td>
                         <td>{ele.ProjectName}</td>
-                        
                       </tr>
-                      
                     )}
                   </Draggable>
                 ))}
               </tbody>
-              
             </table>
           )}
         </Droppable>
@@ -102,49 +100,61 @@ const ManageOrdering = () => {
   const [wing, setWing] = useState([]);
 
   const getVertical = () => {
-    let form = new FormData();
-    form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Vertical_Select, form, { headers })
-        .then((res) => {
-          const verticals = res?.data.data.map((item) => {
-            return { label: item?.Vertical, value: item?.VerticalID };
-          });
-          setVertical(verticals);
-        })
-        .catch((err) => {
-          console.log(err);
+    // let form = new FormData();
+    // form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   axios
+    //     .post(apiUrls?.Vertical_Select, form, { headers })
+    axiosInstances
+      .post(apiUrls.Vertical_Select, {
+        Id: useCryptoLocalStorage("user_Data", "get", "ID"),
+      })
+      .then((res) => {
+        const verticals = res?.data.data.map((item) => {
+          return { label: item?.Vertical, value: item?.VerticalID };
         });
+        setVertical(verticals);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getTeam = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Team_Select, form, { headers })
-        .then((res) => {
-          const teams = res?.data.data.map((item) => {
-            return { label: item?.Team, value: item?.TeamID };
-          });
-          setTeam(teams);
-        })
-        .catch((err) => {
-          console.log(err);
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   axios
+    //     .post(apiUrls?.Team_Select, form, { headers })
+    axiosInstances
+      .post(apiUrls.Team_Select, {
+        Id: useCryptoLocalStorage("user_Data", "get", "ID"),
+      })
+      .then((res) => {
+        const teams = res?.data.data.map((item) => {
+          return { label: item?.Team, value: item?.TeamID };
         });
+        setTeam(teams);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getWing = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Wing_Select, form, { headers })
-        .then((res) => {
-          const wings = res?.data.data.map((item) => {
-            return { label: item?.Wing, value: item?.WingID };
-          });
-          setWing(wings);
-        })
-        .catch((err) => {
-          console.log(err);
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   axios
+    //     .post(apiUrls?.Wing_Select, form, { headers })
+    axiosInstances
+      .post(apiUrls.Wing_Select, {
+        Id: useCryptoLocalStorage("user_Data", "get", "ID"),
+      })
+      .then((res) => {
+        const wings = res?.data.data.map((item) => {
+          return { label: item?.Wing, value: item?.WingID };
         });
+        setWing(wings);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const handleSearch = () => {
@@ -156,65 +166,47 @@ const ManageOrdering = () => {
       toast.error("Please Select Wing.");
     } else {
       setLoading(true);
-      let form = new FormData();
-      form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-        form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-        form.append("RoleID", useCryptoLocalStorage("user_Data", "get", "RoleID")),
-        form.append("VerticalID", formData?.VerticalID),
-        form.append("TeamID", formData?.TeamID),
-        form.append("WingID", formData?.WingID),
-        axios
-          .post(apiUrls?.SelectProjectOrdering, form, { headers })
-          .then((res) => {
-            const data = res?.data?.data;
-
-            setMainData(data);
-            setLoading(false);
-          })
-          .catch((err) => {
-            console.log(err);
-            setLoading(false);
-          });
-    }
-  };
-
-  const handleDragProject = (reorderedData) => {
-    //pass multi json value
-    let payload = [];
-    reorderedData?.map((val, index) => {
-      // console.log("checking value", val);
-      payload.push({
-        ID: index + 1,
-        Name: val?.ProjectName,
-        ProjectID: val?.ProjectID,
-      });
-    });
-
-    //pass single array of index json
-    //   payload.push({
-    //   ID: index,
-    //   Name: updatedData?.ProjectName,
-    //   ProjectID: updatedData?.ProjectID,
-    // });
-
-    setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("RoleID", useCryptoLocalStorage("user_Data", "get", "RoleID")),
-      form.append("OrderData", JSON.stringify(payload)),
-      axios
-        .post(apiUrls?.UpdateProjectOrdering, form, { headers })
+      axiosInstances
+        .post(apiUrls.SelectProjectOrdering, {
+          VerticalID: Number(formData?.VerticalID),
+          TeamID: Number(formData?.TeamID),
+          WingID: Number(formData?.WingID),
+        })
         .then((res) => {
-          toast.success(res?.data?.message);
+          const data = res?.data?.data;
+          setMainData(data);
           setLoading(false);
-          // setMainData([])
         })
         .catch((err) => {
           console.log(err);
           setLoading(false);
         });
+    }
   };
+
+  const handleDragProject = (reorderedData) => {
+    let payload = reorderedData?.map((val, index) => ({
+      ID: index + 1, // ordering index
+      Name: val?.ProjectName,
+      ProjectID: val?.ProjectID,
+    }));
+
+    setLoading(true);
+
+    axiosInstances
+      .post(apiUrls.UpdateProjectOrdering, {
+        OrderData: payload, // ✅ send array inside OrderData
+      })
+      .then((res) => {
+        toast.success(res?.data?.message);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
+  };
+
   useEffect(() => {
     getVertical();
     getTeam();

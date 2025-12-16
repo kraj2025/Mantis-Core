@@ -13,6 +13,7 @@ import TransferModuleModal from "../components/UI/customTable/TransferModuleModa
 import Input from "../components/formComponent/Input";
 import MultiSelectComp from "../components/formComponent/MultiSelectComp";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../networkServices/axiosInstance";
 
 const AddAssignToModal = ({ visible, setVisible }) => {
   const [tableData, setTableData] = useState([]);
@@ -29,7 +30,6 @@ const AddAssignToModal = ({ visible, setVisible }) => {
   });
   const [t] = useTranslation();
   const handleEditModule = (ele) => {
-    console.log("checking", ele);
     setFormData({
       ...formData,
       ModuleName: ele?.ModuleID,
@@ -39,19 +39,17 @@ const AddAssignToModal = ({ visible, setVisible }) => {
     setEditMode(true);
   };
   const getAssignTo = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.AssignTo_Select, form, { headers })
-        .then((res) => {
-          const assigntos = res?.data.data.map((item) => {
-            return { name: item?.NAME, code: item?.ID };
-          });
-          setAssignedto(assigntos);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.AssignTo_Select, {})
+      .then((res) => {
+        const assigntos = res?.data.data.map((item) => {
+          return { name: item?.NAME, code: item?.ID };
         });
+        setAssignedto(assigntos);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   function getlabel(id, dropdownData) {
     const ele = dropdownData.filter((item) => item.value === id);
@@ -62,56 +60,42 @@ const AddAssignToModal = ({ visible, setVisible }) => {
       toast.error("Please Select Module");
     } else {
       setLoading(true);
-      let form = new FormData();
-      form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-        form.append(
-          "RoleID",
-          useCryptoLocalStorage("user_Data", "get", "RoleID")
-        ),
-        form.append(
-          "LoginName",
-          useCryptoLocalStorage("user_Data", "get", "realname")
-        ),
-        form.append("EmployeeID", visible?.showData?.id),
-        form.append("AssignToID", formData?.AssignTo),
-        form.append("Status", "Add"),
-        axios
-          .post(apiUrls?.CreateEmployeeModule, form, { headers })
-          .then((res) => {
-            if (res?.data?.status === true) {
-              toast.success(res?.data?.message);
-              getAssignToSearch();
-              setLoading(false);
-              setFormData((prev) => ({ ...prev, AssignTo: [] }));
-            } else {
-              toast.error(res?.data?.message);
-              setLoading(false);
-            }
-          })
-          .catch((err) => {
-            console.log(err);
+      axiosInstances
+        .post(apiUrls.CreateEmployeeModule, {
+          EmployeeID: String(visible?.showData?.id),
+          AssignToID: String(formData?.AssignTo),
+          Status: String("Add"),
+        })
+        .then((res) => {
+          if (res?.data?.success === true) {
+            toast.success(res?.data?.message);
+            getAssignToSearch();
             setLoading(false);
-          });
+            setFormData((prev) => ({ ...prev, AssignTo: [] }));
+          } else {
+            toast.error(res?.data?.message);
+            setLoading(false);
+          }
+        })
+        .catch((err) => {
+          console.log(err);
+          setLoading(false);
+        });
     }
   };
 
   const getAssignToSearch = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "RoleID",
-        useCryptoLocalStorage("user_Data", "get", "RoleID")
-      ),
-      form.append("EmployeeID", visible?.showData?.id),
-      axios
-        .post(apiUrls?.GetEmployeeModule, form, { headers })
-        .then((res) => {
-          setTableData(res?.data?.data);
-          setFilteredData(res?.data?.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls.GetEmployeeModule, {
+        EmployeeID: String(visible?.showData?.id),
+      })
+      .then((res) => {
+        setTableData(res?.data?.data);
+        setFilteredData(res?.data?.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const handleMultiSelectChange = (name, selectedOptions) => {
     const selectedValues = selectedOptions.map((option) => option.code);

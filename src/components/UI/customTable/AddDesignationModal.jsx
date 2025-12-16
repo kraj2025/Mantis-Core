@@ -10,6 +10,7 @@ import { toast } from "react-toastify";
 import { Link } from "react-router-dom";
 import { apiUrls } from "../../../networkServices/apiEndpoints";
 import { useCryptoLocalStorage } from "../../../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../../../networkServices/axiosInstance";
 const AddDesignationModal = () => {
   const [designation, setDesignation] = useState([]);
   const [tableData, setTableData] = useState([]);
@@ -25,40 +26,30 @@ const AddDesignationModal = () => {
     });
   };
   const getCreateDesignation = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("DesignationName", formData?.Designation),
-      axios
-        .post(apiUrls?.CreateDesignation, form, { headers })
-        .then((res) => {
-          toast.success(res?.data?.message);
-          getViewDesignation();
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+  
+    axiosInstances
+      .post(apiUrls.CreateDesignation, {
+        DesignationName: String(formData?.Designation),
+      })
+      .then((res) => {
+        toast.success(res?.data?.message);
+        getViewDesignation();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const getViewDesignation = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("DesignationName", formData?.Designation),
-      axios
-        .post(apiUrls?.ViewDesignation, form, { headers })
-        .then((res) => {
-          setTableData(res?.data?.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+
+    axiosInstances
+      .post(apiUrls.ViewDesignation, {})
+      .then((res) => {
+        setTableData(res?.data?.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getUpdateDesignation = (ele) => {
     console.log(ele);
@@ -71,24 +62,20 @@ const AddDesignationModal = () => {
   };
 
   const handleUpdateDesignation = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("DesignationName", formData?.Designation),
-      form.append("DesignationID", formData?.ID),
-      form.append("IsActive", formData?.IsActive ? formData?.IsActive : "0"),
-      axios
-        .post(apiUrls?.UpdateDesignation, form, { headers })
-        .then((res) => {
-          toast.success(res?.data?.message);
-          getViewDesignation();
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+ 
+    axiosInstances
+      .post(apiUrls.UpdateDesignation, {
+        DesignationName: String(formData?.Designation),
+        DesignationID: String(formData?.ID),
+        IsActive: Number(formData?.IsActive ? formData?.IsActive : "0"),
+      })
+      .then((res) => {
+        toast.success(res?.data?.message);
+        getViewDesignation();
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 5;

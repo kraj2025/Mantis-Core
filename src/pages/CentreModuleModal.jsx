@@ -12,8 +12,8 @@ import CentreDeleteModal from "./CentreDeleteModal";
 import Heading from "../components/UI/Heading";
 import NoRecordFound from "../components/formComponent/NoRecordFound";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../networkServices/axiosInstance";
 const CentreModuleModal = ({ data }) => {
-
   const [loading, setLoading] = useState(false);
   const [tableData, setTableData] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -34,36 +34,32 @@ const CentreModuleModal = ({ data }) => {
 
   const handleAdd = () => {
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("RoleID", useCryptoLocalStorage("user_Data", "get", "RoleID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname") ),
-      form.append("ProjectID", data?.Id || data?.ProjectID),
-      form.append("Centre", formData?.CentreName),
-      form.append("ActionType", "InsertCentre"),
-      axios
-        .post(apiUrls?.ProjectMasterUpdate, form, { headers })
-        .then((res) => {
-          toast.success(res?.data?.message);
-          handleSearch();
-          setFormData({ CentreName: "" });
-          setLoading(false);
-        })
-        .catch((err) => {
-          console.log(err);
-          setLoading(false);
-        });
+
+    axiosInstances
+      .post(apiUrls?.ProjectMasterUpdate, {
+        ProjectID: String(data?.Id || data?.ProjectID),
+        Centre: String(formData?.CentreName),
+        ActionType: "InsertCentre",
+      })
+      .then((res) => {
+        toast.success(res?.data?.message);
+        handleSearch();
+        setFormData({ CentreName: "" });
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
   };
 
   const handleSearch = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname") ),
-      form.append("ProjectName", data?.NAME || data?.ProjectName);
-    form.append("ProjectID", data?.Id || data?.ProjectID);
-    form.append("Title", "Centre");
-    axios
-      .post(apiUrls?.getViewProject, form, { headers })
+    axiosInstances
+      .post(apiUrls?.getViewProject, {
+        RoleID: Number(useCryptoLocalStorage("user_Data", "get", "RoleID")),
+        ProjectID: Number(data?.Id || data?.ProjectID),
+        Title: "Centre",
+      })
       .then((res) => {
         setTableData(res?.data?.data);
         setFilteredData(res?.data?.data);
@@ -79,30 +75,27 @@ const CentreModuleModal = ({ data }) => {
 
   const handleUpdate = () => {
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("RoleID", useCryptoLocalStorage("user_Data", "get", "RoleID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname") ),
-      form.append("ProjectID", data?.Id || data?.ProjectID),
-      form.append("Centre", formData?.CentreName),
-      form.append("CentreID", formData?.CentreID),
-      form.append("ActionType", "UpdateCentre"),
-      axios
-        .post(apiUrls?.ProjectMasterUpdate, form, { headers })
-        .then((res) => {
-          toast.success(res?.data?.message);
-          handleSearch();
-          setFormData({ CentreName: "" });
-          setLoading(false);
-        })
-        .catch((err) => {
-          console.log(err);
-          setLoading(false);
-        });
+
+    axiosInstances;
+    post(apiUrls?.ProjectMasterUpdate, {
+      ProjectID: data?.Id || data?.ProjectID,
+      Centre: formData?.CentreName,
+      CentreID: formData?.CentreID,
+      ActionType: "UpdateCentre",
+    })
+      .then((res) => {
+        toast.success(res?.data?.message);
+        handleSearch();
+        setFormData({ CentreName: "" });
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
   };
 
   const handleBillingEdit = (ele) => {
-    // console.log("editdetails", ele);
     setFormData({
       ...formData,
       CentreName: ele?.Centre,
@@ -111,7 +104,7 @@ const CentreModuleModal = ({ data }) => {
     });
     setEditMode(true);
   };
-  
+
   // useEffect(() => {
   //   setTableData([...tableData, ...showData?.tableData]);
   // }, []);
@@ -167,33 +160,33 @@ const CentreModuleModal = ({ data }) => {
 
   const handleCheckBox = (e, index) => {
     const { name, checked } = e?.target;
-  
+
     if (name === "selectAll") {
       // Handle Select All for CURRENT page
       const updatedData = tableData.map((item, idx) => {
         const isOnCurrentPage =
           idx >= (currentPage - 1) * rowsPerPage &&
           idx < currentPage * rowsPerPage;
-  
+
         return isOnCurrentPage ? { ...item, remove: checked } : item;
       });
-  
+
       setTableData(updatedData);
       setSelectAll(checked);
     } else if (name === "remove") {
       // Get actual index in full tableData
       const globalIndex = (currentPage - 1) * rowsPerPage + index;
       const data = [...tableData];
-  
+
       data[globalIndex][name] = checked;
       setTableData(data);
-  
+
       // Check if all rows in current page are selected
       const currentPageData = data.slice(
         (currentPage - 1) * rowsPerPage,
         currentPage * rowsPerPage
       );
-  
+
       const allChecked = currentPageData.every((item) => item.remove);
       setSelectAll(allChecked);
     }
@@ -239,28 +232,39 @@ const CentreModuleModal = ({ data }) => {
       setLoading(false);
       return;
     }
-    const form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("RoleID", useCryptoLocalStorage("user_Data", "get", "RoleID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname") ),
-      form.append("ProjectID", data?.Id),
-      form.append("CentreID", selectedIds.join(",")),
-      axios
-        .post(apiUrls?.CentreRemoveProject, form, { headers })
-        .then((res) => {
-          if (res?.data?.status === true) {
-            toast.success(res?.data?.message);
-            setLoading(false);
-            handleSearch();
-          } else {
-            toast.error(res?.data?.message);
-            setLoading(false);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
+    // const form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append(
+    //     "RoleID",
+    //     useCryptoLocalStorage("user_Data", "get", "RoleID")
+    //   ),
+    //   form.append(
+    //     "LoginName",
+    //     useCryptoLocalStorage("user_Data", "get", "realname")
+    //   ),
+    //   form.append("ProjectID", data?.Id),
+    //   form.append("CentreID", selectedIds.join(",")),
+    //   axios
+    //     .post(apiUrls?.CentreRemoveProject, form, { headers })
+    axiosInstances
+      .post(apiUrls?.CentreRemoveProject, {
+        ProjectID: data?.Id,
+        CentreID: selectedIds.join(","),
+      })
+      .then((res) => {
+        if (res?.data?.status === true) {
+          toast.success(res?.data?.message);
           setLoading(false);
-        });
+          handleSearch();
+        } else {
+          toast.error(res?.data?.message);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
   };
   return (
     <>
@@ -364,7 +368,10 @@ const CentreModuleModal = ({ data }) => {
                 <input
                   type="checkbox"
                   name="remove"
-                  checked={tableData[(currentPage - 1) * rowsPerPage + index]?.remove || false}
+                  checked={
+                    tableData[(currentPage - 1) * rowsPerPage + index]
+                      ?.remove || false
+                  }
                   onChange={(e) => handleCheckBox(e, index)}
                 />
               ),

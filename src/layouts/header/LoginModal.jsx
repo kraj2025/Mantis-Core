@@ -2,11 +2,10 @@ import React, { useEffect, useState } from "react";
 import ReactSelect from "../../components/formComponent/ReactSelect";
 import Input from "../../components/formComponent/Input";
 import { toast } from "react-toastify";
-import axios from "axios";
 import { apiUrls } from "../../networkServices/apiEndpoints";
-import { headers } from "../../utils/apitools";
 import { useCryptoLocalStorage } from "../../utils/hooks/useCryptoLocalStorage";
 import Loading from "../../components/loader/Loading";
+import { axiosInstances } from "../../networkServices/axiosInstance";
 
 const LoginModal = ({
   setVisible,
@@ -79,15 +78,14 @@ const LoginModal = ({
   };
   const [tableData, setTableData] = useState([]);
   const handleTableSearch = () => {
-    let form = new FormData();
-    form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID"));
-    form.append(
-      "LoginName",
-      useCryptoLocalStorage("user_Data", "get", "realname")
-    );
-    form.append("Date", new Date().toISOString().split("T")[0]);
-    axios
-      .post(apiUrls?.Attendence_Search, form, { headers })
+    
+       axiosInstances
+          .post(apiUrls.Attendence_Search, {
+            EmployeeID: Number(0),
+            SearchType: String("0"),
+            Date: String(new Date().toISOString().split("T")[0]),
+            ManagerID: Number("0"),
+          })
       .then((res) => {
         setTableData(res?.data?.data);
       })
@@ -113,20 +111,12 @@ const LoginModal = ({
   const [notFound, setNotFound] = useState("");
 
   const LoginLogoutButton = () => {
-    let form = new FormData();
-    form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID"));
-    form.append(
-      "EmailID",
-      useCryptoLocalStorage("user_Data", "get", "EmailId")
-    );
-    form.append(
-      "LoginName",
-      useCryptoLocalStorage("user_Data", "get", "realname")
-    );
-    form.append("SearchType", "LogInStatus");
-
-    axios
-      .post(apiUrls?.Attendence_Select, form, { headers })
+   
+    axiosInstances
+      .post(apiUrls.Attendence_Select, {
+        EmailID: String(useCryptoLocalStorage("user_Data", "get", "EmailId")),
+        SearchType: String("LogInStatus"),
+      })
       .then((res) => {
         const data = res?.data?.data?.[0];
         setNotFound(res?.data?.message === "No Record Found");
@@ -151,29 +141,19 @@ const LoginModal = ({
   }, []);
 
   const handleLogin = async () => {
-    // if (!formData?.LocationID) {
-    //   toast.error("Location is required");
-    //   return;
-    // }
+ 
     setLoading(true);
-    let form = new FormData();
-    form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID") || "");
-    form.append(
-      "LoginName",
-      useCryptoLocalStorage("user_Data", "get", "realname") || ""
-    );
-    form.append("CrmEmpID", CRMID);
-    form.append("Location", formData?.LocationID);
-    form.append("Latitude", formData?.Latitude || "");
-    form.append("Longitude", formData?.Longitude || "");
-    form.append("Remarks", formData?.Remarks || "");
-    form.append("StatusType", "LogIn");
 
-    try {
-      const res = await axios.post(apiUrls?.Attendence_Login, form, {
-        headers,
-      });
-      if (res?.data?.status === true) {
+      try {
+          const res = await axiosInstances.post(apiUrls.Attendence_Login, {
+            CrmEmpID: Number(CRMID),
+            Location: String(formData?.LocationID || ""),
+            Latitude: String(formData?.Latitude || ""),
+            Longitude: String(formData?.Longitude || ""),
+            Remarks: String(formData?.Remarks || ""),
+            StatusType: String("LogIn"),
+          });
+      if (res?.data?.success === true) {
         toast.success(res?.data?.message);
         setIsLogin(true);
         localStorage.setItem("isLogin", "true");
@@ -196,27 +176,17 @@ const LoginModal = ({
   };
 
   const handleLogout = async () => {
-    // if (!formData?.LocationID) {
-    //   toast.error("Location is required");
-    //   return;
-    // }
+  
     setLoading(true);
-    let form = new FormData();
-    form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID") || "");
-    form.append(
-      "LoginName",
-      useCryptoLocalStorage("user_Data", "get", "realname") || ""
-    );
-    form.append("CrmEmpID", CRMID);
-    form.append("Location", formData?.LocationID);
-    form.append("Latitude", formData?.Latitude || "");
-    form.append("Longitude", formData?.Longitude || "");
-    form.append("Remarks", formData?.Remarks || "");
-    form.append("StatusType", "LogOut");
-
-    try {
-      const res = await axios.post(apiUrls?.Attendence_Login, form, {
-        headers,
+   
+      try {
+      const res = await axiosInstances.post(apiUrls.Attendence_Login, {
+        CrmEmpID: Number(CRMID),
+        Location: String(formData?.LocationID || ""),
+        Latitude: String(formData?.Latitude || ""),
+        Longitude: String(formData?.Longitude || ""),
+        Remarks: String(formData?.Remarks || ""),
+        StatusType: String("LogOut"),
       });
       if (res?.data?.status === true) {
         toast.success(res?.data?.message);
@@ -317,9 +287,11 @@ const LoginModal = ({
         <div className="row m-1">
           {!isLogin ? (
             <div style={{ display: "flex" }}>
-              <span style={{ fontWeight: "bold" }}>Disclaimer&nbsp;:-</span>&nbsp;
+              <span style={{ fontWeight: "bold" }}>Disclaimer&nbsp;:-</span>
+              &nbsp;
               <span style={{ fontWeight: "" }} className="redIconblink">
-               Please note that after clicking login, it may take up to 2 minutes for the system to update your login status.
+                Please note that after clicking login, it may take up to 2
+                minutes for the system to update your login status.
               </span>
             </div>
           ) : (

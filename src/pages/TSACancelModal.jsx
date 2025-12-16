@@ -7,6 +7,7 @@ import { apiUrls } from "../networkServices/apiEndpoints";
 import { headers } from "../utils/apitools";
 import Loading from "../components/loader/Loading";
 import Heading from "../components/UI/Heading";
+import { axiosInstances } from "../networkServices/axiosInstance";
 
 const TSACancelModal = (showData) => {
   // console.log("showdata", showData);
@@ -24,19 +25,27 @@ const TSACancelModal = (showData) => {
 
   const handleCancel = () => {
     setLoading(true);
-    let form = new FormData();
-    form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      );
-    form.append("TSAID", showData?.visible?.showData?.TSAID);
-    form.append("ProjectID", showData?.visible?.showData?.ProjectID);
-    form.append("CancelRegion", formData?.CancelReason);
-    axios
-      .post(apiUrls?.TSACancel, form, { headers })
+    // let form = new FormData();
+    // form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append(
+    //     "LoginName",
+    //     useCryptoLocalStorage("user_Data", "get", "realname")
+    //   );
+    // form.append("TSAID", showData?.visible?.showData?.TSAID);
+    // form.append("ProjectID", showData?.visible?.showData?.ProjectID);
+    // form.append("CancelRegion", formData?.CancelReason);
+    // axios
+    //   .post(apiUrls?.TSACancel, form, { headers })
+    const payload = {
+      TSAID: Number(showData?.visible?.showData?.TSAID || 0),
+      ProjectID: Number(showData?.visible?.showData?.ProjectID || 0),
+      CancelRegion: String(formData?.CancelReason || ""),
+    };
+
+    axiosInstances
+      .post(apiUrls?.TSACancel, payload)
       .then((res) => {
-        if (res?.data?.status === true) {
+        if (res?.data?.success === true) {
           toast.success(res?.data?.message);
           setLoading(false);
           showData?.setVisible(false);

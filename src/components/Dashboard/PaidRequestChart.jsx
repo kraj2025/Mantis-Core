@@ -9,13 +9,12 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
-import axios from "axios";
-import { headers } from "../../utils/apitools";
 
 import { useSelector } from "react-redux";
 import { useTranslation } from "react-i18next";
 import { apiUrls } from "../../networkServices/apiEndpoints";
 import { useCryptoLocalStorage } from "../../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../../networkServices/axiosInstance";
 
 ChartJS.register(
   CategoryScale,
@@ -35,12 +34,12 @@ const PaidRequestChart = () => {
   );
 
   const handleFirstDashboardCount = (developerId, searchType) => {
-    let form = new FormData();
-    form.append("ID",  useCryptoLocalStorage("user_Data", "get", "ID"));
-    form.append("DeveloperID", developerId);
-    form.append("SearchType", searchType == "" ? "0" : searchType);
-    axios
-      .post(apiUrls?.CoorDashboard_Paid_Request_Status, form, { headers })
+    axiosInstances
+      .post(apiUrls.CoorDashboard_Paid_Request_Status, {
+        CoordinatorID: Number(useCryptoLocalStorage("user_Data", "get", "ID")),
+        DeveloperID: Number(developerId),
+        SearchType: Number(searchType == "" ? "0" : searchType),
+      })
       .then((res) => {
         const response = res?.data?.data;
         if (Array.isArray(response) && response.length > 0) {
@@ -92,6 +91,9 @@ const PaidRequestChart = () => {
       },
       legend: {
         display: false,
+      },
+      datalabels: {
+        display: false, // 👈 disables value labels on bars
       },
     },
     scales: {

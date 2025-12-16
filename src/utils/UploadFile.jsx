@@ -6,6 +6,7 @@ import { headers } from "./apitools";
 import { toast } from "react-toastify";
 import Loading from "../components/loader/Loading";
 import { useCryptoLocalStorage } from "./hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../networkServices/axiosInstance";
 
 const UploadFile = ({ tableData, setVisible }) => {
   const [loading, setLoading] = useState(false);
@@ -84,26 +85,37 @@ const UploadFile = ({ tableData, setVisible }) => {
   };
 
   const handleUploadDocument = () => {
-    if ( !formData.SelectFile) {
+    if (!formData.SelectFile) {
       toast.error("Please select file.");
       return;
     }
 
     setLoading(true);
-    const form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-    form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname"));
-    form.append("ProjectID", tableData?.showData?.ProjectID);
-    form.append("DocumentTypeID", formData.DocumentType);
-    form.append(
-      "DocumentTypeName",
-      documenttype.find((item) => item?.value === formData.DocumentType)?.label
-    );
-    form.append("File", formData.SelectFile);
-    form.append("FileExtension", formData.FileExtension);
+    // const form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
+    // form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname"));
+    // form.append("ProjectID", tableData?.showData?.ProjectID);
+    // form.append("DocumentTypeID", formData.DocumentType);
+    // form.append(
+    //   "DocumentTypeName",
+    //   documenttype.find((item) => item?.value === formData.DocumentType)?.label
+    // );
+    // form.append("File", formData.SelectFile);
+    // form.append("FileExtension", formData.FileExtension);
 
-    axios
-      .post(apiUrls?.UploadDocument, form, { headers })
+    // axios
+    //   .post(apiUrls?.UploadDocument, form, { headers })
+    axiosInstances
+      .post(apiUrls.Reporter_Select, {
+        ProjectID: String(tableData?.showData?.ProjectID),
+        DocumentTypeID: String(formData.DocumentType),
+        DocumentTypeName: String(
+          documenttype.find((item) => item?.value === formData.DocumentType)
+            ?.label
+        ),
+        File: formData.SelectFile,
+        FileExtension: formData.FileExtension,
+      })
       .then((res) => {
         if (res?.data?.status === true) {
           toast.success(res?.data?.message);
@@ -132,9 +144,7 @@ const UploadFile = ({ tableData, setVisible }) => {
 
   return (
     <div className="card ViewIssues border">
-      <Heading
-      
-      />
+      <Heading />
       <div className="row m-2">
         {/* <ReactSelect
           name="DocumentType"

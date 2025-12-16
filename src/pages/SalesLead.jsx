@@ -2,9 +2,6 @@ import React, { useEffect, useState } from "react";
 import Heading from "../components/UI/Heading";
 import ReactSelect from "../components/formComponent/ReactSelect";
 import { apiUrls } from "../networkServices/apiEndpoints";
-import axios from "axios";
-import { headers } from "../utils/apitools";
-import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
 import Input from "../components/formComponent/Input";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
@@ -18,7 +15,6 @@ import LeadDeadModal from "./LeadDeadModal";
 import Tables from "../components/UI/customTable";
 import SlideScreen from "./SlideScreen";
 import SeeMoreSlideScreen from "../components/SearchableTable/SeeMoreSlideScreen";
-import AmountSubmissionSeeMoreList from "../networkServices/AmountSubmissionSeeMoreList";
 import moment from "moment";
 import { toast } from "react-toastify";
 import SalesLeadLog from "./SalesLeadLog";
@@ -26,6 +22,7 @@ import LeadApproveDetail from "./LeadApproveDetail";
 import gmaillogo from "../../src/assets/image/Gmail_Logo.png";
 import Tooltip from "./Tooltip";
 import { axiosInstances } from "../networkServices/axiosInstance";
+import Loading from "../components/loader/Loading";
 const SalesLead = () => {
   const [t] = useTranslation();
   const [tableData, setTableData] = useState([]);
@@ -97,17 +94,17 @@ const SalesLead = () => {
     //     .post(apiUrls?.GetProductVersion, form, {
     //       headers,
     //     })
-     axiosInstances
-        .post(apiUrls?.GetProductVersion, {})
-        .then((res) => {
-          const states = res?.data.data.map((item) => {
-            return { label: item?.NAME, value: item?.id };
-          });
-          setProductVersion(states);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls?.GetProductVersion, {})
+      .then((res) => {
+        const states = res?.data.data.map((item) => {
+          return { label: item?.NAME, value: item?.id };
         });
+        setProductVersion(states);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getAssignTo = () => {
     // let form = new FormData();
@@ -179,56 +176,31 @@ const SalesLead = () => {
   };
   const handleSearch = (code) => {
     setLoading(true);
-    // const form = new FormData();
-    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-    //   form.append(
-    //     "LoginName",
-    //     useCryptoLocalStorage("user_Data", "get", "realname")
-    //   ),
-    //   form.append("Country", formData?.Country),
-    //   form.append("City", formData?.City),
-    //   form.append("OrganizationName", formData?.OrganizationName),
-    //   form.append("State", formData?.State),
-    //   form.append("IsUpcomingCentre", formData?.Centre),
-    //   form.append("SoftwareVertical", formData?.SoftwareVertical),
-    //   form.append("SPOC", formData?.ContactPersonName),
-    //   form.append("SPOC_Mobile", formData?.ContactPersonMobile),
-    //   form.append("Website", formData?.Website),
-    //   form.append("ReferralSource", formData?.ReferralSource),
-    //   form.append("ReferProjectID", formData?.ProjectID),
-    //   form.append("ReferEmployeeID", formData?.AssignedTo);
-    // form.append("FromDate", moment(formData?.FromDate).format("YYYY-MM-DD"));
-    // form.append("ToDate", moment(formData?.ToDate).format("YYYY-MM-DD"));
-    // form.append("DateType", formData?.DateType);
-    // form.append("SoftwareVersionID", formData?.ProductVersion);
-    // form.append("RowColor", code ? code : ""),
-    // axios
-    //   .post(apiUrls?.SalesLeadSearch, form, { headers })
+
+    const payload = {
+      Country: String(formData?.Country),
+      City: String(formData?.City),
+      OrganizationName: String(formData?.OrganizationName),
+      State: String(formData?.State),
+      IsUpcomingCentre: Number(formData?.Centre),
+      SoftwareVertical: String(formData?.SoftwareVertical),
+      SPOC: String(formData?.ContactPersonName),
+      SPOC_Mobile: String(formData?.ContactPersonMobile),
+      Website: String(formData?.Website),
+      ReferralSource: String(formData?.ReferralSource),
+      ReferProjectID: String(formData?.ProjectID),
+      ReferEmployeeID: String(formData?.AssignedTo),
+      FromDate: moment(formData?.FromDate).format("YYYY-MM-DD"),
+      ToDate: moment(formData?.ToDate).format("YYYY-MM-DD"),
+      DateType: String(formData?.DateType),
+      SoftwareVersionID: Number(formData?.ProductVersion),
+      RowColor: Number(code ? code : ""),
+    };
     axiosInstances
-      .post(apiUrls?.SearchSalesLeads, {
-        Country: String(formData?.Country),
-        City: String(formData?.City),
-        OrganizationName: String(formData?.OrganizationName),
-        State: String(formData?.State),
-        IsUpcomingCentre:Number(formData?.Centre),
-        SoftwareVertical: String(formData?.SoftwareVertical),
-        SPOC: String(formData?.ContactPersonName),
-        SPOC_Mobile: String(formData?.ContactPersonMobile),
-        Website: String(formData?.Website),
-        ReferralSource: String(formData?.ReferralSource),
-        ReferProjectID: String(formData?.ProjectID),
-        ReferEmployeeID: String(formData?.AssignedTo),
-        FromDate: moment(formData?.FromDate).format("YYYY-MM-DD"),
-        ToDate: moment(formData?.ToDate).format("YYYY-MM-DD"),
-        DateType: String(formData?.DateType),
-        SoftwareVersionID: Number(formData?.ProductVersion),
-        RowColor: Number(code ? code : ""),
-      })
+      .post(apiUrls?.SearchSalesLeads, payload)
       .then((res) => {
-        
-        const data = res?.data?.message;
-        console.log("data2222",data)
-        if (true === true) {
+        const data = res?.data?.data;
+        if (res.data.success === true) {
           const updatedData = data?.map((ele, index) => {
             return {
               ...ele,
@@ -247,7 +219,7 @@ const SalesLead = () => {
           setTableData(updatedData);
           setLoading(false);
         } else {
-          toast.error(res?.data?.message);
+          toast.error("Data Not Found.");
           setTableData([]);
           setLoading(false);
         }
@@ -404,17 +376,6 @@ const SalesLead = () => {
             value={formData?.OrganizationName}
             respclass="col-xl-2 col-md-4 col-sm-4 col-12"
           />
-          {/* <Input
-            type="text"
-            className="form-control"
-            id="SoftwareVersion"
-            name="SoftwareVersion"
-            lable="Software Version"
-            placeholder=" "
-            onChange={handleSelectChange}
-            value={formData?.SoftwareVersion}
-            respclass="col-xl-2 col-md-4 col-sm-4 col-12"
-          /> */}
 
           <Input
             type="text"
@@ -586,12 +547,16 @@ const SalesLead = () => {
             respclass="col-xl-2 col-md-4 col-sm-6 col-12"
             handleChange={searchHandleChange}
           />
-          <button
-            className="btn btn-sm btn-primary ml-2"
-            onClick={() => handleSearch("")}
-          >
-            Search
-          </button>
+          {loading ? (
+            <Loading />
+          ) : (
+            <button
+              className="btn btn-sm btn-primary ml-2"
+              onClick={() => handleSearch("")}
+            >
+              Search
+            </button>
+          )}
         </div>
       </div>
 

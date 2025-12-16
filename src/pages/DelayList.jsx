@@ -6,20 +6,20 @@ import NoRecordFound from "../components/formComponent/NoRecordFound";
 import Tables from "../components/UI/customTable";
 import { todaysDeliveryTHEAD } from "../components/modalComponent/Utils/HealperThead";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../networkServices/axiosInstance";
 const DelayList = () => {
   const [todaysdeliverylist, settodaysdeliverylist] = useState([]);
   const handleTodaysDeliveryList = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("SearchType", "Delayed"),
-      axios
-        .post(apiUrls?.DevDashboard_Detailed, form, { headers })
-        .then((res) => {
-          settodaysdeliverylist(res?.data?.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls.DevDashboard_Detailed, {
+        SearchType: String("Delayed"),
+      })
+      .then((res) => {
+        settodaysdeliverylist(res?.data?.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const shortenName1 = (name) => {
     return name.length > 30 ? name.substring(0, 25) + "..." : name;

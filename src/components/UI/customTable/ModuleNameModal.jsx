@@ -10,6 +10,7 @@ import Loading from "../../loader/Loading";
 import Heading from "../Heading";
 import { useTranslation } from "react-i18next";
 import { useCryptoLocalStorage } from "../../../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../../../networkServices/axiosInstance";
 
 const ModuleNameModal = ({ visible }) => {
   const [tableData, setTableData] = useState([]);
@@ -53,47 +54,22 @@ const ModuleNameModal = ({ visible }) => {
       toast.error("Please Enter Module Name.");
     } else {
       setLoading(true);
-      let form = new FormData();
-      form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-        form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-        form.append("ProjectID", visible?.showData?.ProjectID),
-        form.append("ModuleName", formData?.ModuleName),
-        axios
-          .post(apiUrls?.CreateModule, form, { headers })
-          .then((res) => {
-            if(res?.data?.status===true){
-              toast.success(res?.data?.message);
-              getModuleSearch();
-              setLoading(false);
-            }else{
-              toast.error(res?.data?.message);
-              setLoading(false);
-            }
-         
-          })
-          .catch((err) => {
-            console.log(err);
-            setLoading(false);
-          });
-    }
-  };
-  const handleUpdate = () => {
-    setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("ProjectID", visible?.showData?.ProjectID),
-      form.append("ModuleID", formData?.ModuleID),
-      form.append("ModuleName", formData?.ModuleName),
-      form.append("IsActive", formData?.IsActive),
-      axios
-        .post(apiUrls?.UpdateModule, form, { headers })
+      axiosInstances.post(apiUrls.CreateModule, {
+        ProjectID: Number(visible?.showData?.ProjectID),
+        ModuleName: String(formData?.ModuleName),
+      });
+
+      axiosInstances
+        .post(apiUrls.CreateModule, {
+          ProjectID: Number(visible?.showData?.ProjectID),
+          ModuleName: String(formData?.ModuleName),
+        })
         .then((res) => {
-          if(res?.data?.status===true){
+          if (res?.data?.status === true) {
             toast.success(res?.data?.message);
             getModuleSearch();
             setLoading(false);
-          }else{
+          } else {
             toast.error(res?.data?.message);
             setLoading(false);
           }
@@ -102,22 +78,48 @@ const ModuleNameModal = ({ visible }) => {
           console.log(err);
           setLoading(false);
         });
+    }
+  };
+  const handleUpdate = () => {
+    setLoading(true);
+ 
+    axiosInstances
+      .post(apiUrls.CreateModule, {
+        ProjectID: Number(visible?.showData?.ProjectID),
+        ModuleName: String(formData?.ModuleName),
+        ModuleID: Number(formData?.ModuleID),
+        IsActive: Number(formData?.IsActive),
+      })
+      .then((res) => {
+        if (res?.data?.status === true) {
+          toast.success(res?.data?.message);
+          getModuleSearch();
+          setLoading(false);
+        } else {
+          toast.error(res?.data?.message);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
   };
   const getModuleSearch = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("RoleID", useCryptoLocalStorage("user_Data", "get", "RoleID")),
-      form.append("ProjectID", visible?.showData?.ProjectID),
-      form.append("IsActive", "1"),
-      form.append("IsMaster", "0"),
-      axios
-        .post(apiUrls?.Module_Select, form, { headers })
-        .then((res) => {
-          setTableData(res?.data?.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+   
+    axiosInstances
+      .post(apiUrls.Module_Select, {
+        RoleID: Number(useCryptoLocalStorage("user_Data", "get", "RoleID")),
+        ProjectID: Number(visible?.showData?.ProjectID),
+        IsActive: Number(1),
+        IsMaster: Number(0),
+      })
+      .then((res) => {
+        setTableData(res?.data?.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const handleEditModule = (ele) => {
     setFormData({

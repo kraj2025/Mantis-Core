@@ -8,12 +8,13 @@ import { headers } from "../utils/apitools";
 import axios from "axios";
 import Loading from "../components/loader/Loading";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../networkServices/axiosInstance";
 const MasterType = () => {
   const [loading, setLoading] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [tableData, setTableData] = useState([]);
-   const [filteredData, setFilteredData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
   const [formData, setFormData] = useState({
     MasterName: "",
     IsActive: "",
@@ -54,48 +55,31 @@ const MasterType = () => {
       toast.error("Please Enter Master Name.");
     } else {
       setLoading(true);
-      let form = new FormData();
-      form.append("ID",  useCryptoLocalStorage("user_Data", "get", "ID")),
-        form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-        form.append("ActionType", "MasterHeadInsert"),
-        form.append("MasterHeadName", formData?.MasterName),
-        // form.append("IsActive", formData?.IsActive === 1 ? 1 : 0),
-        axios
-          .post(apiUrls?.ManageGlobalMaster, form, { headers })
-          .then((res) => {
-            if (res?.data?.status === true) {
-              toast.success(res?.data?.message);
-              setLoading(false);
-              setFormData({ ...formData, MasterName: "" });
-              handleMasterTypeSearch();
-            } else {
-              toast.error(res?.data?.message);
-              setLoading(false);
-            }
-          })
-          .catch((err) => {
-            console.log(err);
-            setLoading(false);
-          });
-    }
-  };
-  const handleMasterTypeUpdate = () => {
-    setLoading(true);
-    let form = new FormData();
-    form.append("ID",  useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("ActionType", "MasterHeadUpdate"),
-      form.append("MasterHeadName", formData?.MasterName),
-      form.append("MasterHeadID", formData?.MasterHeadID),
-      form.append("IsActive", formData?.IsActive === 1 ? 1 : 0),
-      axios
-        .post(apiUrls?.ManageGlobalMaster, form, { headers })
+      // let form = new FormData();
+      // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+      //   form.append(
+      //     "LoginName",
+      //     useCryptoLocalStorage("user_Data", "get", "realname")
+      //   ),
+      //   form.append("ActionType", "MasterHeadInsert"),
+      //   form.append("MasterHeadName", formData?.MasterName),
+      // form.append("IsActive", formData?.IsActive === 1 ? 1 : 0),
+      // axios
+      //   .post(apiUrls?.ManageGlobalMaster, form, { headers })
+      const payload = {
+        ActionType: "MasterHeadInsert",
+        MasterHeadName: formData?.MasterName || "",
+        MasterHeadID: Number("0"),
+        IsActive: Boolean(formData?.IsActive === 1 ? 1 : 0),
+      };
+
+      axiosInstances
+        .post(apiUrls?.ManageGlobalMaster, payload)
         .then((res) => {
-          if (res?.data?.status === true) {
+          if (res?.data?.success === true) {
             toast.success(res?.data?.message);
             setLoading(false);
             setFormData({ ...formData, MasterName: "" });
-            setEditMode(false);
             handleMasterTypeSearch();
           } else {
             toast.error(res?.data?.message);
@@ -106,24 +90,76 @@ const MasterType = () => {
           console.log(err);
           setLoading(false);
         });
+    }
+  };
+  const handleMasterTypeUpdate = () => {
+    setLoading(true);
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append(
+    //     "LoginName",
+    //     useCryptoLocalStorage("user_Data", "get", "realname")
+    //   ),
+    //   form.append("ActionType", "MasterHeadUpdate"),
+    //   form.append("MasterHeadName", formData?.MasterName),
+    //   form.append("MasterHeadID", formData?.MasterHeadID),
+    //   form.append("IsActive", formData?.IsActive === 1 ? 1 : 0),
+    // axios
+    //   .post(apiUrls?.ManageGlobalMaster, form, { headers })
+    const payload = {
+      ActionType: "MasterHeadUpdate",
+      MasterHeadName: String(formData?.MasterName) || "",
+      MasterHeadID: Number(formData?.MasterHeadID) || 0,
+      IsActive: Boolean(formData?.IsActive === 1 ? 1 : 0),
+    };
+
+    axiosInstances
+      .post(apiUrls?.ManageGlobalMaster, payload)
+      .then((res) => {
+        if (res?.data?.success === true) {
+          toast.success(res?.data?.message);
+          setLoading(false);
+          setFormData({ ...formData, MasterName: "" });
+          setEditMode(false);
+          handleMasterTypeSearch();
+        } else {
+          toast.error(res?.data?.message);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
   };
 
   const handleMasterTypeSearch = () => {
-    let form = new FormData();
-    form.append("ID",  useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("LoginName", useCryptoLocalStorage("user_Data", "get", "realname")),
-      form.append("ActionType", "MasterHeadSearch"),
-      form.append("MasterHeadName", ""),
-      form.append("IsActive", ""),
-      axios
-        .post(apiUrls?.ManageGlobalMaster, form, { headers })
-        .then((res) => {
-          setTableData(res?.data?.data);
-          setFilteredData(res?.data?.data)
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    // let form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
+    //   form.append(
+    //     "LoginName",
+    //     useCryptoLocalStorage("user_Data", "get", "realname")
+    //   ),
+    //   form.append("ActionType", "MasterHeadSearch"),
+    //   form.append("MasterHeadName", ""),
+    //   form.append("IsActive", ""),
+    // axios
+    //   .post(apiUrls?.ManageGlobalMaster, form, { headers })
+    const payload = {
+      ActionType: "MasterHeadSearch",
+      MasterHeadName: "",
+      MasterHeadID: 0,
+      // IsActive: Boolean(1),
+    };
+    axiosInstances
+      .post(apiUrls?.ManageGlobalMaster, payload)
+      .then((res) => {
+        setTableData(res?.data?.data);
+        setFilteredData(res?.data?.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   useEffect(() => {
     handleMasterTypeSearch();
@@ -225,24 +261,25 @@ const MasterType = () => {
       </div>
       {tableData?.length > 0 && (
         <div className="card">
-          <Heading title={"Search Details"} 
-          secondTitle={
-            <div className="d-flex">
-            <div style={{ padding: "0px !important", marginLeft: "10px" }}>
-              <Input
-                type="text"
-                className="form-control"
-                id="Title"
-                name="Title"
-                lable="Search By MasterType"
-                placeholder=" "
-                onChange={handleSearchTable}
-                value={searchQuery}
-                respclass="col-xl-12 col-md-4 col-sm-6 col-12"
-              />
-            </div>
-          </div>
-          }
+          <Heading
+            title={"Search Details"}
+            secondTitle={
+              <div className="d-flex">
+                <div style={{ padding: "0px !important", marginLeft: "10px" }}>
+                  <Input
+                    type="text"
+                    className="form-control"
+                    id="Title"
+                    name="Title"
+                    lable="Search By MasterType"
+                    placeholder=" "
+                    onChange={handleSearchTable}
+                    value={searchQuery}
+                    respclass="col-xl-12 col-md-4 col-sm-6 col-12"
+                  />
+                </div>
+              </div>
+            }
           />
           <Tables
             thead={masterTypeTHEAD}

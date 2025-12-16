@@ -1,0 +1,90 @@
+.amc-container {
+  max-width: 1000px;
+  margin: auto;
+  padding: 10px;
+  font-family: "Segoe UI", sans-serif;
+}
+
+.amc-title {
+  text-align: center;
+  margin-bottom: 10px;
+  color: #1a237e;
+}
+
+.amc-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.amc-input-card,
+.amc-result-card {
+  background: #dedddd;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px #f4dada1a;
+  padding: 20px;
+}
+
+.amc-input-section {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.amc-field-group {
+  display: flex;
+  justify-content: space-between;
+}
+
+.amc-field-group label {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 4px;
+}
+
+.amc-field-group input,
+.amc-field-group select {
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.amc-presets button {
+  background: #e3f2fd;
+  border: none;
+  padding: 8px 12px;
+  margin-right: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.amc-presets button:hover {
+  background: #bbdefb;
+}
+
+.pastel-bg {
+  background: linear-gradient(135deg, #f8e1e7, #e8f3f1, #f8e1e7);
+  /* background: linear-gradient(135deg, #f8e1e7, #e8f3f1, #f2f0ff); */
+  border-radius: 16px;
+  padding: 15px;
+}
+
+.amc-result-card h2 {
+  color: #1a237e;
+  margin-bottom: 10px;
+}
+
+.amc-result-card ul {
+  list-style: none;
+  padding: 0;
+}
+
+.amc-result-card li {
+  padding: 6px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.amc-result-card li strong {
+  color: #0d47a1;
+  font-size: 1.1em;
+}

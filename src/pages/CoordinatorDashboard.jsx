@@ -189,31 +189,35 @@ const CoordinatorDashboard = () => {
   // console.log("birtdatyfadaadaddaad", birthDayData);
   const handleHeightOfBirthDaycardApi = () => {
     axiosInstances
-         .post(apiUrls.Birthday_Anniversary_Interface_Search, {
-           searchType: String("Search"),
-         })
-        .then((res) => {
-          setBirthDayData(res?.data?.dt);
-          setAnniverssary(res?.data?.dtAnniversary);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+      .post(apiUrls.Birthday_Anniversary_Interface_Search, {
+        searchType: String("Search"),
+      })
+      .then((res) => {
+        setBirthDayData(res?.data?.data);
+        // setBirthDayData(res?.data?.dt);
+        setAnniverssary(res?.data?.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const handleFirstDashboardCount = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("Title", "Heads"),
-      form.append("DeveloperID", memberID || 0),
-      axios
-        .post(apiUrls?.DevDashboard_Summary, form, { headers })
-        .then((res) => {
-          setCountData(res?.data?.dtSummary[0]);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls.DevDashboard_Summary, {
+        Title: String("Heads"),
+        DeveloperID: String(memberID || "0"),
+      })
+      .then((res) => {
+        setCountData(res.data.data.dtSummary[0]);
+      })
+      .catch((err) => {
+        toast.error(
+          err?.response?.data?.message
+            ? err?.response?.data?.message
+            : "Something Wents wrong"
+        );
+      });
   };
 
   const [showLabels, setShowLabels] = useState(false);
@@ -254,14 +258,15 @@ const CoordinatorDashboard = () => {
 
   const handleMultiChart = (value, developerId, searchType) => {
     const lotus = moment(value).format("YYYY-MM-DD");
-    // console.log("check lotus", lotus);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("dtFrom", lotus),
-      form.append("DeveloperID", developerId);
-    form.append("SearchType", searchType === "" ? "0" : searchType);
-    axios
-      .post(apiUrls?.CoorDashboard_Quotation_Month, form, { headers })
+
+    const payload = {
+      dtFrom: String(lotus || ""),
+      DeveloperID: Number(developerId || ""),
+      SearchType: Number(searchType === "" ? "0" : searchType),
+    };
+
+    axiosInstances
+      .post(apiUrls?.CoorDashboard_Quotation_Month, payload)
       .then((res) => {
         setFilterData(res?.data?.data);
       })
@@ -280,29 +285,39 @@ const CoordinatorDashboard = () => {
   };
 
   const handleNews = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("IsFlash", "0"),
-      axios
-        .post(apiUrls?.Circular_News, form, { headers })
-        .then((res) => {
-          setNewsList(res?.data?.data);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls.Circular_News, {
+        // IsFlash: String("0"),
+        RoleID: Number(useCryptoLocalStorage("user_Data", "get", "RoleID")),
+      })
+      .then((res) => {
+        const data = res?.data?.data;
+        setNewsList(res?.data?.data);
+        if (data.some((item) => item.IsView === 0)) {
+          setVisible(true); // Modal khol do
+        } else {
+          setVisible(false); // Modal band rakho
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const handleTSAMarque = () => {
-    const form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-    form.append(
-      "LoginName",
-      useCryptoLocalStorage("user_Data", "get", "realname")
-    );
+    // const form = new FormData();
+    // form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
+    // form.append(
+    //   "LoginName",
+    //   useCryptoLocalStorage("user_Data", "get", "realname")
+    // );
 
-    axios
-      .post(apiUrls?.TSAMarque, form, { headers })
+    // axios
+    //   .post(apiUrls?.TSAMarque, form, { headers })
+    axiosInstances
+      .post(apiUrls.TSAMarque, {
+        IsMaster: String(""),
+      })
       .then((res) => {
         const response = res?.data?.data;
 
@@ -325,7 +340,7 @@ const CoordinatorDashboard = () => {
     handleCircularRead(item?.CircularUserID);
   };
   const [isClicked, setIsClicked] = useState(false);
- const handleThumbClick = (item1, item2, item3, item4, item5, item) => {
+  const handleThumbClick = (item1, item2, item3, item4, item5, item) => {
     if (isClicked) {
       toast.error("You already wished.");
       return;
@@ -335,59 +350,40 @@ const CoordinatorDashboard = () => {
     //   return;
     // }
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("ToEmployeeID", item1),
-      form.append("ToEmployeeName", item2),
-      form.append("ToEMailID", String(item3).toLowerCase()),
-      form.append("WishesType", item4),
-      form.append(
-        "Subject",
-        `Greeting from ${useCryptoLocalStorage("user_Data", "get", "realname")}`
-      ),
-      form.append("SearchType", "WishesInsert"),
-      form.append("dtBirthday", item5),
-      form.append(
-        "Message",
-        item4 == "Birthday" ? "Happy Birthday!" : "Happy Work Anniversary!"
-      ),
-      axios
-        .post(apiUrls?.Birthday_Anniversary_Interface_Search, form, {
-          headers,
-        })
-        .then((res) => {
-          if (res?.data?.status === true) {
-            toast.success(res?.data?.message);
-            setIsClicked(true);
-            handleHeightOfBirthDaycardApi();
-            setLoading(false);
-          } else {
-            toast.error(res?.data?.message);
-            setLoading(false);
-          }
-        })
-        .catch((err) => {
-          console.log(err);
+
+    axiosInstances
+      .post(apiUrls.Birthday_Anniversary_Interface_Search, {
+        searchType: String("WishesInsert"),
+      })
+      .then((res) => {
+        if (res?.data?.success === true) {
+          toast.success(res?.data?.message);
+          setIsClicked(true);
+          handleHeightOfBirthDaycardApi();
           setLoading(false);
-        });
+        } else {
+          toast.error(res?.data?.message);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
   };
   const handleCircularRead = (eleid) => {
-    // console.log("gata",ele)
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("CircularUserID", eleid),
-      axios
-        .post(apiUrls?.Circular_Read, form, { headers })
-        .then((res) => {
-          // toast.success(res?.data?.message);
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls.GetTeamMember, {
+        ID: Number(useCryptoLocalStorage("user_Data", "get", "ID")),
+        CircularUserID: Number(eleid),
+      })
+      .then((res) => {
+        // toast.success(res?.data?.message);
+        console.log(res);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   useEffect(() => {
     handleFirstDashboardCount(memberID);
@@ -1014,16 +1010,16 @@ const CoordinatorDashboard = () => {
                                     cursor: "pointer",
                                     color: isClicked ? "#0866ff" : "gray",
                                   }}
-                                   onClick={() =>
-                                      handleThumbClick(
-                                        item?.Employee_ID,
-                                        item?.EmpName,
-                                        item?.CompanyEmail,
-                                        item?.Type,
-                                        item?.dtWish,
-                                        item?.WishesCount
-                                      )
-                                    }
+                                  onClick={() =>
+                                    handleThumbClick(
+                                      item?.Employee_ID,
+                                      item?.EmpName,
+                                      item?.CompanyEmail,
+                                      item?.Type,
+                                      item?.dtWish,
+                                      item?.WishesCount
+                                    )
+                                  }
                                 ></i>
                                 <div
                                   style={{

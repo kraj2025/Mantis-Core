@@ -18,6 +18,7 @@ import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
 import SearchLotusFilter from "./SearchLotusFilter";
 import Tables from "../components/UI/customTable";
 import Accordion from "./Accordion";
+import { axiosInstances } from "../networkServices/axiosInstance";
 
 const CollectionSheet = () => {
   const [columnConfig, setColumnConfig] = useState([]);
@@ -117,42 +118,16 @@ const CollectionSheet = () => {
     });
     setSecondThead(updateSecond);
   }, [columnConfig, tableData?.length]);
-  /////////////////////////////////
 
   const SaveFilter = () => {
-    let form = new FormData();
-
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-    form.append(
-      "CrmEmpID",
-      useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-    );
-    form.append(
-      "LoginName",
-      useCryptoLocalStorage("user_Data", "get", "realname")
-    );
-    form.append("PageName", "RecoverySheet");
-
-    // Example FilterData array
-    const filterData = [
-      { header: "S.No", visible: true },
-      { header: "ProjectID", visible: true },
-      { header: "VerticalID", visible: true },
-      { header: "TeamID", visible: true },
-      { header: "WingID", visible: true },
-      { header: "POC1", visible: true },
-      { header: "POC2", visible: true },
-      { header: "POC3", visible: true },
-      { header: "FinancialYear", visible: true },
-      { header: "Month", visible: true },
-      { header: "SearchType", visible: true },
-    ];
-
-    // Append stringified FilterData
-    form.append("FilterData", JSON.stringify(filterData));
-
-    axios
-      .post(apiUrls?.SaveFilterTableReprintData, form, { headers })
+    axiosInstances
+      .post(apiUrls.SaveFilterTableReprintData, {
+        CrmEmpID: String(
+          useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+        ),
+        PageName: "RecoverySheet",
+        FilterData: "string",
+      })
       .then((res) => {
         console.log(res.data.message);
       })
@@ -163,21 +138,6 @@ const CollectionSheet = () => {
   };
 
   const SaveTableFilter = () => {
-    let form = new FormData();
-
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID"));
-    form.append(
-      "CrmEmpID",
-      useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-    );
-    form.append(
-      "LoginName",
-      useCryptoLocalStorage("user_Data", "get", "realname")
-    );
-    form.append("PageName", "RecoverySheetTable");
-
-    // Example FilterData array
-
     const filterData = [
       { header: "S.No", visible: true },
       { header: "Project Name", visible: true },
@@ -205,11 +165,15 @@ const CollectionSheet = () => {
       { header: "March", visible: true },
       { header: "Total", visible: true },
     ];
-    // Append stringified FilterData
-    form.append("FilterData", JSON.stringify(filterData));
 
-    axios
-      .post(apiUrls?.SaveFilterTableReprintData, form, { headers })
+    axiosInstances
+      .post(apiUrls.SaveFilterTableReprintData, {
+        CrmEmpID: String(
+          useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+        ),
+        PageName: "RecoverySheetTable",
+        FilterData: JSON.stringify(filterData),
+      })
       .then((res) => {
         console.log(res.data.message);
       })
@@ -220,56 +184,44 @@ const CollectionSheet = () => {
   };
 
   const SearchAmountSubmissionFilter = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "CrmEmpID",
-        useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-      ),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("PageName", "RecoverySheet"),
-      axios
-        .post(apiUrls?.GetFilterTableReprintData, form, { headers })
-        .then((res) => {
-          const data = res.data.data;
-          if (res?.data.status === true) {
-            setDynamicFilter(data);
-          } else {
-            SaveFilter();
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls.GetFilterTableReprintData, {
+        CrmEmpID: String(
+          useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+        ),
+        PageName: "RecoverySheet",
+      })
+      .then((res) => {
+        const data = res.data.data;
+        if (res?.data.status === true) {
+          setDynamicFilter(data);
+        } else {
+          SaveFilter();
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const SearchAmountSubmissionTableFilter = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "CrmEmpID",
-        useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
-      ),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append("PageName", "RecoverySheetTable"),
-      axios
-        .post(apiUrls?.GetFilterTableReprintData, form, { headers })
-        .then((res) => {
-          const data = res.data.data;
-          if (res?.data.status === true) {
-            setColumnConfig(data);
-          } else {
-            SaveTableFilter();
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        });
+    axiosInstances
+      .post(apiUrls.GetFilterTableReprintData, {
+        CrmEmpID: String(
+          useCryptoLocalStorage("user_Data", "get", "CrmEmployeeID")
+        ),
+        PageName: "RecoverySheetTable",
+      })
+      .then((res) => {
+        const data = res.data.data;
+        if (res?.data.status === true) {
+          setColumnConfig(data);
+        } else {
+          SaveTableFilter();
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   const isVisible = (header) =>
@@ -293,7 +245,6 @@ const CollectionSheet = () => {
       // If the search query is empty, reset the filtered data to the original table data
       setTableData([...tableData]);
     } else {
-      // debugger;
       const filtered = filteredData.filter((item) =>
         // item.POC_1.toLowerCase().includes(query)
         {
@@ -315,124 +266,113 @@ const CollectionSheet = () => {
       );
 
       setTableData(filtered);
-      setCurrentPage(1); // Reset to the first page after search
+      setCurrentPage(1);
     }
   };
 
   const getProject = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      axios
-        .post(apiUrls?.ProjectSelect, form, { headers })
-        .then((res) => {
-          const poc3s = res?.data.data.map((item) => {
-            return { name: item?.Project, code: item?.ProjectId };
-          });
-          setProject(poc3s);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.ProjectSelect, {
+        Id: useCryptoLocalStorage("user_Data", "get", "ID"),
+        LoginName: useCryptoLocalStorage("user_Data", "get", "realname"),
+      })
+      .then((res) => {
+        const poc3s = res?.data.data.map((item) => {
+          return { name: item?.Project, code: item?.ProjectId };
         });
+        setProject(poc3s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getVertical = () => {
-    let form = new FormData();
-    form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Vertical_Select, form, { headers })
-        .then((res) => {
-          const verticals = res?.data.data.map((item) => {
-            return { name: item?.Vertical, code: item?.VerticalID };
-          });
-          setVertical(verticals);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.Vertical_Select, {})
+      .then((res) => {
+        const verticals = res?.data.data.map((item) => {
+          return { name: item?.Vertical, code: item?.VerticalID };
         });
+        setVertical(verticals);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getTeam = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Team_Select, form, { headers })
-        .then((res) => {
-          const teams = res?.data.data.map((item) => {
-            return { name: item?.Team, code: item?.TeamID };
-          });
-          setTeam(teams);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.Team_Select, {})
+      .then((res) => {
+        const teams = res?.data.data.map((item) => {
+          return { name: item?.Team, code: item?.TeamID };
         });
+        setTeam(teams);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getWing = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.Wing_Select, form, { headers })
-        .then((res) => {
-          const wings = res?.data.data.map((item) => {
-            return { name: item?.Wing, code: item?.WingID };
-          });
-          setWing(wings);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.Wing_Select, {
+        Id: useCryptoLocalStorage("user_Data", "get", "ID"),
+      })
+      .then((res) => {
+        const wings = res?.data.data.map((item) => {
+          return { name: item?.Wing, code: item?.WingID };
         });
+        setWing(wings);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getPOC1 = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.POC_1_Select, form, { headers })
-        .then((res) => {
-          const poc1s = res?.data.data.map((item) => {
-            return { name: item?.POC_1_Name, code: item?.POC_1_ID };
-          });
-          setPoc1(poc1s);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.POC_1_Select, {
+        Id: useCryptoLocalStorage("user_Data", "get", "ID"),
+      })
+      .then((res) => {
+        const poc1s = res?.data.data.map((item) => {
+          return { name: item?.POC_1_Name, code: item?.POC_1_ID };
         });
+        setPoc1(poc1s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getPOC2 = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.POC_2_Select, form, { headers })
-        .then((res) => {
-          const poc2s = res?.data.data.map((item) => {
-            return { name: item?.POC_2_Name, code: item?.POC_2_ID };
-          });
-          setPoc2(poc2s);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.POC_2_Select, {
+        Id: useCryptoLocalStorage("user_Data", "get", "ID"),
+      })
+      .then((res) => {
+        const poc2s = res?.data.data.map((item) => {
+          return { name: item?.POC_2_Name, code: item?.POC_2_ID };
         });
+        setPoc2(poc2s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getPOC3 = () => {
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      axios
-        .post(apiUrls?.POC_3_Select, form, { headers })
-        .then((res) => {
-          const poc3s = res?.data.data.map((item) => {
-            return { name: item?.POC_3_Name, code: item?.POC_3_ID };
-          });
-          setPoc3(poc3s);
-        })
-        .catch((err) => {
-          console.log(err);
+    axiosInstances
+      .post(apiUrls.POC_3_Select, {})
+      .then((res) => {
+        const poc3s = res?.data.data.map((item) => {
+          return { name: item?.POC_3_Name, code: item?.POC_3_ID };
         });
+        setPoc3(poc3s);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
   const getSales_MIS_Type = () => {
-    let form = new FormData();
-    // form.append("ID",  useCryptoLocalStorage("user_Data", "get", "ID")),
-    axios
-      .post(apiUrls?.Sales_MIS_Type, form, { headers })
+    axiosInstances
+      .post(apiUrls.Sales_MIS_Type, {})
       .then((res) => {
         const poc3s = res?.data.data.map((item) => {
           return { label: item?.NAME, value: item?.NAME };
@@ -457,128 +397,121 @@ const CollectionSheet = () => {
   };
   const handleSearch = () => {
     setLoading(true);
-    let form = new FormData();
-    form.append("Id", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append(
-        "LoginName",
-        useCryptoLocalStorage("user_Data", "get", "realname")
-      ),
-      form.append(
-        "RoleID",
-        useCryptoLocalStorage("user_Data", "get", "RoleID")
-      ),
-      form.append("FY", formData?.FinancialYear),
-      form.append("ProjectID", formData.ProjectID),
-      form.append("VerticalID", formData.VerticalID),
-      form.append("TeamID", formData.TeamID),
-      form.append("WingID", formData.WingID),
-      form.append("POC1", formData.POC1),
-      form.append("POC2", formData.POC2),
-      form.append("POC3", formData.POC3),
-      form.append("Month", formData.Month),
-      form.append("SearchType", formData.SearchType),
-      axios
-        .post(apiUrls?.Monthly_CollectionSheet_MIS, form, { headers })
-        .then((res) => {
-          setTableData(res?.data?.data);
-          setFilteredData(res?.data?.data);
-          let secThead = {
-            // ProjectName:0,
-            // POC_1:0,
-            OpeningBalance: 0,
-            MachineAmount: 0,
-            CentreLicenceAmount: 0,
-            ChangeReqAmount: 0,
-            ResourseBillAmount: 0,
-            // SAAS,
-            AMCAmount: 0,
-            // AMCDate,
-            TotalSum: 0,
-            Apr_Amount: 0,
-            May_Amount: 0,
-            June_Amount: 0,
-            July_Amount: 0,
-            Aug_Amount: 0,
-            Sep_Amount: 0,
-            Oct_Amount: 0,
-            Nov_Amount: 0,
-            Dec_Amount: 0,
-            Jan_Amount: 0,
-            Feb_Amount: 0,
-            Mar_Amount: 0,
-            Total: 0,
-          };
-          res?.data?.data?.map((val, index) => {
-            // secThead.ProjectName += val?.ProjectName;
-            // secThead.POC_1 += val?.POC_1;
-            secThead.OpeningBalance += val?.OpeningBalance;
-            secThead.MachineAmount += val?.MachineAmount;
-            secThead.CentreLicenceAmount += val?.CentreLicenceAmount;
-            secThead.ChangeReqAmount += val?.ChangeReqAmount;
-            secThead.ResourseBillAmount += val?.ResourseBillAmount;
-            // secThead.SAAS += val?.SAAS;
-            secThead.AMCAmount += val?.AMCAmount;
-            secThead.Apr_Amount += val?.Apr_Amount;
-            secThead.May_Amount += val?.May_Amount;
-            secThead.June_Amount += val?.June_Amount;
-            secThead.July_Amount += val?.July_Amount;
-            secThead.Aug_Amount += val?.Aug_Amount;
-            secThead.Sep_Amount += val?.Sep_Amount;
-            secThead.Oct_Amount += val?.Oct_Amount;
-            secThead.Nov_Amount += val?.Nov_Amount;
-            secThead.Dec_Amount += val?.Dec_Amount;
-            secThead.Jan_Amount += val?.Jan_Amount;
-            secThead.Feb_Amount += val?.Feb_Amount;
-            secThead.Mar_Amount += val?.Mar_Amount;
-            secThead.Total += val?.Total;
-          }, []);
-          setSecondThead([
-            { name: "#", visible: false }, //s.no
-            { name: "##", visible: false }, //Project
-            { name: "###", visible: false }, //POC
-            { name: secThead?.OpeningBalance, visible: false }, // Opening Balance
-            { name: secThead?.MachineAmount, visible: false }, //Machine
-            { name: secThead?.CentreLicenceAmount, visible: false }, //Centre
-            { name: secThead?.ChangeReqAmount, visible: false }, //ChangeReqAmount
-            { name: secThead?.ResourseBillAmount, visible: false }, //ResourseBillAmount
-            { name: "####", visible: false },
-            { name: secThead?.AMCAmount, visible: false }, // AMC Amount
-            { name: "#####", visible: false },
-            { name: secThead?.TotalSum, visible: false }, // STotal
-            { name: secThead?.Apr_Amount, visible: false }, // April Amount
 
-            // {
-            //   name: (
-            //     <span
-            //       onClick={() => handleHideShowSecThead("April")}
-            //       style={{ cursor: "pointer" }}
-            //     >
-            //       {secThead?.Apr_Amount}
-            //     </span>
-            //   ),
-            //   visible: false,
-            // },
+    axiosInstances
+      .post(apiUrls.Monthly_CollectionSheet_MIS, {
+        Id: useCryptoLocalStorage("user_Data", "get", "ID"),
+        LoginName: useCryptoLocalStorage("user_Data", "get", "realname"),
+        RoleID: useCryptoLocalStorage("user_Data", "get", "RoleID"),
+        FY: formData?.FinancialYear,
+        ProjectID: formData.ProjectID,
+        VerticalID: formData.VerticalID,
+        TeamID: formData.TeamID,
+        WingID: formData.WingID,
+        POC1: formData.POC1,
+        POC2: formData.POC2,
+        POC3: formData.POC3,
+      })
+      .then((res) => {
+        setTableData(res?.data?.data);
+        setFilteredData(res?.data?.data);
+        let secThead = {
+          // ProjectName:0,
+          // POC_1:0,
+          OpeningBalance: 0,
+          MachineAmount: 0,
+          CentreLicenceAmount: 0,
+          ChangeReqAmount: 0,
+          ResourseBillAmount: 0,
+          // SAAS,
+          AMCAmount: 0,
+          // AMCDate,
+          TotalSum: 0,
+          Apr_Amount: 0,
+          May_Amount: 0,
+          June_Amount: 0,
+          July_Amount: 0,
+          Aug_Amount: 0,
+          Sep_Amount: 0,
+          Oct_Amount: 0,
+          Nov_Amount: 0,
+          Dec_Amount: 0,
+          Jan_Amount: 0,
+          Feb_Amount: 0,
+          Mar_Amount: 0,
+          Total: 0,
+        };
+        res?.data?.data?.map((val, index) => {
+          // secThead.ProjectName += val?.ProjectName;
+          // secThead.POC_1 += val?.POC_1;
+          secThead.OpeningBalance += val?.OpeningBalance;
+          secThead.MachineAmount += val?.MachineAmount;
+          secThead.CentreLicenceAmount += val?.CentreLicenceAmount;
+          secThead.ChangeReqAmount += val?.ChangeReqAmount;
+          secThead.ResourseBillAmount += val?.ResourseBillAmount;
+          // secThead.SAAS += val?.SAAS;
+          secThead.AMCAmount += val?.AMCAmount;
+          secThead.Apr_Amount += val?.Apr_Amount;
+          secThead.May_Amount += val?.May_Amount;
+          secThead.June_Amount += val?.June_Amount;
+          secThead.July_Amount += val?.July_Amount;
+          secThead.Aug_Amount += val?.Aug_Amount;
+          secThead.Sep_Amount += val?.Sep_Amount;
+          secThead.Oct_Amount += val?.Oct_Amount;
+          secThead.Nov_Amount += val?.Nov_Amount;
+          secThead.Dec_Amount += val?.Dec_Amount;
+          secThead.Jan_Amount += val?.Jan_Amount;
+          secThead.Feb_Amount += val?.Feb_Amount;
+          secThead.Mar_Amount += val?.Mar_Amount;
+          secThead.Total += val?.Total;
+        }, []);
+        setSecondThead([
+          { name: "#", visible: false }, //s.no
+          { name: "##", visible: false }, //Project
+          { name: "###", visible: false }, //POC
+          { name: secThead?.OpeningBalance, visible: false }, // Opening Balance
+          { name: secThead?.MachineAmount, visible: false }, //Machine
+          { name: secThead?.CentreLicenceAmount, visible: false }, //Centre
+          { name: secThead?.ChangeReqAmount, visible: false }, //ChangeReqAmount
+          { name: secThead?.ResourseBillAmount, visible: false }, //ResourseBillAmount
+          { name: "####", visible: false },
+          { name: secThead?.AMCAmount, visible: false }, // AMC Amount
+          { name: "#####", visible: false },
+          { name: secThead?.TotalSum, visible: false }, // STotal
+          { name: secThead?.Apr_Amount, visible: false }, // April Amount
 
-            { name: secThead?.May_Amount, visible: false },
-            { name: secThead?.June_Amount, visible: false },
-            { name: secThead?.July_Amount, visible: false },
-            { name: secThead?.Aug_Amount, visible: false },
-            { name: secThead?.Sep_Amount, visible: false },
-            { name: secThead?.Oct_Amount, visible: false },
-            { name: secThead?.Nov_Amount, visible: false },
-            { name: secThead?.Dec_Amount, visible: false },
-            { name: secThead?.Jan_Amount, visible: false },
-            { name: secThead?.Feb_Amount, visible: false },
-            { name: secThead?.Mar_Amount, visible: false },
-            { name: secThead?.Total, visible: false },
-          ]);
+          // {
+          //   name: (
+          //     <span
+          //       onClick={() => handleHideShowSecThead("April")}
+          //       style={{ cursor: "pointer" }}
+          //     >
+          //       {secThead?.Apr_Amount}
+          //     </span>
+          //   ),
+          //   visible: false,
+          // },
 
-          setLoading(false);
-        })
-        .catch((err) => {
-          console.log(err);
-          setLoading(false);
-        });
+          { name: secThead?.May_Amount, visible: false },
+          { name: secThead?.June_Amount, visible: false },
+          { name: secThead?.July_Amount, visible: false },
+          { name: secThead?.Aug_Amount, visible: false },
+          { name: secThead?.Sep_Amount, visible: false },
+          { name: secThead?.Oct_Amount, visible: false },
+          { name: secThead?.Nov_Amount, visible: false },
+          { name: secThead?.Dec_Amount, visible: false },
+          { name: secThead?.Jan_Amount, visible: false },
+          { name: secThead?.Feb_Amount, visible: false },
+          { name: secThead?.Mar_Amount, visible: false },
+          { name: secThead?.Total, visible: false },
+        ]);
+
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
   };
   useEffect(() => {
     getVertical();

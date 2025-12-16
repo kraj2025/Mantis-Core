@@ -957,6 +957,7 @@ export const resources = {
         Discount: "छूट",
         Refund: "धनवापसी",
         "Cash Receipt": "नकद रसीद",
+        "Delta": "नकद",
         "Trf Receipt": "स्थानांतरण रसीद",
         "Concent form": "सांद्र रूप",
         "View Details": "विवरण देखें",

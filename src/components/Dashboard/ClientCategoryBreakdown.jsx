@@ -1,115 +1,123 @@
-import React, { useEffect, useState } from "react";
-import { Bar } from "react-chartjs-2";
+import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
+import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
-  BarElement,
+  PointElement,
+  LineElement,
   Title,
   Tooltip,
   Legend,
 } from "chart.js";
-import axios from "axios";
-import { headers } from "../../utils/apitools";
+import ChartDataLabels from "chartjs-plugin-datalabels"; // ✅ Add this
 
-import { useSelector } from "react-redux";
-import { useTranslation } from "react-i18next";
-import { apiUrls } from "../../networkServices/apiEndpoints";
-import { useCryptoLocalStorage } from "../../utils/hooks/useCryptoLocalStorage";
-
+// ✅ Register Chart.js components + plugin
 ChartJS.register(
   CategoryScale,
   LinearScale,
-  BarElement,
+  PointElement,
+  LineElement,
   Title,
   Tooltip,
-  Legend
+  Legend,
+  ChartDataLabels
 );
 
-const ClientCategoryBreakdown = () => {
+const ClientCategoryBreakdown = ({ state = [] }) => {
   const { t } = useTranslation();
-  const [chartData, setChartData] = useState([]);
-  const [chartLabels, setChartLabels] = useState([]);
-  const { memberID, developerSearchType } = useSelector(
-    (state) => state?.loadingSlice
-  );
-
-  const handleFirstDashboardCount = (developerId, searchType) => {
-    let form = new FormData();
-    form.append("ID",  useCryptoLocalStorage("user_Data", "get", "ID"));
-    form.append("DeveloperID", "0");
-    form.append("SearchType", "3");
-    axios
-      .post(apiUrls?.CoorDashboard_Paid_Request_Status, form, { headers })
-      .then((res) => {
-        const response = res?.data?.data;
-        if (Array.isArray(response) && response.length > 0) {
-          // Sort by month if necessary
-          const sortedData = response.sort(
-            (a, b) =>
-              new Date(`01-${a.status_name}`) -
-              new Date(`01-${b.total_requests}`)
-          );
-
-          const labels = sortedData.map((item) => item.status_name);
-          const amounts = sortedData.map((item) => item.total_requests);
-
-          setChartLabels(labels);
-          setChartData(amounts);
-        }
-      })
-      .catch((err) => {
-        console.error("API error:", err);
-      });
-  };
+  const [chartData, setChartData] = useState({ labels: [], datasets: [] });
 
   useEffect(() => {
-    handleFirstDashboardCount(memberID, developerSearchType);
-  }, [memberID, developerSearchType]);
-const chartLabelsCustom=["Support","Delivery","Quality","General"]
-  const data = {
-    // labels: chartLabels,
-    labels: chartLabelsCustom,
-    datasets: [
-      {
-        borderRadius: 0,
-        data: chartData,
-        borderColor: ["#C2DFFF", "#44E3AA", "#FFF000", "#FFF494"],
-        backgroundColor: ["#C2DFFF", "#44E3AA", "#FFF000", "#FFF494"],
+    if (!state || state.length === 0) return;
 
-        borderWidth: 2,
-        hoverOffset: 8,
-      },
-    ],
-  };
+    // ✅ Define month order (Apr to Feb cycle)
+    const monthOrder = [
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+      "Jan",
+      "Feb",
+      "Mar",
+    ];
 
-  const options = {
-    indexAxis: "y",
-    maintainAspectRatio: false,
-    responsive: true,
-    plugins: {
-      title: {
-        display: false,
-      },
-      legend: {
-        display: false,
-      },
-    },
-    scales: {
-      x: {
-        beginAtZero: true,
-      },
-      y: {
-        ticks: {
-          autoSkip: false,
+    // ✅ Prepare labels & values
+    const labels = monthOrder.map((month) => t(month));
+    const dataValues = monthOrder.map((month) => {
+      const found = state.find((item) => item.MonthName?.startsWith(month));
+      return found ? Number(found.FeedbackRate) : 0;
+    });
+
+    // ✅ Update chart data
+    setChartData({
+      labels,
+      datasets: [
+        {
+          label: t("Rating"),
+          data: dataValues,
+          backgroundColor: "rgba(2, 146, 242, 0.2)",
+          borderColor: "rgba(165, 212, 244, 1)",
+          borderWidth: 2,
+          pointBackgroundColor: "rgba(165, 212, 244, 1)",
+          fill: true,
+          tension: 0.3,
         },
-      },
-    },
-  };
+      ],
+    });
+  }, [state, t]);
 
   return (
-    <div style={{ width: "100%", height: "140px" }}>
-      <Bar data={data} options={options} />
+    <div style={{ minHeight: "310px" }}>
+      {chartData.datasets.length > 0 ? (
+        <Line
+          data={chartData}
+          options={{
+            responsive: true,
+            plugins: {
+              legend: { display: false },
+              title: { display: false },
+              datalabels: {
+                color: "#000",
+                anchor: "end",
+                align: "top",
+                font: { weight: "bold", size: 10 },
+                formatter: (value) => value.toFixed(1),
+              },
+            },
+            
+            scales: {
+              x: {
+                ticks: {
+                  autoSkip: false,
+                  maxRotation: 90,
+                  minRotation: 45,
+                  font: { size: 10 },
+                },
+              },
+              y: {
+                beginAtZero: true,
+                suggestedMin: 1,
+                suggestedMax: 5,
+                ticks: {
+                  stepSize: 1, // ✅ increments by 1
+                  callback: function (value) {
+                    return Number.isInteger(value) ? value : null; // ✅ show only integers
+                  },
+                },
+              },
+            },
+          }}
+        />
+      ) : (
+        <p>{t("No data available")}</p>
+      )}
     </div>
   );
 };

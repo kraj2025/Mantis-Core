@@ -7,25 +7,27 @@ import { apiUrls } from "../networkServices/apiEndpoints";
 import { headers } from "../utils/apitools";
 import Loading from "../components/loader/Loading";
 import { useCryptoLocalStorage } from "../utils/hooks/useCryptoLocalStorage";
+import { axiosInstances } from "../networkServices/axiosInstance";
 const ReopenedTicketList = () => {
   const [todaysdeliverylist, settodaysdeliverylist] = useState([]);
   const [loading, setLoading] = useState(false);
   console.log(todaysdeliverylist);
   const handleTodaysDeliveryList = () => {
     setLoading(true);
-    let form = new FormData();
-    form.append("ID", useCryptoLocalStorage("user_Data", "get", "ID")),
-      form.append("SearchType", "OpenTickets"),
-      axios
-        .post(apiUrls?.DevDashboard_Detailed, form, { headers })
-        .then((res) => {
-          settodaysdeliverylist(res?.data?.data);
-          setLoading(false);
-        })
-        .catch((err) => {
-          console.log(err);
-          setLoading(false);
-        });
+    axiosInstances
+      .post(apiUrls?.DevDashboard_Detailed, {
+        ID: Number(useCryptoLocalStorage("user_Data", "get", "ID")),
+        SearchType: String("OpenTickets"),
+        DeveloperID: Number(0),
+      })
+      .then((res) => {
+        settodaysdeliverylist(res?.data?.data);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.log(err);
+        setLoading(false);
+      });
   };
   const shortenName1 = (name) => {
     return name.length > 30 ? name.substring(0, 25) + "..." : name;

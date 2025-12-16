@@ -1,7 +1,9 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { setLoading } from "../loadingSlice/loadingSlice";
 import { apiUrls } from "../../../networkServices/apiEndpoints";
-import makeApiRequest, { axiosInstances } from "../../../networkServices/axiosInstance";
+import makeApiRequest, {
+  axiosInstances,
+} from "../../../networkServices/axiosInstance";
 import { handleReactSelectDropDownOptions, notify } from "../../../utils/utils";
 import { useCryptoLocalStorage } from "../../../utils/hooks/useCryptoLocalStorage";
 
@@ -95,10 +97,10 @@ export const GetBindMenu = createAsyncThunk(
                 breadcrumb: "Tickets / My View",
               },
               {
-                childrenName: "View Issues",
+                childrenName: "View Ticket",
                 url: "/viewissues",
                 childrenOrder: "2",
-                breadcrumb: "Tickets / View Issues",
+                breadcrumb: "Tickets / View Ticket",
               },
               {
                 childrenName: "Summary",
@@ -144,12 +146,11 @@ export const GetBindMenu = createAsyncThunk(
                 breadcrumb: "Tickets / Developer Calendar",
               },
               {
-                childrenName: "TicketView",
+                childrenName: "Employee Task Tracker",
                 url: "/TicketView",
                 childrenOrder: "7",
-                breadcrumb: "Tickets / TicketView",
+                breadcrumb: "Tickets / Employee Task Tracker",
               },
-           
             ],
           },
           {
@@ -202,7 +203,7 @@ export const GetBindMenu = createAsyncThunk(
                 childrenOrder: "3",
                 breadcrumb: "Feedback /Emailer View",
               },
-                 {
+              {
                 childrenName: "Client Feedback",
                 url: "/ClientFeedbackFlow",
                 childrenOrder: "4",
@@ -242,7 +243,6 @@ export const GetBindMenu = createAsyncThunk(
                 childrenOrder: "2",
                 breadcrumb: "SalesLead /  Sales Lead Create",
               },
-            
             ],
           },
           {
@@ -584,7 +584,7 @@ export const GetRoleListByEmployeeIDAndCentreID = createAsyncThunk(
         `${apiUrls.BindRoleVsMenu_File}`,
         options
       );
-      dispatch(setLoading(false));    
+      dispatch(setLoading(false));
       return data.data;
     } catch {
       dispatch(setLoading(false));
@@ -609,7 +609,6 @@ export const GetTeamMember = createAsyncThunk(
     }
   }
 );
-
 
 export const GetBindDepartment = createAsyncThunk(
   "GetBindDepartmentList",
